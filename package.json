@@ -1,0 +1,21 @@
+{
+  "name": "medibooking-enterprise",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Enterprise-grade multi-tenant healthcare appointment booking & clinic operations SaaS",
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "type-check": "turbo run type-check",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  }
+}
+

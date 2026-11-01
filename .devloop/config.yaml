@@ -1,0 +1,68 @@
+# .devloop/config.yaml — MediBooking.in Enterprise Stack Configuration
+version: 1
+
+commands:
+  setup: "pnpm install"
+  build: "pnpm run build"
+  typecheck: "pnpm run type-check"
+  lint: "pnpm run lint"
+  lint_file: null
+  test: "pnpm --filter @medibooking/api exec tsx test/smoke-test.ts"
+  test_single: "npx tsx {path}"
+  e2e: null
+  env_up: "pnpm run dev"
+  env_down: null
+
+timeouts:
+  setup: 540
+  build: 540
+  typecheck: 540
+  lint: 540
+  test: 540
+  test_single: 300
+  e2e: 540
+
+loop:
+  max_iterations: 3
+  stop_on_repeat_failure: true
+
+review_lenses:
+  - logic
+  - regression
+  - integration
+  - performance
+
+review:
+  plan_max_rounds: 2
+
+gate:
+  default: plan
+  manual_signoff: true
+
+protected_paths:
+  - "apps/api/test"
+  - "**/test/**"
+  - "**/*.test.ts"
+
+test_globs:
+  - "apps/api/test/**"
+  - "**/*.test.ts"
+
+known_flaky:
+
+drift_ignore:
+  - "dist"
+  - "build"
+  - "coverage"
+  - ".next"
+  - ".turbo"
+  - "*.tsbuildinfo"
+  - "node_modules"
+
+browser:
+  enabled: auto
+  driver: chrome
+  base_url: "http://localhost:3000"
+  ready_timeout: 90
+  fail_on_console_errors: true
+  record_gif: false

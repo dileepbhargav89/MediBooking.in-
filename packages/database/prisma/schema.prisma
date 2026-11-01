@@ -1,0 +1,338 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  CLINIC_ADMIN
+  DOCTOR
+  RECEPTIONIST
+  PATIENT
+}
+
+enum StaffScope {
+  CLINIC_WIDE
+  DOCTOR_DEDICATED
+}
+
+enum MedicalSpecialty {
+  CARDIOLOGY
+  DERMATOLOGY
+  ORTHOPEDICS
+  PEDIATRICS
+  GENERAL_MEDICINE
+  GYNECOLOGY
+  ENT
+  OPHTHALMOLOGY
+  DENTAL
+  PULMONOLOGY
+  OTHER
+}
+
+enum SessionType {
+  MORNING
+  EVENING
+  AFTERNOON
+  SPECIAL
+}
+
+enum SlotStatus {
+  AVAILABLE
+  LOCKED
+  BOOKED
+  BLOCKED
+  WALK_IN_RESERVED
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  ARRIVED
+  WAITING
+  IN_CONSULTATION
+  COMPLETED
+  CANCELLED_PATIENT
+  CANCELLED_CLINIC
+  NO_SHOW
+  EMERGENCY_OVERRIDE
+}
+
+enum BookingSource {
+  WALK_IN
+  PHONE
+  WHATSAPP
+  ONLINE_PORTAL
+  DOCTOR_REFERRAL
+}
+
+enum PaymentStatus {
+  PENDING_AT_DESK
+  PAID_CASH
+  PAID_UPI_QR
+  WAIVED_BY_DOCTOR
+}
+
+enum TriageSeverity {
+  ROUTINE
+  URGENT_TRIAGE
+  FOLLOW_UP
+  POST_OP
+}
+
+model Clinic {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String   @db.VarChar(255)
+  slug         String   @unique @db.VarChar(100)
+  tagline      String?  @db.VarChar(255)
+  addressLine  String   @map("address_line")
+  locality     String   @db.VarChar(100)
+  city         String   @default("Bhopal") @db.VarChar(100)
+  state        String   @default("Madhya Pradesh") @db.VarChar(100)
+  pincode      String   @db.VarChar(10)
+  contactPhone String   @map("contact_phone") @db.VarChar(20)
+  contactEmail String?  @map("contact_email") @db.VarChar(255)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  chambers     ClinicChamber[]
+  affiliations ClinicDoctorAffiliation[]
+  staff        ClinicStaff[]
+  sessions     ClinicSession[]
+  slots        AvailabilitySlot[]
+  appointments Appointment[]
+  ledgers      PaymentsClinicLedger[]
+  auditLogs    AuditLog[]
+
+  @@map("clinics")
+}
+
+model User {
+  id           String    @id @default(uuid()) @db.Uuid
+  mobile       String    @unique @db.VarChar(15)
+  fullName     String    @map("full_name") @db.VarChar(255)
+  email        String?   @unique @db.VarChar(255)
+  passwordHash String?   @map("password_hash") @db.VarChar(255)
+  role         UserRole  @default(PATIENT)
+  isActive     Boolean   @default(true) @map("is_active")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  doctorProfile DoctorProfile?
+  clinicStaff   ClinicStaff[]
+  patients      Patient[]
+  collectedFees PaymentsClinicLedger[]
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+model DoctorProfile {
+  id                  String             @id @default(uuid()) @db.Uuid
+  userId              String             @unique @map("user_id") @db.Uuid
+  fullName            String             @map("full_name") @db.VarChar(255)
+  slug                String             @unique @db.VarChar(120)
+  registrationNumber  String             @map("registration_number") @db.VarChar(100)
+  stateMedicalCouncil String             @map("state_medical_council") @db.VarChar(150)
+  specialties         MedicalSpecialty[]
+  qualifications      String[]
+  experienceYears     Int                @default(1) @map("experience_years")
+  bio                 String?
+  profilePhotoUrl     String?            @map("profile_photo_url")
+  isVerified          Boolean            @default(false) @map("is_verified")
+  createdAt           DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime           @updatedAt @map("updated_at") @db.Timestamptz
+
+  user                User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  affiliations        ClinicDoctorAffiliation[]
+  dedicatedStaff      ClinicStaff[]
+  sessions            ClinicSession[]
+  slots               AvailabilitySlot[]
+  appointments        Appointment[]
+
+  @@map("doctor_profiles")
+}
+
+model ClinicChamber {
+  id            String   @id @default(uuid()) @db.Uuid
+  clinicId      String   @map("clinic_id") @db.Uuid
+  chamberNumber String   @map("chamber_number") @db.VarChar(20)
+  chamberName   String   @map("chamber_name") @db.VarChar(100)
+  floor         String?  @db.VarChar(50)
+  isActive      Boolean  @default(true) @map("is_active")
+
+  clinic        Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  affiliations  ClinicDoctorAffiliation[]
+
+  @@unique([clinicId, chamberNumber])
+  @@map("clinic_chambers")
+}
+
+model ClinicDoctorAffiliation {
+  id                    String         @id @default(uuid()) @db.Uuid
+  clinicId              String         @map("clinic_id") @db.Uuid
+  doctorId              String         @map("doctor_id") @db.Uuid
+  chamberId             String?        @map("chamber_id") @db.Uuid
+  chamberNumber         String         @map("chamber_number") @db.VarChar(20)
+  consultationFeeRupees Decimal        @default(500.00) @map("consultation_fee_rupees") @db.Decimal(10, 2)
+  followUpFeeRupees     Decimal        @default(300.00) @map("follow_up_fee_rupees") @db.Decimal(10, 2)
+  followUpValidityDays  Int            @default(7) @map("follow_up_validity_days")
+  isPrimaryClinic       Boolean        @default(false) @map("is_primary_clinic")
+  isActive              Boolean        @default(true) @map("is_active")
+  createdAt             DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime       @updatedAt @map("updated_at") @db.Timestamptz
+
+  clinic                Clinic         @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  doctor                DoctorProfile  @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  chamber               ClinicChamber? @relation(fields: [chamberId], references: [id], onDelete: SetNull)
+
+  @@unique([clinicId, doctorId])
+  @@map("clinic_doctor_affiliations")
+}
+
+model ClinicStaff {
+  id                String         @id @default(uuid()) @db.Uuid
+  clinicId          String         @map("clinic_id") @db.Uuid
+  userId            String         @map("user_id") @db.Uuid
+  scope             StaffScope     @default(CLINIC_WIDE)
+  dedicatedDoctorId String?        @map("dedicated_doctor_id") @db.Uuid
+  createdAt         DateTime       @default(now()) @map("created_at") @db.Timestamptz
+
+  clinic            Clinic         @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dedicatedDoctor   DoctorProfile? @relation(fields: [dedicatedDoctorId], references: [id], onDelete: SetNull)
+
+  @@unique([clinicId, user_id])
+  @@map("clinic_staff")
+}
+
+model ClinicSession {
+  id                  String           @id @default(uuid()) @db.Uuid
+  clinicId            String           @map("clinic_id") @db.Uuid
+  doctorId            String           @map("doctor_id") @db.Uuid
+  chamberNumber       String           @map("chamber_number") @db.VarChar(20)
+  dayOfWeek           Int              @map("day_of_week")
+  sessionType         SessionType      @map("session_type")
+  startTime           String           @map("start_time") @db.VarChar(8)
+  endTime             String           @map("end_time") @db.VarChar(8)
+  slotDurationMinutes Int              @default(15) @map("slot_duration_minutes")
+  maxWalkInTokens     Int              @default(10) @map("max_walk_in_tokens")
+  maxOnlineSlots      Int              @default(10) @map("max_online_slots")
+  bufferMinutes       Int              @default(0) @map("buffer_minutes")
+  isActive            Boolean          @default(true) @map("is_active")
+
+  clinic              Clinic           @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  doctor              DoctorProfile    @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  slots               AvailabilitySlot[]
+
+  @@map("clinic_sessions")
+}
+
+model AvailabilitySlot {
+  id                 String      @id @default(uuid()) @db.Uuid
+  clinicId           String      @map("clinic_id") @db.Uuid
+  doctorId           String      @map("doctor_id") @db.Uuid
+  sessionId          String      @map("session_id") @db.Uuid
+  chamberNumber      String      @map("chamber_number") @db.VarChar(20)
+  slotDate           DateTime    @map("slot_date") @db.Date
+  startTime          DateTime    @map("start_time") @db.Timestamptz
+  endTime            DateTime    @map("end_time") @db.Timestamptz
+  status             SlotStatus  @default(AVAILABLE)
+  lockedUntil        DateTime?   @map("locked_until") @db.Timestamptz
+  lockedBySessionId  String?     @map("locked_by_session_id") @db.VarChar(100)
+  createdAt          DateTime    @default(now()) @map("created_at") @db.Timestamptz
+
+  clinic             Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  doctor             DoctorProfile @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  session            ClinicSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  appointment        Appointment?
+
+  @@map("availability_slots")
+}
+
+model Patient {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  fullName   String   @map("full_name") @db.VarChar(255)
+  mobile     String   @db.VarChar(15)
+  ageYears   Int?     @map("age_years")
+  gender     String?  @default("UNSPECIFIED") @db.VarChar(15)
+  locality   String?  @db.VarChar(100)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  appointments Appointment[]
+
+  @@map("patients")
+}
+
+model Appointment {
+  id                 String            @id @default(uuid()) @db.Uuid
+  clinicId           String            @map("clinic_id") @db.Uuid
+  doctorId           String            @map("doctor_id") @db.Uuid
+  patientId          String            @map("patient_id") @db.Uuid
+  slotId             String?           @unique @map("slot_id") @db.Uuid
+  chamberNumber      String            @map("chamber_number") @db.VarChar(20)
+  appointmentDate    DateTime          @map("appointment_date") @db.Date
+  tokenNumber        Int               @map("token_number")
+  status             AppointmentStatus @default(SCHEDULED)
+  source             BookingSource
+  paymentStatus      PaymentStatus     @default(PENDING_AT_DESK) @map("payment_status")
+  amountRupees       Decimal           @default(500.00) @map("amount_rupees") @db.Decimal(10, 2)
+  triageSeverity     TriageSeverity    @default(ROUTINE) @map("triage_severity")
+  patientName        String            @map("patient_name") @db.VarChar(255)
+  patientMobile      String            @map("patient_mobile") @db.VarChar(15)
+  patientAge         Int?              @map("patient_age")
+  actualStartTime    DateTime?         @map("actual_start_time") @db.Timestamptz
+  actualEndTime      DateTime?         @map("actual_end_time") @db.Timestamptz
+  cancellationReason String?           @map("cancellation_reason")
+  createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime          @updatedAt @map("updated_at") @db.Timestamptz
+
+  clinic             Clinic                @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  doctor             DoctorProfile         @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  patient            Patient               @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  slot               AvailabilitySlot?     @relation(fields: [slotId], references: [id], onDelete: SetNull)
+  ledgerRecord       PaymentsClinicLedger?
+
+  @@unique([clinicId, doctorId, appointmentDate, tokenNumber])
+  @@map("appointments")
+}
+
+model PaymentsClinicLedger {
+  id                 String      @id @default(uuid()) @db.Uuid
+  clinicId           String      @map("clinic_id") @db.Uuid
+  appointmentId      String      @unique @map("appointment_id") @db.Uuid
+  amountRupees       Decimal     @map("amount_rupees") @db.Decimal(10, 2)
+  paymentMethod      String      @map("payment_method") @db.VarChar(50)
+  collectedByUserId  String?     @map("collected_by_user_id") @db.Uuid
+  recordedAt         DateTime    @default(now()) @map("recorded_at") @db.Timestamptz
+
+  clinic             Clinic      @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  appointment        Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  collectedBy        User?       @relation(fields: [collectedByUserId], references: [id], onDelete: SetNull)
+
+  @@map("payments_clinic_ledger")
+}
+
+model AuditLog {
+  id           String    @id @default(uuid()) @db.Uuid
+  clinicId     String?   @map("clinic_id") @db.Uuid
+  actorUserId  String?   @map("actor_user_id") @db.Uuid
+  actorRole    UserRole  @map("actor_role")
+  action       String    @db.VarChar(100)
+  entityName   String    @map("entity_name") @db.VarChar(100)
+  entityId     String    @map("entity_id") @db.Uuid
+  details      Json?
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  clinic       Clinic?   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  actor        User?     @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
+

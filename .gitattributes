@@ -1,0 +1,6 @@
+# Keep shell scripts and config LF-only: Windows checkouts with CRLF would break the dev-loop hooks.
+*.sh   text eol=lf
+*.md   text eol=lf
+*.yaml text eol=lf
+*.yml  text eol=lf
+*.json text eol=lf

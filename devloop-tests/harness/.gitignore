@@ -1,0 +1,6 @@
+# Harness work folders (created when the harnesses run)
+guard/
+run/
+tamper/
+failhash/
+__pycache__/

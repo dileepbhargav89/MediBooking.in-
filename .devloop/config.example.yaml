@@ -1,0 +1,184 @@
+# .devloop/config.example.yaml — copy to .devloop/config.yaml and edit.
+#
+# PARSER NOTE: hooks read this with a tiny awk parser, not a YAML library. Stay within:
+#   top-level keys; one level of nested "key: value" scalars; block lists ("  - item").
+#   No anchors, flow maps/lists with items, or multi-line strings. Quote values containing '#'.
+#   A value that itself contains double quotes must be wrapped in single quotes:  lint: 'eslint --rule "x" .' 
+
+version: 1
+
+# Every command runs through .claude/hooks/devloop-run.sh from the repo root.
+# null / "" => step SKIPPED (reported, never counted as PASS).
+# Placeholders: {path} repo-relative file path, {dir} its directory, {name} basename without extension.
+commands:
+  setup: null          # one-time env prep, e.g. "npm ci"
+  build: null
+  typecheck: null
+  lint: null           # whole-repo lint
+  lint_file: null      # single-file lint for the PostToolUse hook; keep it under ~5s
+  test: null           # full suite (required)
+  test_single: null    # one file/target; must use {path}, {dir} or {name}. Must FAIL if no test ran.
+  e2e: null            # optional scripted end-to-end suite, e.g. "npx playwright test"
+  env_up: null         # long-running services/dev server, e.g. "npm run dev" or "docker compose up db"
+  env_down: null       # optional; default = stop the env_up process group
+
+# Seconds. The Claude Code Bash tool stops a single call after 10 minutes, so for any step above 540
+# the agents start devloop-run.sh in the background and poll for <log>.exit.
+timeouts:
+  setup: 540
+  build: 540
+  typecheck: 540
+  lint: 540
+  test: 540
+  test_single: 300
+  e2e: 540
+
+loop:
+  max_iterations: 3              # fix rounds (test, browser, gate or review driven); hard cap via devloop-state.sh iter
+  stop_on_repeat_failure: true   # escalate early if the same set of failures comes back twice in a row
+
+# Two review stages use the same specialist reviewers, running in parallel:
+#   plan review (after the plan, before you approve it) and code review (after the tests pass).
+# logic is always on: it also checks plan conformance, security and test tampering.
+review_lenses:
+  - logic
+  - regression
+  - integration
+  - performance
+
+review:
+  plan_max_rounds: 2   # plan -> plan review -> revised plan rounds before your gate decides
+
+gate:
+  default: plan          # plan = human approves plan.md | none = no pause | all = also pause after investigation and before finalize
+  manual_signoff: true   # pause for a human to sign off "manual" ACs (and browser ACs that could not be checked)
+
+# The fixer may never edit these; the implementer may only ADD new files under them.
+# New test files written during the run are additionally hash-pinned: nobody may change them afterwards.
+# Glob semantics: '*' also matches '/', a leading '**/' is optional, a bare directory protects its subtree.
+protected_paths:          # REQUIRED: your test directories/patterns (see the stack examples below)
+  - "tests"
+
+# Extra test-file patterns for the tamper checker (common conventions are built in).
+test_globs:
+  # - "qa/**"
+
+# Tests known to fail intermittently before this run. Their failures never fail a run, never reach the
+# fixer, and are always listed under "Not verified". Use exact test ids as your runner prints them.
+known_flaky:
+  # - "tests/test_network.py::test_retry_timeout"
+
+# Build/test/dev-server outputs that may appear during read-only phases without counting as "drift".
+# Git pathspec semantics: '*' also matches '/', a bare directory name excludes its subtree.
+drift_ignore:
+  - "dist"
+  - "build"
+  - "coverage"
+  - "target"
+  - ".next"
+  - "test-results"
+  - "playwright-report"
+  - "*__pycache__*"
+  - "*.pytest_cache*"
+  - "*.egg-info*"
+  - "*.tsbuildinfo"
+  - "*junit*.xml"
+  - ".playwright-mcp"
+
+# Browser verification of web UI acceptance criteria ("Verified by: browser" in plan.md).
+#   chrome     = Claude in Chrome. Uses your real Chrome and its sign-ins. Each developer must enable it:
+#                start Claude Code with `claude --chrome`, or run /chrome -> "Enabled by default".
+#                Needs a direct Claude plan (Pro/Max/Team/Enterprise). Not available in WSL or CI.
+#   playwright = Playwright MCP server (headless-capable; works in CI). Add it once:
+#                claude mcp add playwright -- npx -y @playwright/mcp@latest
+browser:
+  enabled: auto                  # auto = only when the plan has browser ACs | off = never
+  driver: chrome                 # chrome | playwright  (chrome falls back to playwright if only that is available)
+  base_url: null                 # e.g. "http://localhost:3000"
+  ready_timeout: 90              # seconds env_up may take before base_url answers
+  fail_on_console_errors: true   # console errors / failed app requests fail a UI check
+  record_gif: false              # Claude in Chrome: record a GIF of failing checks
+
+hooks:
+  post_edit_lint: during_run       # during_run | always | off
+  lint_extensions: ""              # comma list, e.g. "ts,tsx,js"; empty = lint every edited file
+  lint_timeout: 30
+  allow_new_protected_files: true  # implementer may create new files under protected_paths (new tests)
+  stop_guard: true                 # remind the orchestrator once if it ends a turn mid-run
+  integrity_readonly_check: true   # after each Bash call in a read-only phase, undo changes to project files
+  stale_hours: 24                  # ACTIVE not updated for this long => guard disables itself with a warning (0 = never)
+
+# Per-role models are set in .claude/agents/devloop-<role>.md frontmatter (model:).
+
+finalize:
+  commit: false        # finalizer may `git add` + `git commit` (never push)
+  branch: null         # e.g. "devloop/{task_id}" — created before the run starts if set
+
+# ───────────────────────── Stack examples (copy the block you need) ─────────────────────────
+#
+# --- Node / TypeScript (vitest or jest) ---
+# commands:
+#   setup: "npm ci"
+#   build: "npm run build"
+#   typecheck: "npx tsc --noEmit"
+#   lint: "npx eslint ."
+#   lint_file: "npx --no-install eslint {path}"
+#   test: "npm test --silent"
+#   test_single: "npx vitest run {path}"        # jest: "npx jest {path}"
+#   e2e: "npx playwright test"
+#   env_up: "npm run dev"
+# browser:
+#   base_url: "http://localhost:3000"
+# protected_paths:
+#   - "**/__tests__/**"
+#   - "**/*.test.ts"
+#   - "**/*.spec.ts"
+#   - "**/__snapshots__/**"
+#   - "jest.config.*"
+#   - "vitest.config.*"
+# hooks:
+#   lint_extensions: "ts,tsx,js,jsx,mjs,cjs"
+#
+# --- Python (pytest + ruff + mypy) ---
+# commands:
+#   setup: "pip install -e .[dev]"
+#   build: null
+#   typecheck: "mypy ."
+#   lint: "ruff check ."
+#   lint_file: "ruff check {path}"
+#   test: "pytest -q"
+#   test_single: "pytest -q {path}"
+# protected_paths:
+#   - "tests"
+#   - "**/conftest.py"
+#   - "pytest.ini"
+# hooks:
+#   lint_extensions: "py"
+#
+# --- Java / Maven ---
+# commands:
+#   setup: "mvn -q -DskipTests dependency:go-offline"
+#   build: "mvn -q -DskipTests package"
+#   typecheck: "mvn -q compile"
+#   lint: "mvn -q checkstyle:check"
+#   lint_file: null                              # no fast per-file lint; rely on typecheck
+#   test: "mvn -q test"
+#   test_single: "mvn -q -Dtest={name} test"
+# protected_paths:
+#   - "src/test"
+#   - "**/src/test/**"                           # multi-module
+# (Gradle: test "./gradlew test", test_single "./gradlew test --tests '*{name}'")
+#
+# --- Go ---
+# commands:
+#   build: "go build ./..."
+#   typecheck: "go vet ./..."
+#   lint: "golangci-lint run"
+#   lint_file: 'test -z "$(gofmt -l {path})"'
+#   test: "go test ./..."
+#   test_single: "go test ./{dir}"
+# protected_paths:
+#   - "**/*_test.go"
+#   - "**/testdata/**"
+# hooks:
+#   lint_extensions: "go"

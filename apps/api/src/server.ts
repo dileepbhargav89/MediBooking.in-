@@ -1,0 +1,64 @@
+/**
+ * MediBooking Enterprise API Server
+ * Fastify 5 core backend with multi-tenant context, Redis concurrency, and SSE streaming
+ */
+
+import Fastify, { FastifyInstance } from 'fastify';
+import cors from '@fastify/cors';
+import helmet from '@fastify/helmet';
+import { ENV } from './config/env';
+import { doctorRoutes } from './routes/doctor.routes';
+import { receptionRoutes } from './routes/reception.routes';
+import { slotRoutes } from './routes/slot.routes';
+import { realtimeRoutes } from './routes/realtime.routes';
+import { SEED_DATA } from '@medibooking/database';
+
+export function createApiServer(): FastifyInstance {
+  const server = Fastify({
+    logger: ENV.NODE_ENV !== 'test',
+  });
+
+  // Security headers & Cross-Origin Resource Sharing
+  server.register(helmet, { contentSecurityPolicy: false });
+  server.register(cors, { origin: true, credentials: true });
+
+  // Health check endpoint
+  server.get('/health', async () => ({
+    status: 'ONLINE',
+    service: 'MediBooking Enterprise API Gateway',
+    timestamp: new Date().toISOString(),
+    demoClinic: SEED_DATA.clinic.name,
+    chambersCount: SEED_DATA.chambers.length,
+    doctorsCount: SEED_DATA.doctors.length,
+  }));
+
+  // API v1 Routes
+  server.register(
+    async (v1) => {
+      v1.register(doctorRoutes);
+      v1.register(receptionRoutes);
+      v1.register(slotRoutes);
+      v1.register(realtimeRoutes);
+    },
+    { prefix: '/api/v1' }
+  );
+
+  return server;
+}
+
+// Start server when executed directly
+if (require.main === module) {
+  const app = createApiServer();
+  app.listen({ port: ENV.PORT, host: ENV.HOST }, (err, address) => {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
+    console.log(`\n======================================================`);
+    console.log(` MediBooking Enterprise API Server Online`);
+    console.log(` Listening on: ${address}`);
+    console.log(` Health check: ${address}/health`);
+    console.log(` Waiting Room TV Stream: ${address}/api/v1/realtime/clinics/${SEED_DATA.clinic.id}/tv-stream`);
+    console.log(`======================================================\n`);
+  });
+}

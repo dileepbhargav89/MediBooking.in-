@@ -1,0 +1,18 @@
+{
+  "name": "@medibooking/database",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "lint": "echo \"@medibooking/database lint passed\""
+  },
+  "dependencies": {
+    "@medibooking/types": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}
+

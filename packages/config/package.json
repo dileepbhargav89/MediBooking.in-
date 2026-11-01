@@ -1,0 +1,10 @@
+{
+  "name": "@medibooking/config",
+  "version": "1.0.0",
+  "private": true,
+  "files": [
+    "eslint-preset.js",
+    "prettier-preset.js"
+  ]
+}
+
