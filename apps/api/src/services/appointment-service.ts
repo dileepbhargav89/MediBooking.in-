@@ -17,6 +17,7 @@ import { slotLockManager } from './concurrency-engine';
 import { affiliationService } from './affiliation-service';
 import { clinicService } from './clinic-service';
 import { doctorService } from './doctor-service';
+import { sessionService } from './session-service';
 
 export interface CreateOnlineBookingDTO {
   slotId: string;
@@ -42,6 +43,8 @@ export interface CreateWalkInIntakeDTO {
   paymentMethod: PaymentStatus;
   amountRupees?: number;
   appointmentDate?: string;
+  allowDuplicate?: boolean;
+  emergencyOverride?: boolean;
 }
 
 export interface ThermalSlipData {
@@ -188,6 +191,50 @@ export class AppointmentService {
       );
     }
 
+    // 4. Duplicate Active Appointment Guard
+    if (!dto.allowDuplicate) {
+      const existing = Array.from(this.appointments.values()).find(
+        (a) =>
+          a.clinicId === dto.clinicId &&
+          a.doctorId === dto.doctorId &&
+          a.appointmentDate === appointmentDate &&
+          a.patientMobile === dto.patientMobile.trim() &&
+          (a.status === AppointmentStatus.WAITING ||
+            a.status === AppointmentStatus.ARRIVED ||
+            a.status === AppointmentStatus.IN_CONSULTATION ||
+            a.status === AppointmentStatus.SCHEDULED)
+      );
+
+      if (existing) {
+        throw new Error(
+          `DUPLICATE_ACTIVE_APPOINTMENT: Patient with mobile ${dto.patientMobile} already holds Token #${existing.tokenNumber} (${existing.chamberNumber}) for this doctor today.`
+        );
+      }
+    }
+
+    // 5. Session Walk-In Quota Cap Guard
+    if (!dto.emergencyOverride) {
+      const dayOfWeek = slotService.getDayOfWeek(appointmentDate);
+      const doctorSessions = await sessionService.getSessionsByDoctor(dto.doctorId, dto.clinicId, true);
+      const activeSession = doctorSessions.find((s) => s.dayOfWeek === dayOfWeek);
+
+      if (activeSession && activeSession.maxWalkInTokens > 0) {
+        const existingWalkIns = Array.from(this.appointments.values()).filter(
+          (a) =>
+            a.clinicId === dto.clinicId &&
+            a.doctorId === dto.doctorId &&
+            a.appointmentDate === appointmentDate &&
+            a.source === BookingSource.WALK_IN
+        );
+
+        if (existingWalkIns.length >= activeSession.maxWalkInTokens) {
+          throw new Error(
+            `TOKEN_CAP_REACHED: Maximum walk-in token cap of ${activeSession.maxWalkInTokens} reached for Chamber ${dto.chamberNumber}. Receptionist may request emergency triage override.`
+          );
+        }
+      }
+    }
+
     const resolvedFee =
       dto.amountRupees !== undefined
         ? dto.amountRupees
@@ -195,14 +242,16 @@ export class AppointmentService {
           ? affiliation.followUpFeeRupees
           : affiliation.consultationFeeRupees;
 
-    // 4. Sequential Chamber Token Allocation
-    const tokenKey = `${dto.clinicId}:${dto.doctorId}:${appointmentDate}`;
+    // 6. Sequential Chamber-Isolated Token Allocation
+    const tokenKey = `${dto.clinicId}:${dto.doctorId}:${dto.chamberNumber}:${appointmentDate}`;
     const nextToken = (this.tokenCounters.get(tokenKey) || 0) + 1;
     this.tokenCounters.set(tokenKey, nextToken);
 
-    // 5. Build Receipt Number & Patient Identity
+    // 7. Build Receipt Number & Patient Identity
     const cleanDate = appointmentDate.replace(/-/g, '');
-    const receiptNumber = `MB-${cleanDate}-${dto.chamberNumber.replace('-', '')}-${nextToken.toString().padStart(3, '0')}`;
+    const chamberPrefix = dto.chamberNumber.replace(/[^A-Za-z0-9]/g, '');
+    const tokenFormatted = `${chamberPrefix}-${nextToken.toString().padStart(3, '0')}`;
+    const receiptNumber = `MB-${cleanDate}-${chamberPrefix}-${nextToken.toString().padStart(3, '0')}`;
     const patientId = `pat-${crypto.randomUUID().slice(0, 8)}`;
     const now = new Date().toISOString();
 
@@ -244,7 +293,7 @@ export class AppointmentService {
       chamberName: chamberInfo?.chamberName || dto.chamberNumber,
       doctorName: doctor.fullName,
       token: nextToken,
-      tokenFormatted: `#${nextToken}`,
+      tokenFormatted,
       patientName: dto.patientName.trim(),
       patientMaskedPhone: maskedPhone,
       feeRupees: resolvedFee,

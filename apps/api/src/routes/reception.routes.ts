@@ -36,6 +36,8 @@ const intakeSchema = z.object({
     PaymentStatus.WAIVED_BY_DOCTOR,
   ]),
   amountRupees: z.number().positive().optional(),
+  allowDuplicate: z.boolean().optional().default(false),
+  emergencyOverride: z.boolean().optional().default(false),
 });
 
 // In-memory queue state for active appointments
@@ -138,6 +140,8 @@ export async function receptionRoutes(fastify: FastifyInstance) {
           triageSeverity: data.triageSeverity,
           paymentMethod: data.paymentMethod,
           amountRupees: data.amountRupees,
+          allowDuplicate: data.allowDuplicate,
+          emergencyOverride: data.emergencyOverride,
         });
 
         // Trigger SSE update to Waiting Room TV
@@ -157,9 +161,22 @@ export async function receptionRoutes(fastify: FastifyInstance) {
           thermalSlipData,
         });
       } catch (err: any) {
+        const message = err.message || '';
+        if (message.includes('DUPLICATE_ACTIVE_APPOINTMENT')) {
+          return reply.status(409).send({
+            error: 'Duplicate Intake',
+            message,
+          });
+        }
+        if (message.includes('TOKEN_CAP_REACHED')) {
+          return reply.status(409).send({
+            error: 'Token Cap Reached',
+            message,
+          });
+        }
         return reply.status(400).send({
           error: 'Intake Error',
-          message: err.message,
+          message,
         });
       }
     }
