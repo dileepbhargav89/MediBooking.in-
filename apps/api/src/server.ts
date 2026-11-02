@@ -17,6 +17,7 @@ import { affiliationRoutes } from './routes/affiliation.routes';
 import { sessionRoutes } from './routes/session.routes';
 import { bookingRoutes } from './routes/booking.routes';
 import { cashieringRoutes } from './routes/cashiering.routes';
+import { compounderRoutes } from './routes/compounder.routes';
 import { SEED_DATA } from '@medibooking/database';
 
 export function createApiServer(): FastifyInstance {
@@ -51,6 +52,7 @@ export function createApiServer(): FastifyInstance {
       v1.register(sessionRoutes);
       v1.register(bookingRoutes);
       v1.register(cashieringRoutes);
+      v1.register(compounderRoutes);
     },
     { prefix: '/api/v1' }
   );

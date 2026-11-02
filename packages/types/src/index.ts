@@ -255,6 +255,7 @@ export interface Appointment {
   patientAge?: number;
   idempotencyKey?: string;
   receiptNumber?: string;
+  vitals?: PatientVitals;
   estimatedConsultTime?: string;
   actualStartTime?: string;
   actualEndTime?: string;
@@ -403,6 +404,7 @@ export interface QueueAppointmentItem {
   estimatedStartTime?: string;
   estimatedWaitMinutes: number;
   receiptNumber?: string;
+  vitals?: PatientVitals;
   createdAt: string;
 }
 
@@ -444,6 +446,58 @@ export interface MultiChamberQueueResponse {
   metrics: ClinicQueueMetrics;
   queues: ChamberQueueDetail[];
 }
+
+// ==========================================
+// 8. DOCTOR-DEDICATED COMPOUNDER DTOs (PHASE 17)
+// ==========================================
+
+export interface PatientVitals {
+  bloodPressure?: string; // e.g. "120/80"
+  pulseBpm?: number;      // e.g. 72
+  weightKg?: number;      // e.g. 68.5
+  temperatureF?: number;  // e.g. 98.6
+  spo2Percent?: number;   // e.g. 99
+  chiefComplaints?: string;
+  notes?: string;
+  recordedAt?: string;
+  recordedBy?: string;
+}
+
+export interface RecordVitalsDTO {
+  bloodPressure?: string;
+  pulseBpm?: number;
+  weightKg?: number;
+  temperatureF?: number;
+  spo2Percent?: number;
+  chiefComplaints?: string;
+  notes?: string;
+}
+
+export interface CompounderQueueResponse {
+  clinicId: string;
+  chamberNumber: string;
+  chamberName: string;
+  doctorId: string;
+  doctorName: string;
+  specialty?: MedicalSpecialty;
+  sessionStartTime?: string;
+  sessionEndTime?: string;
+  delayMinutes: number;
+  isDelayActive: boolean;
+  currentlyServing: QueueAppointmentItem | null;
+  nextPatient: QueueAppointmentItem | null;
+  waitingQueue: QueueAppointmentItem[];
+  completedQueue: QueueAppointmentItem[];
+  stats: {
+    totalQueue: number;
+    waitingCount: number;
+    completedCount: number;
+    vitalsRecordedCount: number;
+    urgentCount: number;
+    estimatedWaitMinutes: number;
+  };
+}
+
 
 
 

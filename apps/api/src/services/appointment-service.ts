@@ -11,6 +11,9 @@ import {
   PaymentStatus,
   TriageSeverity,
   SlotStatus,
+  PatientVitals,
+  UserRole,
+  StaffScope,
 } from '@medibooking/types';
 import { slotService } from './slot-service';
 import { slotLockManager } from './concurrency-engine';
@@ -385,6 +388,121 @@ export class AppointmentService {
       }
     }
     return list.sort((a, b) => a.tokenNumber - b.tokenNumber);
+  }
+
+  /**
+   * Record Pre-Consultation Patient Vitals (Compounder Examination Prep)
+   */
+  recordVitals(
+    appointmentId: string,
+    vitals: PatientVitals,
+    actor: {
+      userId: string;
+      role: UserRole;
+      staffScope?: StaffScope;
+      dedicatedDoctorId?: string;
+    }
+  ): Appointment {
+    const appointment = this.appointments.get(appointmentId);
+    if (!appointment) {
+      throw new Error(`Appointment ${appointmentId} not found`);
+    }
+
+    if (
+      actor.staffScope === StaffScope.DOCTOR_DEDICATED &&
+      actor.dedicatedDoctorId &&
+      appointment.doctorId !== actor.dedicatedDoctorId
+    ) {
+      throw new Error(
+        `Forbidden: Staff scope restricted to assigned doctor '${actor.dedicatedDoctorId}'. Cross-doctor vitals recording blocked.`
+      );
+    }
+
+    const updatedVitals: PatientVitals = {
+      ...vitals,
+      recordedAt: new Date().toISOString(),
+      recordedBy: actor.userId,
+    };
+
+    const updated = {
+      ...appointment,
+      vitals: updatedVitals,
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.appointments.set(appointmentId, updated);
+    return updated;
+  }
+
+  /**
+   * 1-Tap Queue Advancement: Call Next Waiting Patient
+   */
+  callNextPatient(
+    clinicId: string,
+    doctorId: string,
+    chamberNumber: string,
+    date?: string
+  ): {
+    completedAppointment: Appointment | null;
+    servingAppointment: Appointment | null;
+  } {
+    const targetDate = date || (new Date().toISOString().split('T')[0] as string);
+    const doctorAppts: Appointment[] = [];
+
+    for (const app of this.appointments.values()) {
+      if (
+        app.clinicId === clinicId &&
+        app.doctorId === doctorId &&
+        app.appointmentDate === targetDate &&
+        app.chamberNumber === chamberNumber
+      ) {
+        doctorAppts.push(app);
+      }
+    }
+
+    // 1. If an appointment is currently in consultation, complete it
+    let completedAppointment: Appointment | null = null;
+    const currentServing = doctorAppts.find((a) => a.status === AppointmentStatus.IN_CONSULTATION);
+    if (currentServing) {
+      completedAppointment = {
+        ...currentServing,
+        status: AppointmentStatus.COMPLETED,
+        actualEndTime: new Date().toLocaleTimeString('en-IN'),
+        updatedAt: new Date().toISOString(),
+      };
+      this.appointments.set(completedAppointment.id, completedAppointment);
+    }
+
+    // 2. Find next waiting patient (sorted by URGENT_TRIAGE first, then tokenNumber)
+    const waitingAppts = doctorAppts.filter(
+      (a) => a.status === AppointmentStatus.WAITING || a.status === AppointmentStatus.ARRIVED
+    );
+
+    waitingAppts.sort((a, b) => {
+      const aUrgent = a.triageSeverity === TriageSeverity.URGENT_TRIAGE ? 1 : 0;
+      const bUrgent = b.triageSeverity === TriageSeverity.URGENT_TRIAGE ? 1 : 0;
+      if (aUrgent !== bUrgent) {
+        return bUrgent - aUrgent;
+      }
+      return a.tokenNumber - b.tokenNumber;
+    });
+
+    let servingAppointment: Appointment | null = null;
+    if (waitingAppts.length > 0) {
+      const next = waitingAppts[0]!;
+      servingAppointment = {
+        ...next,
+        status: AppointmentStatus.IN_CONSULTATION,
+        actualStartTime: new Date().toLocaleTimeString('en-IN'),
+        updatedAt: new Date().toISOString(),
+      };
+      this.appointments.set(servingAppointment.id, servingAppointment);
+    }
+
+    return {
+      completedAppointment,
+      servingAppointment,
+    };
   }
 
   /**
