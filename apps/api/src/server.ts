@@ -12,6 +12,7 @@ import { receptionRoutes } from './routes/reception.routes';
 import { slotRoutes } from './routes/slot.routes';
 import { realtimeRoutes } from './routes/realtime.routes';
 import { authRoutes } from './routes/auth.routes';
+import { clinicRoutes } from './routes/clinic.routes';
 import { SEED_DATA } from '@medibooking/database';
 
 export function createApiServer(): FastifyInstance {
@@ -41,6 +42,7 @@ export function createApiServer(): FastifyInstance {
       v1.register(slotRoutes);
       v1.register(realtimeRoutes);
       v1.register(authRoutes);
+      v1.register(clinicRoutes);
     },
     { prefix: '/api/v1' }
   );
