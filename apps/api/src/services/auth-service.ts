@@ -302,6 +302,10 @@ export class AuthService {
   /**
    * Reset store (used in test suite)
    */
+  public reset(): void {
+    this.resetStore();
+  }
+
   public resetStore(): void {
     this.otpMap.clear();
     this.rateLimitMap.clear();

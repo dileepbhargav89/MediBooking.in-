@@ -17,6 +17,7 @@ import {
 } from '@medibooking/types';
 import { SEED_DATA } from '@medibooking/database';
 import { realtimeStreamManager } from '../services/realtime-sse';
+import { appointmentService } from '../services/appointment-service';
 
 const intakeSchema = z.object({
   clinicId: z.string().uuid(),
@@ -32,8 +33,9 @@ const intakeSchema = z.object({
     PaymentStatus.PAID_CASH,
     PaymentStatus.PAID_UPI_QR,
     PaymentStatus.PENDING_AT_DESK,
+    PaymentStatus.WAIVED_BY_DOCTOR,
   ]),
-  amountRupees: z.number().positive(),
+  amountRupees: z.number().positive().optional(),
 });
 
 // In-memory queue state for active appointments
@@ -110,49 +112,56 @@ export async function receptionRoutes(fastify: FastifyInstance) {
         });
       }
 
-      const data: QuickIntakeDTO = parseResult.data;
-      const assignedToken = nextTokenCounter++;
+      const data = parseResult.data;
+      const user = req.tenant;
 
-      const newAppointment = {
-        id: `apt-${Date.now()}`,
-        clinicId: data.clinicId,
-        doctorId: data.doctorId,
-        chamberNumber: data.chamberNumber,
-        tokenNumber: assignedToken,
-        patientName: data.patientName,
-        patientMobile: data.mobile,
-        status: AppointmentStatus.WAITING,
-        source: BookingSource.WALK_IN,
-        paymentStatus: data.paymentMethod,
-        triageSeverity: data.triageSeverity ?? TriageSeverity.ROUTINE,
-        amountRupees: data.amountRupees,
-        createdAt: new Date().toISOString(),
-      };
+      // Staff Scope Check: dedicated staff cannot intake for another doctor
+      if (user && user.staffScope === StaffScope.DOCTOR_DEDICATED && user.dedicatedDoctorId) {
+        if (user.dedicatedDoctorId !== data.doctorId) {
+          return reply.status(403).send({
+            error: 'Staff Scope Restriction',
+            message: `Dedicated staff is restricted to assigned doctor '${user.dedicatedDoctorId}'. Cross-doctor intake forbidden.`,
+          });
+        }
+      }
 
-      inMemoryAppointments.push(newAppointment);
-
-      // Trigger SSE update to Waiting Room TV
-      realtimeStreamManager.broadcastChamberUpdate(data.clinicId, data.chamberNumber, {
-        upNextTokens: inMemoryAppointments
-          .filter((a) => a.chamberNumber === data.chamberNumber && a.status === AppointmentStatus.WAITING)
-          .map((a) => a.tokenNumber),
-      });
-
-      return {
-        success: true,
-        tokenNumber: assignedToken,
-        chamberNumber: data.chamberNumber,
-        appointment: newAppointment,
-        thermalSlipData: {
-          clinicName: SEED_DATA.clinic.name,
-          chamber: data.chamberNumber,
-          token: assignedToken,
+      try {
+        const { appointment, thermalSlipData } = await appointmentService.createWalkInIntake({
+          clinicId: data.clinicId,
+          doctorId: data.doctorId,
+          chamberNumber: data.chamberNumber,
           patientName: data.patientName,
-          feeRupees: data.amountRupees,
-          payment: data.paymentMethod,
-          time: new Date().toLocaleTimeString('en-IN'),
-        },
-      };
+          patientMobile: data.mobile,
+          patientAge: data.ageYears,
+          patientGender: data.gender,
+          locality: data.locality,
+          triageSeverity: data.triageSeverity,
+          paymentMethod: data.paymentMethod,
+          amountRupees: data.amountRupees,
+        });
+
+        // Trigger SSE update to Waiting Room TV
+        const upNextTokens = appointmentService.getWaitingTokensForChamber(
+          data.clinicId,
+          data.chamberNumber
+        );
+        realtimeStreamManager.broadcastChamberUpdate(data.clinicId, data.chamberNumber, {
+          upNextTokens: upNextTokens.length > 0 ? upNextTokens : [appointment.tokenNumber],
+        });
+
+        return reply.status(200).send({
+          success: true,
+          tokenNumber: appointment.tokenNumber,
+          chamberNumber: appointment.chamberNumber,
+          appointment,
+          thermalSlipData,
+        });
+      } catch (err: any) {
+        return reply.status(400).send({
+          error: 'Intake Error',
+          message: err.message,
+        });
+      }
     }
   );
 
