@@ -86,6 +86,10 @@ export class RealtimeStreamManager {
     );
   }
 
+  public getSnapshot(clinicId: string): ClinicTVDisplayPayload {
+    return this.getClinicSnapshot(clinicId);
+  }
+
   /**
    * Broadcast chamber update (e.g. next patient called or consultation completed)
    */

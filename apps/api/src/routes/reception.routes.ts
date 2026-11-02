@@ -14,11 +14,17 @@ import {
   PaymentStatus,
   TriageSeverity,
   QuickIntakeDTO,
+  QueueAppointmentItem,
+  ChamberQueueDetail,
+  ClinicQueueMetrics,
+  MultiChamberQueueResponse,
+  ChamberTVState,
 } from '@medibooking/types';
 import { SEED_DATA } from '@medibooking/database';
 import { realtimeStreamManager } from '../services/realtime-sse';
 import { appointmentService } from '../services/appointment-service';
 import { cashieringService } from '../services/cashiering-service';
+import { sessionService } from '../services/session-service';
 
 const intakeSchema = z.object({
   clinicId: z.string().uuid(),
@@ -211,6 +217,11 @@ export async function receptionRoutes(fastify: FastifyInstance) {
     },
     async (req) => {
       const user = req.tenant!;
+      const query = req.query as { date?: string };
+      const targetDate =
+        query.date && /^\d{4}-\d{2}-\d{2}$/.test(query.date)
+          ? query.date
+          : new Date().toISOString().split('T')[0]!;
 
       let allowedChambers = SEED_DATA.chambers;
 
@@ -222,29 +233,172 @@ export async function receptionRoutes(fastify: FastifyInstance) {
         }
       }
 
-      // Format response by chamber
-      const queues = allowedChambers.map((chamber) => {
-        const doc = SEED_DATA.doctors.find((d) => d.chamberNumber === chamber.chamberNumber);
-        const chamberAppts = inMemoryAppointments.filter((a) => a.chamberNumber === chamber.chamberNumber);
+      // 1. Fetch live appointments from appointmentService for clinic & targetDate
+      const activeAppts = appointmentService.getActiveAppointmentsForClinic(user.activeClinicId!, targetDate);
 
-        return {
-          chamberNumber: chamber.chamberNumber,
-          chamberName: chamber.chamberName,
-          doctorId: doc?.doctorId,
-          doctorName: doc?.fullName,
-          specialty: doc?.specialties[0],
-          consultationFee: doc?.consultationFee,
-          currentlyServing: chamberAppts.find((a) => a.status === AppointmentStatus.IN_CONSULTATION) ?? null,
-          waitingQueue: chamberAppts.filter((a) => a.status === AppointmentStatus.WAITING),
-          totalWaiting: chamberAppts.filter((a) => a.status === AppointmentStatus.WAITING).length,
-        };
-      });
+      // 2. Also merge inMemoryAppointments if targetDate is today and not already present
+      const today = new Date().toISOString().split('T')[0]!;
+      const mergedAppts = [...activeAppts];
+      if (targetDate === today) {
+        for (const mock of inMemoryAppointments) {
+          if (!mergedAppts.some((a) => a.id === mock.id)) {
+            mergedAppts.push({
+              ...mock,
+              appointmentDate: targetDate,
+              patientId: `pat-${mock.id}`,
+              updatedAt: mock.createdAt,
+            });
+          }
+        }
+      }
 
-      return {
-        clinicId: user.activeClinicId,
+      // 3. Get realtime TV state for current chamber delays
+      const tvState = realtimeStreamManager.getSnapshot(user.activeClinicId!);
+
+      // 4. Format response by chamber
+      const queues: ChamberQueueDetail[] = await Promise.all(
+        allowedChambers.map(async (chamber) => {
+          const doc = SEED_DATA.doctors.find((d) => d.chamberNumber === chamber.chamberNumber);
+          const chamberAppts = mergedAppts.filter((a) => a.chamberNumber === chamber.chamberNumber);
+
+          // Get delay from TV snapshot
+          const tvChamber = tvState.chambers.find((c: ChamberTVState) => c.chamberNumber === chamber.chamberNumber);
+          const delayMinutes = tvChamber?.delayMinutes ?? 0;
+          const isDelayActive = delayMinutes > 0;
+
+          // Get doctor session info
+          let sessionStartTime: string | undefined;
+          let sessionEndTime: string | undefined;
+          let avgConsultMinutes = 15;
+
+          if (doc?.doctorId) {
+            const sessions = await sessionService.getSessionsByDoctor(doc.doctorId, user.activeClinicId);
+            if (sessions.length > 0) {
+              const activeSession = sessions[0]!;
+              sessionStartTime = activeSession.startTime;
+              sessionEndTime = activeSession.endTime;
+              avgConsultMinutes = activeSession.slotDurationMinutes || 15;
+            }
+          }
+
+          // Currently serving
+          const rawServing = chamberAppts.find((a) => a.status === AppointmentStatus.IN_CONSULTATION);
+          const currentlyServing: QueueAppointmentItem | null = rawServing
+            ? {
+                id: rawServing.id,
+                tokenNumber: rawServing.tokenNumber,
+                formattedToken: `${chamber.chamberNumber.replace('-', '')}-${rawServing.tokenNumber.toString().padStart(3, '0')}`,
+                patientName: rawServing.patientName,
+                patientMobileMasked: `${rawServing.patientMobile.slice(0, 5)}*****`,
+                source: rawServing.source,
+                status: rawServing.status,
+                paymentStatus: rawServing.paymentStatus,
+                amountRupees: rawServing.amountRupees,
+                triageSeverity: rawServing.triageSeverity,
+                estimatedStartTime: rawServing.actualStartTime || undefined,
+                estimatedWaitMinutes: 0,
+                receiptNumber: rawServing.receiptNumber,
+                createdAt: rawServing.createdAt,
+              }
+            : null;
+
+          // Waiting Queue: WAITING or ARRIVED
+          const rawWaiting = chamberAppts.filter(
+            (a) => a.status === AppointmentStatus.WAITING || a.status === AppointmentStatus.ARRIVED
+          );
+
+          // Priority sorting: URGENT_TRIAGE first, then sequential tokenNumber (FIFO)
+          rawWaiting.sort((a, b) => {
+            const aUrgent = a.triageSeverity === TriageSeverity.URGENT_TRIAGE ? 1 : 0;
+            const bUrgent = b.triageSeverity === TriageSeverity.URGENT_TRIAGE ? 1 : 0;
+            if (aUrgent !== bUrgent) {
+              return bUrgent - aUrgent; // urgent first
+            }
+            return a.tokenNumber - b.tokenNumber;
+          });
+
+          const waitingQueue: QueueAppointmentItem[] = rawWaiting.map((app, idx) => {
+            const estimatedWaitMinutes = idx * avgConsultMinutes + delayMinutes;
+            return {
+              id: app.id,
+              tokenNumber: app.tokenNumber,
+              formattedToken: `${chamber.chamberNumber.replace('-', '')}-${app.tokenNumber.toString().padStart(3, '0')}`,
+              patientName: app.patientName,
+              patientMobileMasked: `${app.patientMobile.slice(0, 5)}*****`,
+              source: app.source,
+              status: app.status,
+              paymentStatus: app.paymentStatus,
+              amountRupees: app.amountRupees,
+              triageSeverity: app.triageSeverity,
+              estimatedWaitMinutes,
+              receiptNumber: app.receiptNumber,
+              createdAt: app.createdAt,
+            };
+          });
+
+          // Completed Queue
+          const rawCompleted = chamberAppts.filter((a) => a.status === AppointmentStatus.COMPLETED);
+          const completedQueue: QueueAppointmentItem[] = rawCompleted.map((app) => ({
+            id: app.id,
+            tokenNumber: app.tokenNumber,
+            formattedToken: `${chamber.chamberNumber.replace('-', '')}-${app.tokenNumber.toString().padStart(3, '0')}`,
+            patientName: app.patientName,
+            patientMobileMasked: `${app.patientMobile.slice(0, 5)}*****`,
+            source: app.source,
+            status: app.status,
+            paymentStatus: app.paymentStatus,
+            amountRupees: app.amountRupees,
+            triageSeverity: app.triageSeverity,
+            estimatedWaitMinutes: 0,
+            receiptNumber: app.receiptNumber,
+            createdAt: app.createdAt,
+          }));
+
+          const totalWalkIn = chamberAppts.filter((a) => a.source === BookingSource.WALK_IN).length;
+          const totalOnline = chamberAppts.filter((a) => a.source === BookingSource.ONLINE_PORTAL).length;
+          const estimatedWaitMinutes = waitingQueue.length * avgConsultMinutes + delayMinutes;
+
+          return {
+            chamberNumber: chamber.chamberNumber,
+            chamberName: chamber.chamberName,
+            doctorId: doc?.doctorId,
+            doctorName: doc?.fullName,
+            specialty: doc?.specialties[0],
+            consultationFee: doc?.consultationFee,
+            sessionStartTime,
+            sessionEndTime,
+            delayMinutes,
+            isDelayActive,
+            currentlyServing,
+            waitingQueue,
+            completedQueue,
+            totalWaiting: waitingQueue.length,
+            totalCompleted: completedQueue.length,
+            totalWalkIn,
+            totalOnline,
+            estimatedWaitMinutes,
+          };
+        })
+      );
+
+      const metrics: ClinicQueueMetrics = {
+        totalActiveChambers: queues.length,
+        totalWaitingClinicWide: queues.reduce((sum, q) => sum + q.totalWaiting, 0),
+        totalCompletedClinicWide: queues.reduce((sum, q) => sum + q.totalCompleted, 0),
+        totalWalkInClinicWide: queues.reduce((sum, q) => sum + q.totalWalkIn, 0),
+        totalOnlineClinicWide: queues.reduce((sum, q) => sum + q.totalOnline, 0),
+        totalExpectedRevenueRupees: mergedAppts.reduce((sum, a) => sum + a.amountRupees, 0),
+      };
+
+      const response: MultiChamberQueueResponse = {
+        clinicId: user.activeClinicId!,
+        date: targetDate,
         staffScope: user.staffScope ?? StaffScope.CLINIC_WIDE,
+        metrics,
         queues,
       };
+
+      return response;
     }
   );
 
@@ -265,24 +419,43 @@ export async function receptionRoutes(fastify: FastifyInstance) {
       const { id } = req.params as { id: string };
       const body = req.body as { status: AppointmentStatus };
 
-      const appointment = inMemoryAppointments.find((a) => a.id === id);
-      if (!appointment) {
+      // Update in appointmentService if present
+      const updatedInService = appointmentService.updateAppointment(id, {
+        status: body.status,
+        ...(body.status === AppointmentStatus.IN_CONSULTATION
+          ? { actualStartTime: new Date().toLocaleTimeString('en-IN') }
+          : {}),
+        ...(body.status === AppointmentStatus.COMPLETED
+          ? { actualEndTime: new Date().toLocaleTimeString('en-IN') }
+          : {}),
+      });
+
+      // Also update in inMemoryAppointments if present
+      const appointmentInMock = inMemoryAppointments.find((a) => a.id === id);
+      if (appointmentInMock) {
+        appointmentInMock.status = body.status;
+      }
+
+      const activeAppointment = updatedInService || appointmentInMock;
+      if (!activeAppointment) {
         return reply.status(404).send({ error: 'Appointment not found' });
       }
 
-      appointment.status = body.status;
-
       // If called in consultation, update chamber TV state
       if (body.status === AppointmentStatus.IN_CONSULTATION) {
-        realtimeStreamManager.broadcastChamberUpdate(appointment.clinicId, appointment.chamberNumber, {
-          currentToken: appointment.tokenNumber,
-          servingPatientMaskedName: `${appointment.patientName[0]}***`,
-        });
+        realtimeStreamManager.broadcastChamberUpdate(
+          activeAppointment.clinicId,
+          activeAppointment.chamberNumber,
+          {
+            currentToken: activeAppointment.tokenNumber,
+            servingPatientMaskedName: `${activeAppointment.patientName[0]}***`,
+          }
+        );
       }
 
       return {
         success: true,
-        appointment,
+        appointment: activeAppointment,
       };
     }
   );

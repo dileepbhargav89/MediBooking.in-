@@ -385,4 +385,65 @@ export interface CashieringFilterQuery {
   paymentMethod?: PaymentStatus;
 }
 
+// ==========================================
+// 7. MULTI-CHAMBER LIVE QUEUE DTOs (STAGE II)
+// ==========================================
+
+export interface QueueAppointmentItem {
+  id: string;
+  tokenNumber: number;
+  formattedToken: string;
+  patientName: string;
+  patientMobileMasked: string;
+  source: BookingSource;
+  status: AppointmentStatus;
+  paymentStatus: PaymentStatus;
+  amountRupees: number;
+  triageSeverity: TriageSeverity;
+  estimatedStartTime?: string;
+  estimatedWaitMinutes: number;
+  receiptNumber?: string;
+  createdAt: string;
+}
+
+export interface ChamberQueueDetail {
+  chamberNumber: string;
+  chamberName: string;
+  doctorId?: string;
+  doctorName?: string;
+  specialty?: MedicalSpecialty;
+  consultationFee?: number;
+  followUpFee?: number;
+  sessionStartTime?: string;
+  sessionEndTime?: string;
+  delayMinutes: number;
+  isDelayActive: boolean;
+  currentlyServing: QueueAppointmentItem | null;
+  waitingQueue: QueueAppointmentItem[];
+  completedQueue: QueueAppointmentItem[];
+  totalWaiting: number;
+  totalCompleted: number;
+  totalWalkIn: number;
+  totalOnline: number;
+  estimatedWaitMinutes: number;
+}
+
+export interface ClinicQueueMetrics {
+  totalActiveChambers: number;
+  totalWaitingClinicWide: number;
+  totalCompletedClinicWide: number;
+  totalWalkInClinicWide: number;
+  totalOnlineClinicWide: number;
+  totalExpectedRevenueRupees: number;
+}
+
+export interface MultiChamberQueueResponse {
+  clinicId: string;
+  date: string;
+  staffScope: StaffScope;
+  metrics: ClinicQueueMetrics;
+  queues: ChamberQueueDetail[];
+}
+
+
 
