@@ -263,6 +263,18 @@ export class SlotService {
   }
 
   /**
+   * Updates the status of an existing slot (e.g. marked as BOOKED)
+   */
+  async updateSlotStatus(slotId: string, status: SlotStatus): Promise<AvailabilitySlot> {
+    const slot = this.slots.get(slotId);
+    if (!slot) {
+      throw new Error(`Slot with ID "${slotId}" not found`);
+    }
+    slot.status = status;
+    return slot;
+  }
+
+  /**
    * Manually register or set a slot (useful for testing or direct reservations)
    */
   registerSlot(slot: AvailabilitySlot) {

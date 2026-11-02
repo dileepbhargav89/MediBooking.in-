@@ -111,11 +111,11 @@ cmd_start() {
     dl_cfg_list protected_paths; } > "$dir/protected.txt"
   : > "$dir/allow.txt"
   if in_git; then
-    files=$(git -C "$DL_PROJECT_DIR" ls-files 2>/dev/null)
     while IFS= read -r g; do
       [ -n "$g" ] || continue
-      printf '%s\n' "$files" | { while IFS= read -r f; do dl_glob_match "$f" "$g" && exit 0; done; exit 1; } ||
+      if [ -z "$(git -C "$DL_PROJECT_DIR" ls-files "$g" 2>/dev/null | head -n 1)" ]; then
         echo "WARNING: protected_paths entry '$g' matches no tracked file. Your tests may be unprotected; check the pattern (e.g. 'test' vs 'tests')." >&2
+      fi
     done <<EOF
 $(dl_cfg_list protected_paths)
 EOF
