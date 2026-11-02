@@ -104,3 +104,4 @@ export async function authRoutes(fastify: FastifyInstance) {
     });
   });
 }
+

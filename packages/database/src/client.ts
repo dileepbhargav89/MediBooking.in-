@@ -4,6 +4,7 @@
  */
 
 import { Pool, PoolClient } from 'pg';
+export type { PoolClient } from 'pg';
 import { UserRole } from '@medibooking/types';
 
 export interface TenantSessionContext {
