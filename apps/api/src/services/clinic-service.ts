@@ -237,6 +237,10 @@ export class ClinicService {
       .replace(/^-+|-+$/g, '');
   }
 
+  public reset(): void {
+    this.resetStore();
+  }
+
   public resetStore(): void {
     this.clinics.clear();
     this.chambers.clear();

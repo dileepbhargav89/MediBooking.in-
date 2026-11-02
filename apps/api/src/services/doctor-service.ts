@@ -174,6 +174,34 @@ export class DoctorService {
     return doctor;
   }
 
+  /**
+   * Search and filter doctors directory
+   */
+  public async searchDoctors(params: {
+    specialty?: MedicalSpecialty;
+    query?: string;
+  }): Promise<DoctorProfile[]> {
+    const results: DoctorProfile[] = [];
+    const q = params.query ? params.query.toLowerCase().trim() : '';
+
+    for (const doc of this.doctors.values()) {
+      if (params.specialty && !doc.specialties.includes(params.specialty)) {
+        continue;
+      }
+      if (q) {
+        const matchesName = doc.fullName.toLowerCase().includes(q);
+        const matchesSpecialty = doc.specialties.some((s) => s.toLowerCase().includes(q));
+        const matchesQual = doc.qualifications.some((qual) => qual.toLowerCase().includes(q));
+        const matchesBio = doc.bio?.toLowerCase().includes(q);
+        if (!matchesName && !matchesSpecialty && !matchesQual && !matchesBio) {
+          continue;
+        }
+      }
+      results.push(doc);
+    }
+    return results;
+  }
+
   private generateDoctorSlug(fullName: string, primarySpecialty?: MedicalSpecialty): string {
     const cleanName = fullName
       .toLowerCase()

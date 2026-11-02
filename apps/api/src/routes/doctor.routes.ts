@@ -9,6 +9,9 @@ import { UserRole, MedicalSpecialty, DoctorDelayBroadcastDTO } from '@medibookin
 import { SEED_DATA } from '@medibooking/database';
 import { realtimeStreamManager } from '../services/realtime-sse';
 import { doctorService } from '../services/doctor-service';
+import { affiliationService } from '../services/affiliation-service';
+import { clinicService } from '../services/clinic-service';
+import { sessionService } from '../services/session-service';
 
 const delayBroadcastSchema = z.object({
   clinicId: z.string().uuid(),
@@ -46,6 +49,54 @@ const updateProfileSchema = z.object({
 
 export async function doctorRoutes(fastify: FastifyInstance) {
   /**
+   * Public Doctor Directory Search: GET /api/v1/doctors
+   */
+  fastify.get('/doctors', async (req) => {
+    const query = req.query as { specialty?: MedicalSpecialty; query?: string };
+    const doctors = await doctorService.searchDoctors(query);
+
+    const enriched = await Promise.all(
+      doctors.map(async (doc) => {
+        const affiliations = await affiliationService.getAffiliationsByDoctor(doc.id, true);
+        const primaryAff = affiliations.find((a) => a.isPrimaryClinic) || affiliations[0];
+        let primaryClinic;
+        if (primaryAff) {
+          primaryClinic = await clinicService.getClinicById(primaryAff.clinicId);
+        }
+
+        return {
+          id: doc.id,
+          fullName: doc.fullName,
+          slug: doc.slug,
+          specialties: doc.specialties,
+          qualifications: doc.qualifications,
+          experienceYears: doc.experienceYears,
+          bio: doc.bio,
+          profilePhotoUrl: doc.profilePhotoUrl,
+          isVerified: doc.isVerified,
+          primaryVenue: primaryAff
+            ? {
+                clinicId: primaryAff.clinicId,
+                clinicName: primaryClinic?.clinic.name || SEED_DATA.clinic.name,
+                locality: primaryClinic?.clinic.locality || SEED_DATA.clinic.locality,
+                city: primaryClinic?.clinic.city || SEED_DATA.clinic.city,
+                chamberNumber: primaryAff.chamberNumber,
+                consultationFeeRupees: primaryAff.consultationFeeRupees,
+              }
+            : null,
+          totalVenuesCount: affiliations.length,
+        };
+      })
+    );
+
+    return {
+      success: true,
+      count: enriched.length,
+      doctors: enriched,
+    };
+  });
+
+  /**
    * Public Doctor-First Discovery: GET /api/v1/doctors/:slug
    * Returns doctor credentials, specialties, and all affiliated clinics with chamber numbers and consultation fees
    */
@@ -60,27 +111,62 @@ export async function doctorRoutes(fastify: FastifyInstance) {
       });
     }
 
-    // Find seed clinic affiliation for venue details
-    const seedDoc = SEED_DATA.doctors.find((d) => d.slug === slug);
-    const chamberNumber = seedDoc ? seedDoc.chamberNumber : 'CH-1';
-    const consultationFee = seedDoc ? seedDoc.consultationFee : 500;
-    const followUpFee = seedDoc ? seedDoc.followUpFee : 300;
+    // Dynamically aggregate all active affiliations
+    const affiliations = await affiliationService.getAffiliationsByDoctor(doctor.id, true);
 
-    return {
-      doctor,
-      consultingVenues: [
+    let consultingVenues = [];
+
+    if (affiliations.length > 0) {
+      consultingVenues = await Promise.all(
+        affiliations.map(async (aff) => {
+          const clinic = await clinicService.getClinicById(aff.clinicId);
+          const sessions = await sessionService.getSessionsByDoctor(doctor.id, aff.clinicId, true);
+
+          return {
+            clinicId: aff.clinicId,
+            clinicName: clinic?.clinic.name || SEED_DATA.clinic.name,
+            locality: clinic?.clinic.locality || SEED_DATA.clinic.locality,
+            city: clinic?.clinic.city || SEED_DATA.clinic.city,
+            addressLine: clinic?.clinic.addressLine || SEED_DATA.clinic.addressLine,
+            chamberNumber: aff.chamberNumber,
+            consultationFeeRupees: aff.consultationFeeRupees,
+            followUpFeeRupees: aff.followUpFeeRupees,
+            followUpValidityDays: aff.followUpValidityDays,
+            isPrimaryClinic: aff.isPrimaryClinic,
+            sessions: sessions.map((s) => ({
+              dayOfWeek: s.dayOfWeek,
+              sessionType: s.sessionType,
+              startTime: s.startTime,
+              endTime: s.endTime,
+              slotDurationMinutes: s.slotDurationMinutes,
+              maxTokens: s.maxWalkInTokens + s.maxOnlineSlots,
+            })),
+          };
+        })
+      );
+    } else {
+      // Fallback for mock/seed compatibility
+      const seedDoc = SEED_DATA.doctors.find((d) => d.slug === slug);
+      consultingVenues = [
         {
           clinicId: SEED_DATA.clinic.id,
           clinicName: SEED_DATA.clinic.name,
           locality: SEED_DATA.clinic.locality,
           city: SEED_DATA.clinic.city,
           addressLine: SEED_DATA.clinic.addressLine,
-          chamberNumber,
-          consultationFeeRupees: consultationFee,
-          followUpFeeRupees: followUpFee,
+          chamberNumber: seedDoc ? seedDoc.chamberNumber : 'CH-1',
+          consultationFeeRupees: seedDoc ? seedDoc.consultationFee : 500,
+          followUpFeeRupees: seedDoc ? seedDoc.followUpFee : 300,
+          followUpValidityDays: 7,
+          isPrimaryClinic: true,
           sessions: seedDoc?.sessions || [],
         },
-      ],
+      ];
+    }
+
+    return {
+      doctor,
+      consultingVenues,
     };
   });
 
