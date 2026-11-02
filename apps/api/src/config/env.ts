@@ -6,6 +6,8 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   DATABASE_URL: z.string().default('postgresql://postgres:postgres@localhost:5432/medibooking'),
   REDIS_URL: z.string().default('redis://localhost:6379'),
+  UPSTASH_REDIS_REST_URL: z.string().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   JWT_SECRET: z.string().default('medibooking-enterprise-jwt-secret-key-32charsmin'),
   CORS_ORIGIN: z.string().default('*'),
 });
