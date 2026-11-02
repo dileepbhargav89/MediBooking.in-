@@ -346,10 +346,32 @@ export class AppointmentService {
   }
 
   /**
+   * Alias: get appointments for a specific clinic and day
+   */
+  getAppointmentsForDay(clinicId: string, date: string): Appointment[] {
+    return this.getActiveAppointmentsForClinic(clinicId, date);
+  }
+
+  /**
    * Retrieve Appointment by ID
    */
   async getAppointmentById(appointmentId: string): Promise<Appointment | null> {
     return this.appointments.get(appointmentId) || null;
+  }
+
+  /**
+   * Update Appointment attributes
+   */
+  updateAppointment(appointmentId: string, patch: Partial<Appointment>): Appointment | null {
+    const existing = this.appointments.get(appointmentId);
+    if (!existing) return null;
+    const updated = {
+      ...existing,
+      ...patch,
+      updatedAt: new Date().toISOString(),
+    };
+    this.appointments.set(appointmentId, updated);
+    return updated;
   }
 
   /**

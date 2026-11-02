@@ -18,6 +18,7 @@ import {
 import { SEED_DATA } from '@medibooking/database';
 import { realtimeStreamManager } from '../services/realtime-sse';
 import { appointmentService } from '../services/appointment-service';
+import { cashieringService } from '../services/cashiering-service';
 
 const intakeSchema = z.object({
   clinicId: z.string().uuid(),
@@ -152,6 +153,18 @@ export async function receptionRoutes(fastify: FastifyInstance) {
         realtimeStreamManager.broadcastChamberUpdate(data.clinicId, data.chamberNumber, {
           upNextTokens: upNextTokens.length > 0 ? upNextTokens : [appointment.tokenNumber],
         });
+
+        if (
+          appointment.paymentStatus === PaymentStatus.PAID_CASH ||
+          appointment.paymentStatus === PaymentStatus.PAID_UPI_QR
+        ) {
+          cashieringService.recordIntakeLedger(
+            appointment,
+            user?.userId,
+            user?.fullName || 'Receptionist',
+            thermalSlipData.doctorName
+          );
+        }
 
         return reply.status(200).send({
           success: true,

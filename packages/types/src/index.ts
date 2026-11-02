@@ -322,3 +322,67 @@ export interface ClinicTVDisplayPayload {
   chambers: ChamberTVState[];
 }
 
+// ==========================================
+// 6. CLINIC CASHIERING & PAYMENT LEDGER DTOs
+// ==========================================
+
+export interface PaymentLedgerEntry {
+  id: string;
+  clinicId: string;
+  appointmentId: string;
+  amountRupees: number;
+  paymentMethod: PaymentStatus; // PAID_CASH, PAID_UPI_QR, WAIVED_BY_DOCTOR
+  collectedByUserId?: string;
+  collectorName?: string;
+  patientName: string;
+  patientMobile: string;
+  tokenNumber: number;
+  chamberNumber: string;
+  doctorId: string;
+  doctorName?: string;
+  receiptNumber: string;
+  notes?: string;
+  recordedAt: string;
+}
+
+export interface ProcessPaymentDTO {
+  appointmentId: string;
+  paymentMethod: PaymentStatus.PAID_CASH | PaymentStatus.PAID_UPI_QR | PaymentStatus.WAIVED_BY_DOCTOR;
+  amountRupees?: number;
+  notes?: string;
+  collectedByUserId?: string;
+  collectorName?: string;
+}
+
+export interface CashieringSummary {
+  clinicId: string;
+  date: string;
+  totalCollectedRupees: number;
+  cashTotalRupees: number;
+  upiTotalRupees: number;
+  waivedTotalRupees: number;
+  totalTransactionsCount: number;
+  cashTransactionsCount: number;
+  upiTransactionsCount: number;
+  waivedTransactionsCount: number;
+  pendingCount: number;
+  pendingAmountRupees: number;
+  breakdownByDoctor: Array<{
+    doctorId: string;
+    doctorName: string;
+    chamberNumber: string;
+    totalAmountRupees: number;
+    cashAmountRupees: number;
+    upiAmountRupees: number;
+    waivedCount: number;
+    patientCount: number;
+  }>;
+}
+
+export interface CashieringFilterQuery {
+  date?: string; // YYYY-MM-DD
+  doctorId?: string;
+  paymentMethod?: PaymentStatus;
+}
+
+
