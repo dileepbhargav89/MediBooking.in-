@@ -213,6 +213,10 @@ export class DoctorService {
     return `dr-${cleanName}${spec}`;
   }
 
+  public reset(): void {
+    this.resetStore();
+  }
+
   public resetStore(): void {
     this.doctors.clear();
     this.slugToId.clear();

@@ -6,6 +6,9 @@ import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { slotLockManager } from '../services/concurrency-engine';
 import { slotService } from '../services/slot-service';
+import { doctorService } from '../services/doctor-service';
+import { affiliationService } from '../services/affiliation-service';
+import { clinicService } from '../services/clinic-service';
 import { requireAuth } from '../middleware/tenant-context';
 import { UserRole, SlotStatus } from '@medibooking/types';
 
@@ -182,6 +185,135 @@ export async function slotRoutes(fastify: FastifyInstance) {
     return {
       success: released,
       message: released ? 'Slot lock released' : 'No active lock found for this session',
+    };
+  });
+
+  /**
+   * Doctor-First Public Slot Query with Real-Time Mutex Lock Status & Availability Checking
+   * GET /api/v1/public/doctors/:slug/slots
+   */
+  fastify.get('/public/doctors/:slug/slots', async (req, reply) => {
+    const { slug } = req.params as { slug: string };
+    const query = req.query as { date?: string; clinicId?: string; sessionId?: string };
+
+    const doctor = await doctorService.getDoctorBySlug(slug);
+    if (!doctor) {
+      return reply.status(404).send({
+        error: 'Doctor Not Found',
+        message: `Doctor with slug '${slug}' was not found.`,
+      });
+    }
+
+    const date = query.date || (new Date().toISOString().split('T')[0] as string);
+    const callerSessionId = query.sessionId;
+
+    // Get doctor's active clinic affiliations
+    let affiliations = await affiliationService.getAffiliationsByDoctor(doctor.id, true);
+    if (query.clinicId) {
+      affiliations = affiliations.filter((a) => a.clinicId === query.clinicId);
+    }
+
+    const decoratedSlots: any[] = [];
+
+    for (const aff of affiliations) {
+      const clinicDetails = await clinicService.getClinicById(aff.clinicId);
+      const clinicName = clinicDetails?.clinic.name || 'Consulting Clinic';
+      const rawSlots = await slotService.getSlotsByDate(aff.clinicId, doctor.id, date);
+
+      for (const slot of rawSlots) {
+        const lockInfo = slotLockManager.getLockInfo(slot.id);
+        const isLocked = lockInfo.isLocked;
+        const isOwnedByCaller = Boolean(callerSessionId && lockInfo.sessionId === callerSessionId);
+
+        let finalStatus = slot.status;
+        if (isLocked) {
+          finalStatus = SlotStatus.LOCKED;
+        }
+
+        const isSlotAvailableOnline =
+          slot.status === SlotStatus.AVAILABLE || slot.status === SlotStatus.LOCKED;
+        const isAvailable = isSlotAvailableOnline && (!isLocked || isOwnedByCaller);
+
+        decoratedSlots.push({
+          id: slot.id,
+          clinicId: aff.clinicId,
+          clinicName,
+          chamberNumber: slot.chamberNumber,
+          slotDate: slot.slotDate,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+          status: finalStatus,
+          isAvailable,
+          isLocked,
+          isOwnedByCaller,
+          ttlSecondsRemaining: isLocked ? lockInfo.ttlSecondsRemaining : undefined,
+          consultationFee: aff.consultationFeeRupees,
+          followUpFee: aff.followUpFeeRupees,
+        });
+      }
+    }
+
+    // Sort by startTime
+    decoratedSlots.sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+    return {
+      doctor: {
+        id: doctor.id,
+        fullName: doctor.fullName,
+        slug: doctor.slug,
+        specialties: doctor.specialties,
+        qualifications: doctor.qualifications,
+      },
+      date,
+      totalSlots: decoratedSlots.length,
+      availableSlots: decoratedSlots.filter((s) => s.isAvailable).length,
+      slots: decoratedSlots,
+    };
+  });
+
+  /**
+   * Real-Time Single Slot Availability Probe
+   * GET /api/v1/public/slots/:slotId/availability
+   */
+  fastify.get('/public/slots/:slotId/availability', async (req, reply) => {
+    const { slotId } = req.params as { slotId: string };
+    const query = req.query as { sessionId?: string };
+    const callerSessionId = query.sessionId;
+
+    const slot = await slotService.getSlotById(slotId);
+    if (!slot) {
+      return reply.status(404).send({
+        error: 'Not Found',
+        message: `Slot with ID '${slotId}' was not found.`,
+      });
+    }
+
+    const lockInfo = slotLockManager.getLockInfo(slot.id);
+    const isLocked = lockInfo.isLocked;
+    const isOwnedByCaller = Boolean(callerSessionId && lockInfo.sessionId === callerSessionId);
+
+    let finalStatus = slot.status;
+    if (isLocked) {
+      finalStatus = SlotStatus.LOCKED;
+    }
+
+    const isSlotAvailableOnline =
+      slot.status === SlotStatus.AVAILABLE || slot.status === SlotStatus.LOCKED;
+    const isAvailable = isSlotAvailableOnline && (!isLocked || isOwnedByCaller);
+
+    return {
+      slotId: slot.id,
+      clinicId: slot.clinicId,
+      doctorId: slot.doctorId,
+      chamberNumber: slot.chamberNumber,
+      slotDate: slot.slotDate,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      status: finalStatus,
+      isAvailable,
+      isLocked,
+      isOwnedByCaller,
+      ttlSecondsRemaining: isLocked ? lockInfo.ttlSecondsRemaining : undefined,
     };
   });
 }

@@ -199,6 +199,24 @@ export class SlotService {
   }
 
   /**
+   * Retrieves all slots for a doctor across all clinics or a specified clinic for a date
+   */
+  async getSlotsByDoctor(doctorId: string, dateStr: string, clinicId?: string): Promise<AvailabilitySlot[]> {
+    if (clinicId) {
+      return this.getSlotsByDate(clinicId, doctorId, dateStr);
+    }
+    const sessions = await sessionService.getSessionsByDoctor(doctorId, undefined, true);
+    const clinicIds = Array.from(new Set(sessions.map((s) => s.clinicId)));
+    const allSlots: AvailabilitySlot[] = [];
+    for (const cid of clinicIds) {
+      const slots = await this.getSlotsByDate(cid, doctorId, dateStr);
+      allSlots.push(...slots);
+    }
+    allSlots.sort((a, b) => a.startTime.localeCompare(b.startTime));
+    return allSlots;
+  }
+
+  /**
    * Retrieves only bookable online slots
    */
   async getAvailableSlots(clinicId: string, doctorId: string, dateStr: string): Promise<AvailabilitySlot[]> {

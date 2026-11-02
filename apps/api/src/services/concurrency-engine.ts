@@ -116,6 +116,21 @@ export class MemoryRedisDriver {
     return true;
   }
 
+  getLockInfo(key: string): { isLocked: boolean; sessionId?: string; ttlSecondsRemaining?: number } {
+    const existing = this.locks.get(key);
+    if (!existing) return { isLocked: false };
+    const now = Date.now();
+    if (existing.expiresAt <= now) {
+      this.locks.delete(key);
+      return { isLocked: false };
+    }
+    return {
+      isLocked: true,
+      sessionId: existing.sessionId,
+      ttlSecondsRemaining: Math.ceil((existing.expiresAt - now) / 1000),
+    };
+  }
+
   clear() {
     this.locks.clear();
   }
@@ -258,6 +273,14 @@ export class SlotConcurrencyManager {
   public isLocked(slotId: string): boolean {
     const key = this.formatKey(slotId);
     return this.memDriver.isLocked(key);
+  }
+
+  /**
+   * Get detailed lock information for a slot
+   */
+  public getLockInfo(slotId: string): { isLocked: boolean; sessionId?: string; ttlSecondsRemaining?: number } {
+    const key = this.formatKey(slotId);
+    return this.memDriver.getLockInfo(key);
   }
 
   /**
