@@ -206,7 +206,7 @@ model ClinicStaff {
   user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   dedicatedDoctor   DoctorProfile? @relation(fields: [dedicatedDoctorId], references: [id], onDelete: SetNull)
 
-  @@unique([clinicId, user_id])
+  @@unique([clinicId, userId])
   @@map("clinic_staff")
 }
 

@@ -66,3 +66,4 @@ browser:
   ready_timeout: 90
   fail_on_console_errors: true
   record_gif: false
+

@@ -9,10 +9,11 @@
     "lint": "echo \"@medibooking/database lint passed\""
   },
   "dependencies": {
-    "@medibooking/types": "workspace:*"
+    "@medibooking/types": "workspace:*",
+    "pg": "^8.23.1"
   },
   "devDependencies": {
+    "@types/pg": "^8.23.1",
     "typescript": "^5.7.2"
   }
 }
-
