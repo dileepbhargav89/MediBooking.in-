@@ -1,14 +1,23 @@
 /**
- * Public Slot Discovery & Concurrency Locking Routes
+ * Public Slot Discovery, Batch Generator, & Concurrency Locking Routes
  */
 
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { slotLockManager } from '../services/concurrency-engine';
+import { slotService } from '../services/slot-service';
+import { requireAuth } from '../middleware/tenant-context';
+import { UserRole, SlotStatus } from '@medibooking/types';
 
 const lockSlotSchema = z.object({
   sessionId: z.string().min(8),
   ttlSeconds: z.number().int().min(60).max(600).optional().default(300),
+});
+
+const generateSlotsSchema = z.object({
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD'),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD').optional(),
+  doctorId: z.string().uuid().optional(),
 });
 
 export async function slotRoutes(fastify: FastifyInstance) {
@@ -18,38 +27,114 @@ export async function slotRoutes(fastify: FastifyInstance) {
   fastify.get('/public/clinics/:clinicId/doctors/:doctorId/slots', async (req) => {
     const { clinicId, doctorId } = req.params as { clinicId: string; doctorId: string };
     const query = req.query as { date?: string };
-    const date = query.date || new Date().toISOString().split('T')[0];
+    const date = query.date || (new Date().toISOString().split('T')[0] as string);
 
-    // Generate standard 15-minute slots for evening session 18:00 - 20:30
-    const times = [
-      '18:00', '18:15', '18:30', '18:45',
-      '19:00', '19:15', '19:30', '19:45',
-      '20:00', '20:15'
-    ];
+    const slots = await slotService.getSlotsByDate(clinicId, doctorId, date);
 
-    const slots = times.map((t, idx) => {
-      const slotId = `slot-${clinicId.slice(0, 4)}-${doctorId.slice(0, 4)}-${idx + 1}`;
-      const locked = slotLockManager.isLocked(slotId);
-
-      return {
-        id: slotId,
-        clinicId,
-        doctorId,
-        chamberNumber: 'CH-1',
-        slotDate: date,
-        startTime: `${date}T${t}:00+05:30`,
-        isAvailable: !locked,
-        status: locked ? 'LOCKED' : 'AVAILABLE',
-      };
-    });
+    // Fallback if doctor has no recurring sessions on that day: provide standard slots
+    let formattedSlots;
+    if (slots.length === 0) {
+      const times = [
+        '18:00', '18:15', '18:30', '18:45',
+        '19:00', '19:15', '19:30', '19:45',
+        '20:00', '20:15'
+      ];
+      formattedSlots = times.map((t, idx) => {
+        const slotId = `slot-${clinicId.slice(0, 4)}-${doctorId.slice(0, 4)}-${idx + 1}`;
+        const locked = slotLockManager.isLocked(slotId);
+        return {
+          id: slotId,
+          clinicId,
+          doctorId,
+          chamberNumber: 'CH-1',
+          slotDate: date,
+          startTime: `${date}T${t}:00+05:30`,
+          isAvailable: !locked,
+          status: locked ? 'LOCKED' : 'AVAILABLE',
+        };
+      });
+    } else {
+      formattedSlots = slots.map((s) => ({
+        id: s.id,
+        clinicId: s.clinicId,
+        doctorId: s.doctorId,
+        chamberNumber: s.chamberNumber,
+        slotDate: s.slotDate,
+        startTime: s.startTime,
+        isAvailable: s.status === SlotStatus.AVAILABLE,
+        status: s.status,
+      }));
+    }
 
     return {
       clinicId,
       doctorId,
       date,
-      slots,
+      slots: formattedSlots,
     };
   });
+
+  /**
+   * Batch Slot Generator: POST /api/v1/admin/clinics/:clinicId/slots/generate
+   */
+  fastify.post(
+    '/admin/clinics/:clinicId/slots/generate',
+    {
+      preHandler: [requireAuth({ allowedRoles: [UserRole.SUPER_ADMIN, UserRole.CLINIC_ADMIN] })],
+    },
+    async (req, reply) => {
+      const { clinicId } = req.params as { clinicId: string };
+      const parseResult = generateSlotsSchema.safeParse(req.body);
+
+      if (!parseResult.success) {
+        return reply.status(400).send({
+          error: 'Validation Error',
+          details: parseResult.error.format(),
+        });
+      }
+
+      const { startDate, endDate, doctorId } = parseResult.data;
+      const targetEnd = endDate || startDate;
+
+      try {
+        const generated = await slotService.generateSlotsForDateRange(clinicId, startDate, targetEnd, doctorId);
+        return reply.status(201).send({
+          success: true,
+          message: `Generated ${generated.length} slots for clinic ${clinicId}`,
+          count: generated.length,
+          slots: generated,
+        });
+      } catch (err: any) {
+        return reply.status(400).send({
+          error: 'Generation Error',
+          message: err.message,
+        });
+      }
+    }
+  );
+
+  /**
+   * Block specific slot: PATCH /api/v1/clinic/slots/:slotId/block
+   */
+  fastify.patch(
+    '/clinic/slots/:slotId/block',
+    {
+      preHandler: [requireAuth({ allowedRoles: [UserRole.SUPER_ADMIN, UserRole.CLINIC_ADMIN, UserRole.DOCTOR] })],
+    },
+    async (req, reply) => {
+      const { slotId } = req.params as { slotId: string };
+      try {
+        const blocked = await slotService.blockSlot(slotId);
+        return reply.send({
+          success: true,
+          message: `Slot ${slotId} blocked from booking`,
+          slot: blocked,
+        });
+      } catch (err: any) {
+        return reply.status(404).send({ error: 'Not Found', message: err.message });
+      }
+    }
+  );
 
   /**
    * 5-Minute Atomic Mutex Lock: POST /api/v1/public/slots/:slotId/lock
@@ -100,4 +185,3 @@ export async function slotRoutes(fastify: FastifyInstance) {
     };
   });
 }
-
