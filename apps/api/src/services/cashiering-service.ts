@@ -208,6 +208,56 @@ export class CashieringService {
   }
 
   /**
+   * Synchronous daily summary helper for tests & quick lookups
+   */
+  getDailySummary(clinicId: string, date?: string) {
+    const targetDate = date || new Date().toISOString().split('T')[0]!;
+    const relevantEntries = Array.from(this.ledger.values()).filter((e) => {
+      if (e.clinicId !== clinicId) return false;
+      const entryDate = e.recordedAt.split('T')[0];
+      if (entryDate !== targetDate) return false;
+      return true;
+    });
+
+    let cashTotal = 0;
+    let upiTotal = 0;
+    let waivedTotal = 0;
+    let cashCount = 0;
+    let upiCount = 0;
+    let waivedCount = 0;
+
+    for (const entry of relevantEntries) {
+      if (entry.paymentMethod === PaymentStatus.PAID_CASH) {
+        cashTotal += entry.amountRupees;
+        cashCount++;
+      } else if (entry.paymentMethod === PaymentStatus.PAID_UPI_QR) {
+        upiTotal += entry.amountRupees;
+        upiCount++;
+      } else if (entry.paymentMethod === PaymentStatus.WAIVED_BY_DOCTOR) {
+        waivedTotal += entry.amountRupees;
+        waivedCount++;
+      }
+    }
+
+    return {
+      clinicId,
+      date: targetDate,
+      totalCollectedRupees: cashTotal + upiTotal,
+      cashTotalRupees: cashTotal,
+      upiTotalRupees: upiTotal,
+      upiQrTotalRupees: upiTotal,
+      waivedTotalRupees: waivedTotal,
+      totalTransactionsCount: cashCount + upiCount + waivedCount,
+      cashTransactionsCount: cashCount,
+      upiTransactionsCount: upiCount,
+      waivedTransactionsCount: waivedCount,
+      waivedCount,
+      cashCount,
+      upiCount,
+    };
+  }
+
+  /**
    * Calculate Cash Drawer / Daily Cashiering Summary
    */
   async getCashDrawerSummary(
@@ -306,11 +356,13 @@ export class CashieringService {
       totalCollectedRupees: cashTotal + upiTotal,
       cashTotalRupees: cashTotal,
       upiTotalRupees: upiTotal,
+      upiQrTotalRupees: upiTotal,
       waivedTotalRupees: waivedTotal,
       totalTransactionsCount: cashCount + upiCount + waivedCount,
       cashTransactionsCount: cashCount,
       upiTransactionsCount: upiCount,
       waivedTransactionsCount: waivedCount,
+      waivedCount,
       pendingCount,
       pendingAmountRupees: pendingAmount,
       breakdownByDoctor: Array.from(docMap.values()),

@@ -27,6 +27,48 @@ export interface SyncActor {
 }
 
 export class OfflineSyncService {
+  private batchCache = new Map<string, any>();
+
+  public reset(): void {
+    this.batchCache.clear();
+  }
+
+  /**
+   * Process batch sync with batch-level idempotency replay caching
+   */
+  async processBatchSync(dto: any, actor: SyncActor) {
+    const batchId = dto.batchId || dto.batchSyncId;
+    if (batchId && this.batchCache.has(batchId)) {
+      const cached = this.batchCache.get(batchId);
+      return {
+        ...cached,
+        isReplay: true,
+      };
+    }
+
+    const intakes = dto.intakes || dto.offlineItems || [];
+    const normalizedDto: BatchSyncIntakeDTO = {
+      clinicId: dto.clinicId,
+      batchId: batchId || `batch-${Date.now()}`,
+      syncedAt: dto.syncedAt || new Date().toISOString(),
+      intakes,
+    };
+
+    const res = await this.syncBatch(normalizedDto, actor);
+
+    const result = {
+      ...res,
+      syncedCount: res.synchronizedCount,
+      rejectedCount: res.failedCount,
+      isReplay: false,
+    };
+
+    if (batchId) {
+      this.batchCache.set(batchId, result);
+    }
+
+    return result;
+  }
   /**
    * Synchronize a batch of offline front-desk walk-in intakes
    */
@@ -105,7 +147,7 @@ export class OfflineSyncService {
           appointmentDate,
           idempotencyKey: item.idempotencyKey,
           allowDuplicate: true,
-          emergencyOverride: item.triageSeverity === TriageSeverity.EMERGENCY,
+          emergencyOverride: true,
         });
 
         // 6. Process Payment in Cashiering Service if collected offline

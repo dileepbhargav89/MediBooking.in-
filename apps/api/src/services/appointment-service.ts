@@ -50,6 +50,7 @@ export interface CreateWalkInIntakeDTO {
   allowDuplicate?: boolean;
   emergencyOverride?: boolean;
   idempotencyKey?: string;
+  source?: BookingSource;
 }
 
 export interface ThermalSlipData {
@@ -311,7 +312,7 @@ export class AppointmentService {
       appointmentDate,
       tokenNumber: nextToken,
       status: AppointmentStatus.WAITING,
-      source: BookingSource.WALK_IN,
+      source: dto.source || BookingSource.WALK_IN,
       paymentStatus: dto.paymentMethod,
       amountRupees: resolvedFee,
       triageSeverity: dto.triageSeverity || TriageSeverity.ROUTINE,
@@ -350,6 +351,14 @@ export class AppointmentService {
       appointment,
       thermalSlipData,
     };
+  }
+
+  /**
+   * Helper alias returning Appointment directly
+   */
+  async walkInIntake(dto: CreateWalkInIntakeDTO): Promise<Appointment> {
+    const res = await this.createWalkInIntake(dto);
+    return res.appointment;
   }
 
   /**
