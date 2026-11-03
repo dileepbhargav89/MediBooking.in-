@@ -20,6 +20,9 @@ import {
   ClinicQueueMetrics,
   MultiChamberQueueResponse,
   ChamberTVState,
+  maskPatientName,
+  maskIndianMobile,
+  maskPatientIdentity,
 } from '@medibooking/types';
 import { SEED_DATA } from '@medibooking/database';
 import { realtimeStreamManager } from '../services/realtime-sse';
@@ -549,7 +552,7 @@ export async function receptionRoutes(fastify: FastifyInstance) {
             appointmentInMock.chamberNumber,
             {
               currentToken: appointmentInMock.tokenNumber,
-              servingPatientMaskedName: `${appointmentInMock.patientName[0]}***`,
+              servingPatientMaskedName: maskPatientName(appointmentInMock.patientName),
             }
           );
         }
@@ -599,6 +602,32 @@ export async function receptionRoutes(fastify: FastifyInstance) {
     reply.header('Content-Type', 'application/octet-stream');
     reply.header('Content-Disposition', `inline; filename="receipt-${body.receiptNumber || 'print'}.bin"`);
     return reply.send(buffer);
+  });
+
+  /**
+   * Patient Identity Masking Preview: POST /api/v1/public/masking/preview
+   */
+  fastify.post('/public/masking/preview', async (req, reply) => {
+    const { name, mobile, style, stripHonorifics } = (req.body || {}) as {
+      name?: string;
+      mobile?: string;
+      style?: any;
+      stripHonorifics?: boolean;
+    };
+
+    if (!name) {
+      return reply.status(400).send({
+        statusCode: 400,
+        error: 'Bad Request',
+        message: 'Missing required field: name',
+      });
+    }
+
+    const masked = maskPatientIdentity(name, mobile, { style, stripHonorifics });
+    return reply.status(200).send({
+      success: true,
+      identity: masked,
+    });
   });
 }
 

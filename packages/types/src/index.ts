@@ -993,6 +993,119 @@ export interface AuditChainVerificationResult {
   verifiedAt: string;
 }
 
+// ==========================================
+// 17. PATIENT IDENTITY MASKING UTILITY (STAGE III)
+// ==========================================
+
+export type NameMaskingStyle = 'STANDARD' | 'INITIALS_ONLY' | 'FULL_SURNAME_MASK';
+
+export interface MaskingOptions {
+  style?: NameMaskingStyle;
+  stripHonorifics?: boolean;
+}
+
+export interface MaskedPatientIdentity {
+  originalName: string;
+  maskedName: string;
+  originalMobile?: string;
+  maskedMobile?: string;
+}
+
+const COMMON_HONORIFICS = new Set([
+  'mr',
+  'mr.',
+  'mrs',
+  'mrs.',
+  'ms',
+  'ms.',
+  'dr',
+  'dr.',
+  'shri',
+  'smt',
+  'smt.',
+  'master',
+  'prof',
+  'prof.',
+  'er',
+  'er.',
+  'lt',
+  'lt.',
+  'col',
+  'col.',
+  'capt',
+  'capt.',
+  'maj',
+  'maj.',
+]);
+
+export function maskPatientName(name: string, options?: MaskingOptions): string {
+  if (!name || typeof name !== 'string') return '';
+  const trimmed = name.trim();
+  if (!trimmed) return '';
+
+  const rawTokens = trimmed.split(/\s+/);
+  const stripHonorifics = options?.stripHonorifics ?? true;
+
+  // Filter out leading honorifics if requested
+  let tokens = rawTokens;
+  if (stripHonorifics) {
+    while (tokens.length > 1 && COMMON_HONORIFICS.has((tokens[0] || '').toLowerCase())) {
+      tokens = tokens.slice(1);
+    }
+  }
+
+  if (tokens.length === 0) return '';
+  const first = tokens[0] || '';
+  const style = options?.style || 'STANDARD';
+
+  // Single-word name: "Pooja" -> "P***"
+  if (tokens.length === 1) {
+    return `${first.charAt(0).toUpperCase()}***`;
+  }
+
+  const last = tokens[tokens.length - 1] || '';
+
+  switch (style) {
+    case 'INITIALS_ONLY':
+      // "Rajesh Sharma" -> "R*** S***"
+      return `${first.charAt(0).toUpperCase()}*** ${last.charAt(0).toUpperCase()}***`;
+    case 'FULL_SURNAME_MASK':
+      // "Rajesh Sharma" -> "Rajesh S***"
+      return `${first} ${last.charAt(0).toUpperCase()}***`;
+    case 'STANDARD':
+    default:
+      // "Rajesh Sharma" -> "R*** Sharma"
+      return `${first.charAt(0).toUpperCase()}*** ${last}`;
+  }
+}
+
+export function maskIndianMobile(phone: string): string {
+  if (!phone || typeof phone !== 'string') return '';
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length >= 10) {
+    const last10 = digits.slice(-10);
+    return `${last10.slice(0, 5)}*****`;
+  }
+  if (digits.length >= 5) {
+    return `${digits.slice(0, 3)}***`;
+  }
+  return '*****';
+}
+
+export function maskPatientIdentity(
+  name: string,
+  mobile?: string,
+  options?: MaskingOptions
+): MaskedPatientIdentity {
+  return {
+    originalName: name,
+    maskedName: maskPatientName(name, options),
+    originalMobile: mobile,
+    maskedMobile: mobile ? maskIndianMobile(mobile) : undefined,
+  };
+}
+
+
 
 
 

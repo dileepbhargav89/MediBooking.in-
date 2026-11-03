@@ -14,6 +14,7 @@ import {
   CompounderQueueResponse,
   QueueAppointmentItem,
   ChamberTVState,
+  maskPatientName,
 } from '@medibooking/types';
 import { requireAuth } from '../middleware/tenant-context';
 import { appointmentService } from '../services/appointment-service';
@@ -285,7 +286,7 @@ export async function compounderRoutes(fastify: FastifyInstance) {
       if (result.servingAppointment) {
         realtimeStreamManager.broadcastChamberUpdate(user.activeClinicId!, chamberNumber, {
           currentToken: result.servingAppointment.tokenNumber,
-          servingPatientMaskedName: `${result.servingAppointment.patientName[0]}***`,
+          servingPatientMaskedName: maskPatientName(result.servingAppointment.patientName),
         });
       } else {
         realtimeStreamManager.broadcastChamberUpdate(user.activeClinicId!, chamberNumber, {

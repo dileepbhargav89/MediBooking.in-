@@ -7,6 +7,7 @@ import {
   TransitionAppointmentDTO,
   AppointmentTransitionRecord,
   QueueTransitionResult,
+  maskPatientName,
 } from '@medibooking/types';
 import { appointmentService } from './appointment-service';
 import { realtimeStreamManager } from './realtime-sse';
@@ -160,7 +161,7 @@ export class QueueTransitionController {
         updatedAppointment.chamberNumber,
         {
           currentToken: updatedAppointment.tokenNumber,
-          servingPatientMaskedName: `${updatedAppointment.patientName[0]}***`,
+          servingPatientMaskedName: maskPatientName(updatedAppointment.patientName),
         }
       );
     } else if (fromStatus === AppointmentStatus.IN_CONSULTATION) {
