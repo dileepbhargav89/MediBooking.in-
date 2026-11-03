@@ -1,6 +1,6 @@
 /**
  * MediBooking Enterprise UI Design System Tokens & Component Library
- * Document ID: MB-SPEC-14 (Stage IV, Phase 33)
+ * Document ID: MB-SPEC-14 (Stage IV, Phase 33 & 36)
  */
 
 export * from '@medibooking/types';
@@ -11,6 +11,7 @@ export { Badge, type BadgeProps } from './components/Badge';
 export { Button, type ButtonProps } from './components/Button';
 export { Card, CardHeader, CardBody, CardFooter, type CardProps } from './components/Card';
 export { ChamberBadge, type ChamberBadgeProps } from './components/ChamberBadge';
+export { ClinicSwitcherModal, type ClinicSwitcherModalProps, type AffiliatedClinicItem } from './components/ClinicSwitcherModal';
 export { Input, type InputProps } from './components/Input';
 export { Modal, type ModalProps } from './components/Modal';
 export { StatCard, type StatCardProps } from './components/StatCard';
