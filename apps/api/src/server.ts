@@ -23,6 +23,7 @@ import { triageRoutes } from './routes/triage.routes';
 import { sessionCancellationRoutes } from './routes/session-cancellation.routes';
 import { rescheduleRoutes } from './routes/reschedule.routes';
 import { notificationRoutes } from './routes/notification.routes';
+import { auditRoutes } from './routes/audit.routes';
 import { SEED_DATA } from '@medibooking/database';
 
 export function createApiServer(): FastifyInstance {
@@ -63,6 +64,7 @@ export function createApiServer(): FastifyInstance {
       v1.register(sessionCancellationRoutes);
       v1.register(rescheduleRoutes);
       v1.register(notificationRoutes);
+      v1.register(auditRoutes);
     },
     { prefix: '/api/v1' }
   );

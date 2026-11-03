@@ -919,6 +919,81 @@ export interface FormattedThermalReceipt {
   htmlContent: string;
 }
 
+// ==========================================
+// 16. DPDP ACT 2023 TAMPER-EVIDENT AUDIT LOGGER (STAGE III)
+// ==========================================
+
+export type DpdpAuditAction =
+  | 'PATIENT_INTAKE'
+  | 'DATA_ACCESS'
+  | 'DATA_EXPORT'
+  | 'CONSENT_RECORDED'
+  | 'DATA_ERASURE_REQUEST'
+  | 'PAYMENT_COLLECTED'
+  | 'EMERGENCY_OVERRIDE'
+  | 'DELAY_BROADCAST'
+  | 'SESSION_CANCELLED'
+  | 'USER_LOGIN'
+  | 'SECURITY_ALERT';
+
+export type LawfulBasis =
+  | 'CONSENT'
+  | 'LEGAL_OBLIGATION'
+  | 'VITAL_INTERESTS'
+  | 'LEGITIMATE_USES';
+
+export interface DpdpAuditLogEntry {
+  sequenceNumber: number;
+  id: string;
+  clinicId: string;
+  actorId: string;
+  actorRole: UserRole;
+  action: DpdpAuditAction;
+  entityType: string;
+  entityId: string;
+  lawfulBasis: LawfulBasis;
+  details: Record<string, any>;
+  clientIp?: string;
+  timestamp: string;
+  previousHash: string;
+  currentHash: string;
+}
+
+export interface CreateAuditLogDTO {
+  clinicId: string;
+  actorId: string;
+  actorRole: UserRole;
+  action: DpdpAuditAction;
+  entityType: string;
+  entityId: string;
+  lawfulBasis?: LawfulBasis;
+  details?: Record<string, any>;
+  clientIp?: string;
+  timestamp?: string;
+}
+
+export interface AuditQueryFilter {
+  clinicId: string;
+  action?: DpdpAuditAction;
+  actorRole?: UserRole;
+  fromDate?: string;
+  toDate?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface AuditChainVerificationResult {
+  valid: boolean;
+  clinicId: string;
+  totalEntries: number;
+  tamperedIndex?: number;
+  tamperedSequenceNumber?: number;
+  tamperedId?: string;
+  reason?: string;
+  verifiedAt: string;
+}
+
+
 
 
 
