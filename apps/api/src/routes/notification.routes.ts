@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { whatsappBroker } from '../services/whatsapp-broker';
 import { smsGatewayBroker } from '../services/sms-broker';
 import { dltSmsFailoverGateway, DltSmsProvider } from '../services/dlt-sms-failover-gateway';
+import { whatsAppTwoWayBotService } from '../services/whatsapp-two-way-bot';
 import { WhatsAppTemplateType, SmsTemplateType } from '@medibooking/types';
 
 const sendNotificationSchema = z.object({
@@ -244,6 +245,72 @@ export async function notificationRoutes(fastify: FastifyInstance) {
       circuits,
       activeCarriersCount: Object.keys(circuits).length,
       timestamp: new Date().toISOString(),
+    });
+  });
+
+  /**
+   * Phase 54: Meta WhatsApp Cloud API Webhook Handshake Verification
+   * GET /api/v1/whatsapp/webhook
+   */
+  fastify.get('/whatsapp/webhook', async (req, reply) => {
+    const query = req.query as {
+      'hub.mode'?: string;
+      'hub.verify_token'?: string;
+      'hub.challenge'?: string;
+    };
+
+    const mode = query['hub.mode'] || '';
+    const token = query['hub.verify_token'] || '';
+    const challenge = query['hub.challenge'] || '';
+
+    const verifiedChallenge = whatsAppTwoWayBotService.verifyHandshake(mode, token, challenge);
+    if (verifiedChallenge) {
+      return reply.status(200).send(verifiedChallenge);
+    }
+    return reply.status(403).send({ error: 'Forbidden', message: 'Webhook handshake verification failed' });
+  });
+
+  /**
+   * Phase 54: Meta WhatsApp Cloud API Inbound Webhook Processor
+   * POST /api/v1/whatsapp/webhook
+   */
+  fastify.post('/whatsapp/webhook', async (req, reply) => {
+    const replies = whatsAppTwoWayBotService.parseMetaWebhookBody(req.body);
+    return reply.status(200).send({
+      success: true,
+      processedCount: replies.length,
+      replies,
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  /**
+   * Phase 54: Inbound Two-Way WhatsApp Interactive Simulation
+   * POST /api/v1/whatsapp/simulate-inbound
+   */
+  fastify.post('/whatsapp/simulate-inbound', async (req, reply) => {
+    const inboundSchema = z.object({
+      senderMobile: z.string().min(10),
+      messageText: z.string().min(1),
+    });
+
+    const parsed = inboundSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return reply.status(400).send({
+        error: 'Validation Error',
+        message: 'Invalid inbound message simulation payload',
+        details: parsed.error.format(),
+      });
+    }
+
+    const botReply = whatsAppTwoWayBotService.handleMessage(
+      parsed.data.senderMobile,
+      parsed.data.messageText
+    );
+
+    return reply.status(200).send({
+      success: true,
+      botReply,
     });
   });
 }

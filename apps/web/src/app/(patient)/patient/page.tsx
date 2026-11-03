@@ -40,6 +40,65 @@ export default function PatientQueueTrackerPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [whatsappActive, setWhatsappActive] = useState(true);
 
+  // Phase 54: Two-Way WhatsApp Bot Assistant State
+  const [chatMessages, setChatMessages] = useState<
+    Array<{ id: string; sender: 'PATIENT' | 'BOT'; text: string; time: string }>
+  >([
+    {
+      id: 'm1',
+      sender: 'BOT',
+      text: '🙏 नमस्ते! MediBooking.in भोपाल केयर WhatsApp बॉट में आपका स्वागत है। टोकन स्थिति जानने के लिए STATUS बटन दबाएं या लिखें।',
+      time: 'Just now',
+    },
+  ]);
+  const [inputCommand, setInputCommand] = useState('');
+  const [isBotTyping, setIsBotTyping] = useState(false);
+
+  const sendWhatsAppCommand = async (commandText: string) => {
+    if (!commandText.trim()) return;
+    const timeNow = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    const userMsg = { id: `user-${Date.now()}`, sender: 'PATIENT' as const, text: commandText, time: timeNow };
+    setChatMessages((prev) => [...prev, userMsg]);
+    setInputCommand('');
+    setIsBotTyping(true);
+
+    try {
+      const res = await fetch('http://127.0.0.1:4000/api/v1/whatsapp/simulate-inbound', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          senderMobile: '9826011111',
+          messageText: commandText,
+        }),
+      });
+      const data = await res.json();
+      if (data?.botReply?.replyText) {
+        setChatMessages((prev) => [
+          ...prev,
+          {
+            id: `bot-${Date.now()}`,
+            sender: 'BOT',
+            text: data.botReply.replyText,
+            time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+          },
+        ]);
+      }
+    } catch {
+      // Local fallback simulation
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          id: `bot-${Date.now()}`,
+          sender: 'BOT',
+          text: `📋 टोकन #14 (Dr. Rajesh Sharma, CH-1) वर्तमान में WAITING है। वर्तमान में #11 चल रहा है।`,
+          time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+        },
+      ]);
+    } finally {
+      setIsBotTyping(false);
+    }
+  };
+
   const tokensAhead = Math.max(0, tokenState.tokenNumber - tokenState.currentCallingToken);
   const isMyTurn = tokenState.tokenNumber === tokenState.currentCallingToken;
   const estimatedWait =
@@ -297,6 +356,121 @@ export default function PatientQueueTrackerPage() {
           >
             {whatsappActive ? '✓ Active' : 'Enable'}
           </button>
+        </div>
+
+        {/* Phase 54: Two-Way WhatsApp Cloud Bot Assistant Simulator */}
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div className="bg-[#075E54] text-white px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 rounded-full bg-emerald-700 flex items-center justify-center font-bold text-base shadow-inner">
+                💬
+              </div>
+              <div>
+                <span className="font-bold text-xs block leading-tight">
+                  MediBooking Bhopal Care Bot
+                </span>
+                <span className="text-[10px] text-emerald-200 flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  WhatsApp Cloud API v22.0 • Online
+                </span>
+              </div>
+            </div>
+            <span className="text-[10px] font-mono bg-emerald-900/60 text-emerald-100 px-2 py-0.5 rounded border border-emerald-700/50">
+              +91 755 4019283
+            </span>
+          </div>
+
+          {/* Chat Message Stream */}
+          <div className="p-4 bg-[#ECE5DD] min-h-[180px] max-h-[300px] overflow-y-auto space-y-3 font-sans">
+            {chatMessages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`flex flex-col ${
+                  msg.sender === 'PATIENT' ? 'items-end' : 'items-start'
+                }`}
+              >
+                <div
+                  className={`max-w-[85%] rounded-lg px-3 py-2 text-xs shadow-sm whitespace-pre-line leading-relaxed ${
+                    msg.sender === 'PATIENT'
+                      ? 'bg-[#DCF8C6] text-slate-900 rounded-tr-none'
+                      : 'bg-white text-slate-800 rounded-tl-none border border-slate-200/50'
+                  }`}
+                >
+                  {msg.text}
+                  <div
+                    className={`text-[9px] mt-1 flex items-center gap-1 justify-end ${
+                      msg.sender === 'PATIENT' ? 'text-emerald-700' : 'text-slate-400'
+                    }`}
+                  >
+                    <span>{msg.time}</span>
+                    {msg.sender === 'PATIENT' && <span className="font-bold">✓✓</span>}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {isBotTyping && (
+              <div className="flex items-center gap-1 text-[11px] text-slate-500 italic bg-white/70 px-2 py-1 rounded w-fit">
+                <span>Bot is typing...</span>
+              </div>
+            )}
+          </div>
+
+          {/* Interactive WhatsApp Quick Command Chips */}
+          <div className="p-3 bg-slate-50 border-t border-slate-200 space-y-2">
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => sendWhatsAppCommand('STATUS')}
+                className="px-2.5 py-1 rounded-full text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:border-emerald-500 hover:text-emerald-700 transition-colors shadow-xs"
+              >
+                📊 STATUS
+              </button>
+              <button
+                type="button"
+                onClick={() => sendWhatsAppCommand('DELAY')}
+                className="px-2.5 py-1 rounded-full text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:border-emerald-500 hover:text-emerald-700 transition-colors shadow-xs"
+              >
+                ⏳ DELAY
+              </button>
+              <button
+                type="button"
+                onClick={() => sendWhatsAppCommand('CANCEL')}
+                className="px-2.5 py-1 rounded-full text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:border-red-500 hover:text-red-700 transition-colors shadow-xs"
+              >
+                ❌ CANCEL
+              </button>
+              <button
+                type="button"
+                onClick={() => sendWhatsAppCommand('HELP')}
+                className="px-2.5 py-1 rounded-full text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:border-blue-500 hover:text-blue-700 transition-colors shadow-xs"
+              >
+                ❓ HELP
+              </button>
+            </div>
+
+            {/* Custom text sender */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                sendWhatsAppCommand(inputCommand);
+              }}
+              className="flex gap-2"
+            >
+              <input
+                type="text"
+                placeholder="Type WhatsApp keyword (e.g. STATUS, DELAY)..."
+                value={inputCommand}
+                onChange={(e) => setInputCommand(e.target.value)}
+                className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+              />
+              <button
+                type="submit"
+                className="px-3 py-1.5 rounded-lg bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold shadow-sm transition-colors"
+              >
+                Send
+              </button>
+            </form>
+          </div>
         </div>
 
         {/* Demo Fast-Forward Helper */}
