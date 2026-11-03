@@ -6,6 +6,7 @@ import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { whatsappBroker } from '../services/whatsapp-broker';
 import { smsGatewayBroker } from '../services/sms-broker';
+import { dltSmsFailoverGateway, DltSmsProvider } from '../services/dlt-sms-failover-gateway';
 import { WhatsAppTemplateType, SmsTemplateType } from '@medibooking/types';
 
 const sendNotificationSchema = z.object({
@@ -181,5 +182,68 @@ export async function notificationRoutes(fastify: FastifyInstance) {
         message: err.message,
       });
     }
+  });
+
+  /**
+   * Multi-Provider DLT SMS Failover Dispatch: POST /api/v1/notifications/sms/failover-send
+   */
+  fastify.post('/notifications/sms/failover-send', async (req, reply) => {
+    const failoverSchema = z.object({
+      recipientMobile: z.string().min(10),
+      templateType: z.enum([
+        'BOOKING_CONFIRMATION',
+        'DOCTOR_DELAY',
+        'SESSION_CANCELLED',
+        'WALKIN_INTAKE',
+        'OTP_LOGIN',
+      ]),
+      variables: z.array(z.string()),
+      clinicId: z.string(),
+      referenceId: z.string().optional(),
+      forceProviderFailure: z.array(z.enum([
+        'GUPSHUP_ENTERPRISE_DLT',
+        'EXOTEL_TELECOM_DLT',
+        'TWILIO_GLOBAL_DLT',
+      ])).optional(),
+    });
+
+    const parsed = failoverSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return reply.status(400).send({
+        statusCode: 400,
+        error: 'Bad Request',
+        message: 'Invalid DLT SMS failover payload',
+        details: parsed.error.errors,
+      });
+    }
+
+    try {
+      const result = await dltSmsFailoverGateway.sendWithFailover({
+        ...parsed.data,
+        templateType: parsed.data.templateType as SmsTemplateType,
+        forceProviderFailure: parsed.data.forceProviderFailure as DltSmsProvider[] | undefined,
+      });
+
+      return reply.status(200).send(result);
+    } catch (err: any) {
+      return reply.status(503).send({
+        statusCode: 503,
+        error: 'Service Unavailable',
+        message: err.message || 'All DLT SMS carriers failed',
+      });
+    }
+  });
+
+  /**
+   * Get Carrier Circuit Breaker Status: GET /api/v1/notifications/sms/circuit-status
+   */
+  fastify.get('/notifications/sms/circuit-status', async (_req, reply) => {
+    const circuits = dltSmsFailoverGateway.getCircuitStatus();
+    return reply.status(200).send({
+      statusCode: 200,
+      circuits,
+      activeCarriersCount: Object.keys(circuits).length,
+      timestamp: new Date().toISOString(),
+    });
   });
 }

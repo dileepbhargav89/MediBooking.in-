@@ -536,6 +536,44 @@ export default function SuperAdminPortalPage() {
                 </div>
               </div>
             </div>
+
+            {/* Multi-Provider DLT Circuit Breaker */}
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 space-y-4 md:col-span-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Multi-Provider DLT SMS Carrier Failover Circuit Breaker
+                </span>
+                <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs font-bold">
+                  3/3 CARRIERS HEALTHY
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
+                <div className="p-3 rounded-xl bg-slate-900 border border-slate-700 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-emerald-400 font-bold">Tier 1: Gupshup</span>
+                    <span className="text-[10px] text-emerald-400 font-bold px-1.5 py-0.5 rounded bg-emerald-950 border border-emerald-800">ACTIVE</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Jio & Airtel Direct Route</p>
+                  <p className="text-[10px] text-slate-500">Latency: ~35ms • Success: 99.8%</p>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-900 border border-slate-700 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-blue-400 font-bold">Tier 2: Exotel</span>
+                    <span className="text-[10px] text-blue-400 font-bold px-1.5 py-0.5 rounded bg-blue-950 border border-blue-800">STANDBY</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Vi & BSNL Backup Route</p>
+                  <p className="text-[10px] text-slate-500">Failover: &lt;800ms Auto-Trip</p>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-900 border border-slate-700 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-purple-400 font-bold">Tier 3: Twilio</span>
+                    <span className="text-[10px] text-purple-400 font-bold px-1.5 py-0.5 rounded bg-purple-950 border border-purple-800">STANDBY</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Global Carrier Fallback</p>
+                  <p className="text-[10px] text-slate-500">Max SLA Guarantee: 100%</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </main>

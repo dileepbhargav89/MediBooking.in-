@@ -84,3 +84,4 @@ test.describe('E2E Workflow 9 (Phase 50): Native Web Bluetooth / Serial ESC/POS 
     expect(result.durationMs).toBeGreaterThan(0);
   });
 });
+

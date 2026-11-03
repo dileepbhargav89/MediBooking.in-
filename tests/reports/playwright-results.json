@@ -140,12 +140,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1635,
+                      "duration": 2817,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:57:52.449Z",
+                      "startTime": "2026-11-03T20:29:42.526Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -174,12 +174,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1635,
+                      "duration": 1912,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:57:54.267Z",
+                      "startTime": "2026-11-03T20:29:45.597Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -208,12 +208,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 12820,
+                      "duration": 17283,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:57:55.930Z",
+                      "startTime": "2026-11-03T20:29:47.545Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -259,12 +259,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2872,
+                      "duration": 2602,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:58:08.794Z",
+                      "startTime": "2026-11-03T20:30:04.881Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -293,12 +293,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5371,
+                      "duration": 4385,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:58:11.702Z",
+                      "startTime": "2026-11-03T20:30:07.515Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -344,12 +344,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5723,
+                      "duration": 4527,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:58:17.133Z",
+                      "startTime": "2026-11-03T20:30:11.971Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -378,12 +378,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4973,
+                      "duration": 3223,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:58:22.900Z",
+                      "startTime": "2026-11-03T20:30:16.542Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -429,12 +429,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 10567,
+                      "duration": 1818,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:58:27.949Z",
+                      "startTime": "2026-11-03T20:30:19.802Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -463,12 +463,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2881,
+                      "duration": 2691,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:58:38.562Z",
+                      "startTime": "2026-11-03T20:30:21.640Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -514,12 +514,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2408,
+                      "duration": 1986,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:58:41.493Z",
+                      "startTime": "2026-11-03T20:30:24.371Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -548,12 +548,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2066,
+                      "duration": 1838,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:58:43.943Z",
+                      "startTime": "2026-11-03T20:30:26.383Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -599,12 +599,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2255,
+                      "duration": 1868,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:58:46.040Z",
+                      "startTime": "2026-11-03T20:30:28.257Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -633,12 +633,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2069,
+                      "duration": 1723,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:58:48.316Z",
+                      "startTime": "2026-11-03T20:30:30.145Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -684,12 +684,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 40,
+                      "duration": 38,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:58:50.416Z",
+                      "startTime": "2026-11-03T20:30:31.896Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -723,7 +723,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:58:50.476Z",
+                      "startTime": "2026-11-03T20:30:31.946Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -757,7 +757,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:58:50.511Z",
+                      "startTime": "2026-11-03T20:30:31.980Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -786,12 +786,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 9,
+                      "duration": 10,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:58:50.534Z",
+                      "startTime": "2026-11-03T20:30:32.003Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -820,12 +820,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 12,
+                      "duration": 11,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-03T19:58:50.556Z",
+                      "startTime": "2026-11-03T20:30:32.024Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -841,13 +841,319 @@
           ]
         }
       ]
+    },
+    {
+      "title": "08-bharatqr-cashless-intake.spec.ts",
+      "file": "08-bharatqr-cashless-intake.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "E2E Workflow 8 (Phase 49): Dynamic BharatQR UPI Cashless Counter Intake",
+          "file": "08-bharatqr-cashless-intake.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "8.1 Walk-In Intake with UPI QR payment launches BharatQR modal, verifies scan & pay, and updates ledger",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4132,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-03T20:30:32.058Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f18ec8d5dd2af26c2807-4421232921ba033d8aac",
+              "file": "08-bharatqr-cashless-intake.spec.ts",
+              "line": 15,
+              "column": 7
+            },
+            {
+              "title": "8.2 Backend REST API: /api/v1/cashiering/upi-intent and /upi-verify endpoints",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1404,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-03T20:30:36.204Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f18ec8d5dd2af26c2807-7632f875f6b08ec05c6f",
+              "file": "08-bharatqr-cashless-intake.spec.ts",
+              "line": 62,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "09-escpos-bluetooth-printing.spec.ts",
+      "file": "09-escpos-bluetooth-printing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "E2E Workflow 9 (Phase 50): Native Web Bluetooth / Serial ESC/POS 80mm Print Driver",
+          "file": "09-escpos-bluetooth-printing.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "9.1 Reception receipt modal triggers direct binary ESC/POS hardware print without browser print dialog",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3675,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-03T20:30:37.647Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "41a61076913f643b848b-2432a95e8ef7a5be984a",
+              "file": "09-escpos-bluetooth-printing.spec.ts",
+              "line": 14,
+              "column": 7
+            },
+            {
+              "title": "9.2 EscposPrinterDriver binary builder correctly generates Epson ESC/POS control byte sequence",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1425,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-03T20:30:41.337Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "41a61076913f643b848b-24eaf81107fdce3dc8d4",
+              "file": "09-escpos-bluetooth-printing.spec.ts",
+              "line": 39,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "10-tv-bilingual-audio-announcement.spec.ts",
+      "file": "10-tv-bilingual-audio-announcement.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "E2E Workflow 10 (Phase 51): Bilingual Hindi & English Voice Speech Engine for Waiting Room TV",
+          "file": "10-tv-bilingual-audio-announcement.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "10.1 Waiting Room TV renders bilingual voice toggle and dispatches Hindi/English announcements",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2288,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-03T20:30:42.787Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fb7d837fc7234f749e9c-a9daec5a4a721405a3bd",
+              "file": "10-tv-bilingual-audio-announcement.spec.ts",
+              "line": 4,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "11-dlt-sms-failover-gateway.spec.ts",
+      "file": "11-dlt-sms-failover-gateway.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "E2E Workflow 11 (Phase 52): Multi-Provider DLT SMS Failover Gateway with Regional Carrier Routing",
+          "file": "11-dlt-sms-failover-gateway.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "11.1 Super Admin portal displays live carrier circuit breaker status across all 3 DLT tiers",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2128,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-03T20:30:45.123Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "03e0be1189b781e47a1b-4d867f91ee707ca3c6b2",
+              "file": "11-dlt-sms-failover-gateway.spec.ts",
+              "line": 7,
+              "column": 7
+            },
+            {
+              "title": "11.2 Backend REST API: Primary DLT SMS succeeds with Gupshup and auto-fails over to Exotel and Twilio when carriers degrade",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 37,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-03T20:30:47.283Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "03e0be1189b781e47a1b-736a8d8a606749a51d1a",
+              "file": "11-dlt-sms-failover-gateway.spec.ts",
+              "line": 28,
+              "column": 7
+            }
+          ]
+        }
+      ]
     }
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-03T19:57:51.643Z",
-    "duration": 59177.592000000004,
-    "expected": 18,
+    "startTime": "2026-11-03T20:29:41.348Z",
+    "duration": 66328.986,
+    "expected": 25,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0
