@@ -256,6 +256,7 @@ export interface Appointment {
   idempotencyKey?: string;
   receiptNumber?: string;
   vitals?: PatientVitals;
+  arrivedAt?: string;
   estimatedConsultTime?: string;
   actualStartTime?: string;
   actualEndTime?: string;
@@ -497,6 +498,38 @@ export interface CompounderQueueResponse {
     estimatedWaitMinutes: number;
   };
 }
+
+// ==========================================
+// 9. NON-LINEAR QUEUE TRANSITION DTOs (PHASE 18)
+// ==========================================
+
+export interface AppointmentTransitionRecord {
+  id: string;
+  appointmentId: string;
+  clinicId: string;
+  fromStatus: AppointmentStatus;
+  toStatus: AppointmentStatus;
+  actorUserId: string;
+  actorRole: UserRole;
+  notes?: string;
+  autoBackfilledArrived: boolean;
+  timestamp: string;
+}
+
+export interface TransitionAppointmentDTO {
+  status: AppointmentStatus;
+  notes?: string;
+  allowReopen?: boolean;
+}
+
+export interface QueueTransitionResult {
+  success: boolean;
+  appointment: Appointment;
+  transitionRecord: AppointmentTransitionRecord;
+  autoCompletedPrevious?: Appointment | null;
+  message: string;
+}
+
 
 
 

@@ -11,6 +11,7 @@ import { doctorService } from '../src/services/doctor-service';
 import { affiliationService } from '../src/services/affiliation-service';
 import { authService } from '../src/services/auth-service';
 import { sessionService } from '../src/services/session-service';
+import { slotService } from '../src/services/slot-service';
 import { SEED_DATA } from '@medibooking/database';
 import { UserRole, StaffScope, PaymentStatus, TriageSeverity, DayOfWeek, SessionType } from '@medibooking/types';
 
@@ -172,10 +173,12 @@ describe('Phase 14: Sequential Chamber Token Allocator & Duplicate Rejection Eng
 
   describe('3. Walk-In Token Quota Cap & Emergency Override', () => {
     it('should enforce session walk-in token cap and support emergency bypass', async () => {
-      // Find existing session for Dr. Sharma and set cap to 2 walk-in tokens
+      const todayStr = new Date().toISOString().split('T')[0] as string;
+      const todayDayOfWeek = slotService.getDayOfWeek(todayStr);
+      // Find existing session for Dr. Sharma and set cap to 2 walk-in tokens for today
       const existingSessions = await sessionService.getSessionsByDoctor(doctorSharma.doctorId, testClinicId);
       assert.ok(existingSessions.length > 0, 'Dr Sharma must have a session');
-      await sessionService.updateSession(existingSessions[0]!.id, { maxWalkInTokens: 2 });
+      await sessionService.updateSession(existingSessions[0]!.id, { dayOfWeek: todayDayOfWeek, maxWalkInTokens: 2 });
 
       // Intake 1 -> Token #1
       const res1 = await app.inject({

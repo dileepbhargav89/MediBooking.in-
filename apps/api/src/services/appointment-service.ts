@@ -506,6 +506,46 @@ export class AppointmentService {
   }
 
   /**
+   * Helper to seed/create an appointment directly (for testing & mock workflows)
+   */
+  public createAppointment(dto: Partial<Appointment> & {
+    clinicId: string;
+    doctorId: string;
+    patientName: string;
+    patientMobile: string;
+  }): Appointment {
+    const id = dto.id || crypto.randomUUID();
+    const now = new Date().toISOString();
+    const appt: Appointment = {
+      id,
+      clinicId: dto.clinicId,
+      doctorId: dto.doctorId,
+      patientId: dto.patientId || `pat-${id.slice(0, 8)}`,
+      slotId: dto.slotId,
+      chamberNumber: dto.chamberNumber || 'CH-1',
+      appointmentDate: dto.appointmentDate || (now.split('T')[0] as string),
+      tokenNumber: dto.tokenNumber || 1,
+      status: dto.status || AppointmentStatus.SCHEDULED,
+      source: dto.source || BookingSource.WALK_IN,
+      paymentStatus: dto.paymentStatus || PaymentStatus.PENDING_AT_DESK,
+      amountRupees: dto.amountRupees || 500,
+      triageSeverity: dto.triageSeverity || TriageSeverity.ROUTINE,
+      patientName: dto.patientName,
+      patientMobile: dto.patientMobile,
+      patientAge: dto.patientAge,
+      patientGender: dto.patientGender,
+      arrivedAt: dto.arrivedAt,
+      actualStartTime: dto.actualStartTime,
+      actualEndTime: dto.actualEndTime,
+      receiptNumber: dto.receiptNumber || `MB-TEST-${id.slice(0, 4)}`,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.appointments.set(id, appt);
+    return appt;
+  }
+
+  /**
    * Reset store for unit testing
    */
   public reset(): void {

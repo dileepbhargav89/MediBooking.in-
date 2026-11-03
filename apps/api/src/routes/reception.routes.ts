@@ -25,6 +25,7 @@ import { realtimeStreamManager } from '../services/realtime-sse';
 import { appointmentService } from '../services/appointment-service';
 import { cashieringService } from '../services/cashiering-service';
 import { sessionService } from '../services/session-service';
+import { queueTransitionController } from '../services/queue-transition-controller';
 
 const intakeSchema = z.object({
   clinicId: z.string().uuid(),
@@ -417,46 +418,61 @@ export async function receptionRoutes(fastify: FastifyInstance) {
     },
     async (req, reply) => {
       const { id } = req.params as { id: string };
-      const body = req.body as { status: AppointmentStatus };
+      const body = req.body as { status: AppointmentStatus; notes?: string; allowReopen?: boolean };
+      const user = req.tenant!;
 
-      // Update in appointmentService if present
-      const updatedInService = appointmentService.updateAppointment(id, {
-        status: body.status,
-        ...(body.status === AppointmentStatus.IN_CONSULTATION
-          ? { actualStartTime: new Date().toLocaleTimeString('en-IN') }
-          : {}),
-        ...(body.status === AppointmentStatus.COMPLETED
-          ? { actualEndTime: new Date().toLocaleTimeString('en-IN') }
-          : {}),
-      });
+      // Check if it's in appointmentService
+      const inService = await appointmentService.getAppointmentById(id);
+      if (inService) {
+        try {
+          const result = await queueTransitionController.transitionStatus(id, body, {
+            userId: user.userId,
+            role: user.activeRole,
+            staffScope: user.staffScope,
+            dedicatedDoctorId: user.dedicatedDoctorId,
+          });
 
-      // Also update in inMemoryAppointments if present
+          return reply.status(200).send({
+            success: true,
+            appointment: result.appointment,
+            transitionRecord: result.transitionRecord,
+          });
+        } catch (err: any) {
+          const msg = err.message || '';
+          if (msg.includes('not found')) {
+            return reply.status(404).send({ error: 'Appointment not found' });
+          }
+          if (msg.includes('Forbidden') || msg.includes('restricted')) {
+            return reply.status(403).send({ error: 'Forbidden', message: msg });
+          }
+          if (msg.includes('TERMINAL_STATE_LOCKED')) {
+            return reply.status(400).send({ error: 'Bad Request', message: msg });
+          }
+          return reply.status(500).send({ error: 'Internal Error', message: msg });
+        }
+      }
+
+      // Fallback for mock appointments
       const appointmentInMock = inMemoryAppointments.find((a) => a.id === id);
       if (appointmentInMock) {
         appointmentInMock.status = body.status;
+        if (body.status === AppointmentStatus.IN_CONSULTATION) {
+          realtimeStreamManager.broadcastChamberUpdate(
+            appointmentInMock.clinicId,
+            appointmentInMock.chamberNumber,
+            {
+              currentToken: appointmentInMock.tokenNumber,
+              servingPatientMaskedName: `${appointmentInMock.patientName[0]}***`,
+            }
+          );
+        }
+        return reply.status(200).send({
+          success: true,
+          appointment: appointmentInMock,
+        });
       }
 
-      const activeAppointment = updatedInService || appointmentInMock;
-      if (!activeAppointment) {
-        return reply.status(404).send({ error: 'Appointment not found' });
-      }
-
-      // If called in consultation, update chamber TV state
-      if (body.status === AppointmentStatus.IN_CONSULTATION) {
-        realtimeStreamManager.broadcastChamberUpdate(
-          activeAppointment.clinicId,
-          activeAppointment.chamberNumber,
-          {
-            currentToken: activeAppointment.tokenNumber,
-            servingPatientMaskedName: `${activeAppointment.patientName[0]}***`,
-          }
-        );
-      }
-
-      return {
-        success: true,
-        appointment: activeAppointment,
-      };
+      return reply.status(404).send({ error: 'Appointment not found' });
     }
   );
 }
