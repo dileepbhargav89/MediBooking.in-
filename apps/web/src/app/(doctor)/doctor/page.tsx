@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Button,
@@ -9,6 +9,7 @@ import {
   CardBody,
   Badge,
   TokenCard,
+  Modal,
   ClinicSwitcherModal,
   type AffiliatedClinicItem,
 } from '@medibooking/ui';
@@ -38,11 +39,48 @@ const DEMO_CLINICS: AffiliatedClinicItem[] = [
   },
 ];
 
-export default function DoctorChamberPage() {
+interface ActivePatientData {
+  tokenNumber: number;
+  name: string;
+  ageGender: string;
+  mobile: string;
+  vitals: {
+    bloodPressure: string;
+    pulse: string;
+    spo2: string;
+    weight: string;
+  };
+  symptoms: string;
+  isFollowUp: boolean;
+  isUrgent?: boolean;
+}
+
+export default function DoctorChamberGlancePortal() {
   const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
   const [currentClinicId, setCurrentClinicId] = useState(DEMO_CLINICS[0]!.clinicId);
   const [delayMinutes, setDelayMinutes] = useState(0);
-  const [activeTokenNumber, setActiveTokenNumber] = useState(14);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState('');
+  const [isCancelledSession, setIsCancelledSession] = useState(false);
+
+  // Active consultation state
+  const [activePatient, setActivePatient] = useState<ActivePatientData>({
+    tokenNumber: 14,
+    name: 'R*** Sharma',
+    ageGender: '52 Yrs / Male',
+    mobile: '98260*****',
+    vitals: {
+      bloodPressure: '128/84 mmHg',
+      pulse: '74 bpm',
+      spo2: '98%',
+      weight: '72 kg',
+    },
+    symptoms: 'Mild retrosternal chest heaviness on climbing stairs, known hypertensive for 4 years.',
+    isFollowUp: true,
+  });
+
+  const [rxNotes, setRxNotes] = useState('Tab. Telmisartan 40mg OD • Advised Lipid Profile & ECG Review');
+  const [consultationSuccessNotice, setConsultationSuccessNotice] = useState<string | null>(null);
 
   const activeClinic =
     DEMO_CLINICS.find((c) => c.clinicId === currentClinicId) || DEMO_CLINICS[0]!;
@@ -50,7 +88,6 @@ export default function DoctorChamberPage() {
   const handleSelectClinic = (newClinicId: string) => {
     setCurrentClinicId(newClinicId);
     setIsSwitcherOpen(false);
-    // In production, update active clinic in session cookie / context
     document.cookie = `medibooking_active_clinic=${newClinicId}; path=/; max-age=604800`;
   };
 
@@ -58,9 +95,45 @@ export default function DoctorChamberPage() {
     setDelayMinutes((prev) => prev + mins);
   };
 
+  const handleCompleteAndNext = (issueFollowUp: boolean = false) => {
+    const prevToken = activePatient.tokenNumber;
+    setConsultationSuccessNotice(
+      `✓ Token #${prevToken} Completed! ${
+        issueFollowUp ? '14-Day Free Follow-Up Token Issued.' : ''
+      }`
+    );
+
+    // Call Next Token
+    setActivePatient({
+      tokenNumber: prevToken + 1,
+      name: 'P*** Patel',
+      ageGender: '38 Yrs / Female',
+      mobile: '98261*****',
+      vitals: {
+        bloodPressure: '118/76 mmHg',
+        pulse: '78 bpm',
+        spo2: '99%',
+        weight: '64 kg',
+      },
+      symptoms: 'Routine cardiology clearance before elective cholecystectomy.',
+      isFollowUp: false,
+    });
+    setRxNotes('');
+
+    setTimeout(() => {
+      setConsultationSuccessNotice(null);
+    }, 4000);
+  };
+
+  const handleCancelSession = () => {
+    if (!cancellationReason.trim()) return;
+    setIsCancelledSession(true);
+    setIsCancelModalOpen(false);
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* Top Navbar */}
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-between">
+      {/* Top Doctor Portal Header */}
       <header className="bg-white border-b border-slate-200 px-6 py-3.5 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -73,15 +146,22 @@ export default function DoctorChamberPage() {
               </span>
             </Link>
             <span className="text-slate-300">/</span>
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Doctor Chamber Portal
-            </span>
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block leading-tight">
+                Chamber Consultation Desk
+              </span>
+              <span className="text-[10px] text-slate-500 font-medium">
+                {activeClinic.chamberNumber} • {activeClinic.clinicName}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
               <p className="text-xs font-bold text-slate-900">Dr. Rajesh Sharma, MD</p>
-              <p className="text-[10px] text-slate-500 font-mono">NMC: MP-38492 • Cardio</p>
+              <p className="text-[10px] text-emerald-600 font-semibold font-mono">
+                NMC: MP-38492 • Verified
+              </p>
             </div>
             <Link href="/login">
               <Button variant="ghost" size="sm">
@@ -94,7 +174,7 @@ export default function DoctorChamberPage() {
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full space-y-6">
-        {/* Multi-Clinic Practice Location Switcher Bar */}
+        {/* Practice Switcher Strip */}
         <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700 font-bold font-mono text-sm">
@@ -121,142 +201,298 @@ export default function DoctorChamberPage() {
               onClick={() => setIsSwitcherOpen(true)}
               className="text-xs font-semibold"
             >
-              🔄 Switch Clinic Practice ({DEMO_CLINICS.length} Locations)
+              🔄 Switch Practice ({DEMO_CLINICS.length} Venues)
             </Button>
           </div>
         </div>
 
-        {/* Doctor Controls: Delay Broadcast & Chamber Status */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Active Consultation Box */}
-          <Card className="p-5 bg-gradient-to-br from-blue-600 to-blue-700 text-white border-0 shadow-md">
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-200">
-              Now In Consultation
-            </span>
-            <div className="mt-3 flex items-baseline justify-between">
+        {/* Cancellation Notice Banner if triggered */}
+        {isCancelledSession && (
+          <div className="p-4 rounded-xl bg-red-50 border border-red-300 text-red-800 text-xs flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🛑</span>
               <div>
-                <span className="text-4xl font-extrabold font-mono tabular-nums">
-                  #{activeTokenNumber}
+                <span className="font-bold block">Session Emergency Cancelled</span>
+                <span>
+                  Reason: {cancellationReason} • All waiting patients auto-routed to 14-Day VIP Priority Reschedule Queue.
                 </span>
-                <p className="text-sm font-semibold text-blue-100 mt-1">R*** Sharma (Follow-up)</p>
-              </div>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setActiveTokenNumber((prev) => prev + 1)}
-                className="bg-white text-blue-700 hover:bg-blue-50"
-              >
-                Next Token →
-              </Button>
-            </div>
-          </Card>
-
-          {/* 1-Click Delay Broadcast */}
-          <Card className="p-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                1-Click Delay Broadcast
-              </span>
-              {delayMinutes > 0 && (
-                <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
-                  +{delayMinutes}m Broadcast
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-slate-500 mb-3">
-              Notifies waiting room TV, compounder queue, and WhatsApp patients.
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleBroadcastDelay(15)}
-                className="text-xs font-semibold"
-              >
-                +15 Mins
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleBroadcastDelay(30)}
-                className="text-xs font-semibold"
-              >
-                +30 Mins
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setDelayMinutes(0)}
-                className="text-xs text-slate-500 hover:text-slate-800"
-              >
-                Reset
-              </Button>
-            </div>
-          </Card>
-
-          {/* Chamber Summary */}
-          <Card className="p-5">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Session Overview Today
-            </span>
-            <div className="mt-3 grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-2xl font-bold font-mono tabular-nums text-slate-900">18</p>
-                <p className="text-xs text-slate-500 font-medium">Waiting Outside</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold font-mono tabular-nums text-emerald-600">32</p>
-                <p className="text-xs text-slate-500 font-medium">Completed</p>
               </div>
             </div>
-          </Card>
-        </div>
-
-        {/* Live Patient Queue List */}
-        <Card>
-          <CardHeader>
-            <div>
-              <h3 className="font-bold text-slate-900 text-sm">
-                Up Next in {activeClinic.chamberNumber} ({activeClinic.clinicName})
-              </h3>
-              <p className="text-xs text-slate-500">
-                Patients lined up outside chamber • Realtime synchronized
-              </p>
-            </div>
-            <Badge variant="mint" size="sm" dot pulse>
-              Live Chamber Active
+            <Badge variant="red" size="sm">
+              SESSION TERMINATED
             </Badge>
-          </CardHeader>
-          <CardBody className="space-y-3">
-            <TokenCard
-              tokenNumber={15}
-              patientName="P*** Patel"
-              status="WAITING"
-              chamberNumber={activeClinic.chamberNumber}
-              doctorName="Rajesh Sharma"
-              estimatedTime="10 mins"
-              source="WALK_IN"
-              paymentStatus="PAID_CASH"
-              onAction={() => setActiveTokenNumber(15)}
-            />
-            <TokenCard
-              tokenNumber={16}
-              patientName="S*** Verma"
-              status="WAITING"
-              chamberNumber={activeClinic.chamberNumber}
-              doctorName="Rajesh Sharma"
-              isUrgent={true}
-              triageUrgency="URGENT"
-              estimatedTime="25 mins"
-              source="ONLINE_PORTAL"
-              paymentStatus="PAID_UPI_QR"
-              onAction={() => setActiveTokenNumber(16)}
-            />
-          </CardBody>
-        </Card>
+          </div>
+        )}
+
+        {/* Success Notice Banner */}
+        {consultationSuccessNotice && (
+          <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold shadow-xs animate-fade-in">
+            {consultationSuccessNotice}
+          </div>
+        )}
+
+        {/* Doctor Workspace 2-Column Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left 2 Cols: Active Consultation Workspace */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+              {/* Active Token Header */}
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="h-14 w-14 rounded-xl bg-blue-600 text-white font-mono tabular-nums font-black text-2xl flex items-center justify-center shadow-md">
+                    #{activePatient.tokenNumber}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-lg font-bold text-slate-900 leading-tight">
+                        {activePatient.name}
+                      </h2>
+                      {activePatient.isFollowUp && (
+                        <Badge variant="mint" size="sm">
+                          Free Follow-Up
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">
+                      {activePatient.ageGender} • Phone: {activePatient.mobile}
+                    </p>
+                  </div>
+                </div>
+
+                <Badge variant="blue" size="md" dot pulse>
+                  In Consultation
+                </Badge>
+              </div>
+
+              {/* Patient Vitals Glance */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-center">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">
+                    Blood Pressure
+                  </span>
+                  <span className="text-sm font-bold font-mono text-slate-900 mt-0.5 block">
+                    {activePatient.vitals.bloodPressure}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-center">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">
+                    Pulse Rate
+                  </span>
+                  <span className="text-sm font-bold font-mono text-slate-900 mt-0.5 block">
+                    {activePatient.vitals.pulse}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-center">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">
+                    Oxygen (SpO2)
+                  </span>
+                  <span className="text-sm font-bold font-mono text-emerald-700 mt-0.5 block">
+                    {activePatient.vitals.spo2}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-center">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">
+                    Weight
+                  </span>
+                  <span className="text-sm font-bold font-mono text-slate-900 mt-0.5 block">
+                    {activePatient.vitals.weight}
+                  </span>
+                </div>
+              </div>
+
+              {/* Chief Complaints / History */}
+              <div className="p-3.5 rounded-xl bg-blue-50/40 border border-blue-100 text-xs mb-5">
+                <span className="font-bold text-blue-900 block mb-1">
+                  Chief Complaints & History:
+                </span>
+                <p className="text-slate-700 leading-relaxed">{activePatient.symptoms}</p>
+              </div>
+
+              {/* Quick Rx / Clinical Advice Input */}
+              <div className="space-y-2 mb-6">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Clinical Diagnosis & Rx Notes
+                </label>
+                <textarea
+                  rows={3}
+                  value={rxNotes}
+                  onChange={(e) => setRxNotes(e.target.value)}
+                  placeholder="Enter diagnosis, prescribed medicines, dosage, and diagnostic tests..."
+                  className="w-full p-3.5 rounded-xl border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 font-sans"
+                />
+              </div>
+
+              {/* 1-Click Consultation Actions */}
+              <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-slate-100">
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={() => handleCompleteAndNext(false)}
+                  className="font-bold text-xs"
+                >
+                  ✓ Complete & Call Next Token
+                </Button>
+                <Button
+                  variant="mint"
+                  size="md"
+                  onClick={() => handleCompleteAndNext(true)}
+                  className="font-bold text-xs"
+                >
+                  🎟️ Complete + Issue 14-Day Free Follow-Up
+                </Button>
+                <Button
+                  variant="outline"
+                  size="md"
+                  onClick={() => handleCompleteAndNext(false)}
+                  className="text-xs text-slate-600"
+                >
+                  ⏭️ Patient No-Show / Skip
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Col: Delay Broadcast & Emergency Chamber Controls */}
+          <div className="space-y-6">
+            {/* 1-Click Doctor Delay Broadcast Box */}
+            <Card className="p-5">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
+                  1-Click Delay Broadcast
+                </span>
+                {delayMinutes > 0 && (
+                  <span className="px-2 py-0.5 rounded text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                    +{delayMinutes}m Active Delay
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 mb-3.5">
+                Automatically pushes ETA revision to Waiting Room TV, compounder queue, and patient WhatsApp.
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleBroadcastDelay(15)}
+                  className="text-xs font-semibold"
+                >
+                  +15 Mins
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleBroadcastDelay(30)}
+                  className="text-xs font-semibold"
+                >
+                  +30 Mins
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDelayMinutes(0)}
+                  className="text-xs text-slate-500 hover:text-slate-800"
+                >
+                  Reset
+                </Button>
+              </div>
+            </Card>
+
+            {/* Waiting Queue Ahead */}
+            <Card className="p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
+                  Up Next Outside Chamber
+                </span>
+                <span className="text-xs font-semibold text-slate-500 font-mono">
+                  3 in Queue
+                </span>
+              </div>
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-100 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold font-mono text-slate-900">#15</span>
+                    <span className="font-semibold text-slate-800">P*** Patel</span>
+                  </div>
+                  <Badge variant="blue" size="sm">
+                    Waiting
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-100 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold font-mono text-slate-900">#16</span>
+                    <span className="font-semibold text-slate-800">S*** Verma</span>
+                  </div>
+                  <Badge variant="amber" size="sm">
+                    Urgent
+                  </Badge>
+                </div>
+              </div>
+            </Card>
+
+            {/* Emergency Session Cancellation */}
+            <Card className="p-5 border-red-200 bg-red-50/20">
+              <span className="text-xs font-bold uppercase tracking-wider text-red-700 block mb-1">
+                Emergency Session Cancellation
+              </span>
+              <p className="text-xs text-slate-500 mb-3">
+                Emergency hospital calls or surgery. Auto-cancels remaining slots and moves patients to 14-day VIP priority queue.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                fullWidth
+                onClick={() => setIsCancelModalOpen(true)}
+                className="border-red-300 text-red-700 hover:bg-red-50 font-semibold text-xs"
+              >
+                🚨 Emergency Session Cancellation
+              </Button>
+            </Card>
+          </div>
+        </div>
       </main>
 
-      {/* Multi-Clinic Practice Switcher Modal */}
+      {/* Emergency Session Cancellation Modal */}
+      <Modal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        title="Confirm Emergency Session Cancellation"
+        subtitle="Doctor Immediate Departure • VIP Priority Auto-Reschedule"
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-slate-600">
+            Cancelling this session will immediately release all held slots for today, notify the
+            reception desk and waiting room TV, and issue 14-day VIP priority claim tokens via WhatsApp
+            to all patients.
+          </p>
+          <textarea
+            rows={3}
+            value={cancellationReason}
+            onChange={(e) => setCancellationReason(e.target.value)}
+            placeholder="Reason for cancellation (e.g. Called for emergency cardiac angioplasty at AIIMS Bhopal)..."
+            className="w-full p-3 rounded-xl border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-400"
+          />
+          <div className="flex gap-2">
+            <Button
+              variant="urgent"
+              fullWidth
+              size="md"
+              disabled={!cancellationReason.trim()}
+              onClick={handleCancelSession}
+            >
+              Confirm Emergency Cancellation
+            </Button>
+            <Button
+              variant="outline"
+              size="md"
+              onClick={() => setIsCancelModalOpen(false)}
+            >
+              Back
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Multi-Clinic Practice Location Switcher Modal */}
       <ClinicSwitcherModal
         isOpen={isSwitcherOpen}
         onClose={() => setIsSwitcherOpen(false)}
