@@ -1194,6 +1194,55 @@ export interface BillingInvoiceDTO {
   gstin?: string;
 }
 
+// ==========================================
+// 19. END-OF-DAY RECONCILIATION & CASH DRAWER (STAGE III)
+// ==========================================
+
+export type ReconciliationDiscrepancyStatus = 'BALANCED' | 'SHORTAGE' | 'SURPLUS';
+
+export interface DailyTokenReconciliation {
+  date: string;
+  clinicId: string;
+  totalTokensIssued: number;
+  completedCount: number;
+  waitingCount: number;
+  inConsultationCount: number;
+  noShowCount: number;
+  cancelledCount: number;
+  walkInCount: number;
+  onlineBookingCount: number;
+}
+
+export interface DrawerVarianceReport {
+  physicalCashCountedRupees: number;
+  systemCashExpectedRupees: number;
+  discrepancyRupees: number;
+  status: ReconciliationDiscrepancyStatus;
+  notes?: string;
+}
+
+export interface EodSettlementRecord {
+  id: string;
+  clinicId: string;
+  date: string;
+  closedAt: string;
+  closedByUserId: string;
+  closedByUserName: string;
+  cashieringSummary: CashieringSummary;
+  tokenReconciliation: DailyTokenReconciliation;
+  drawerVariance: DrawerVarianceReport;
+  isLocked: boolean;
+}
+
+export interface CloseShiftDTO {
+  clinicId: string;
+  date?: string;
+  physicalCashCountedRupees: number;
+  notes?: string;
+  supervisorOverride?: boolean;
+}
+
+
 
 
 

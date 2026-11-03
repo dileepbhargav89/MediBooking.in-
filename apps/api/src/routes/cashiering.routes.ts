@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { PaymentStatus, UserRole } from '@medibooking/types';
 import { requireAuth } from '../middleware/tenant-context';
 import { cashieringService } from '../services/cashiering-service';
+import { reconciliationService } from '../services/reconciliation-service';
 
 const processPaymentSchema = z.object({
   appointmentId: z.string().min(1, 'Appointment ID is required'),
@@ -183,4 +184,92 @@ export async function cashieringRoutes(fastify: FastifyInstance) {
       });
     }
   );
+
+  /**
+   * End-of-Day Reconciliation Report Preview
+   * GET /api/v1/cashiering/reconciliation/report
+   */
+  fastify.get('/cashiering/reconciliation/report', async (req, reply) => {
+    const query = req.query as any;
+    const clinicId = query?.clinicId || (req as any).tenant?.activeClinicId;
+    if (!clinicId) {
+      return reply.status(400).send({ error: 'Bad Request', message: 'Missing clinicId query parameter' });
+    }
+
+    const physicalCount = query?.physicalCashCountedRupees ? Number(query.physicalCashCountedRupees) : undefined;
+    const preview = await reconciliationService.generateEodPreview(
+      clinicId,
+      query?.date,
+      physicalCount,
+      query?.notes
+    );
+
+    return reply.status(200).send({
+      success: true,
+      report: preview,
+    });
+  });
+
+  /**
+   * Close Cashiering Shift & Lock Daily Settlement
+   * POST /api/v1/cashiering/reconciliation/close-shift
+   */
+  fastify.post('/cashiering/reconciliation/close-shift', async (req, reply) => {
+    const body = (req.body || {}) as any;
+    const clinicId = body.clinicId || (req as any).tenant?.activeClinicId;
+    if (!clinicId) {
+      return reply.status(400).send({ error: 'Bad Request', message: 'Missing clinicId in request' });
+    }
+    if (typeof body.physicalCashCountedRupees !== 'number' || body.physicalCashCountedRupees < 0) {
+      return reply.status(400).send({
+        error: 'Bad Request',
+        message: 'physicalCashCountedRupees must be a non-negative number',
+      });
+    }
+
+    try {
+      const actorId = (req as any).tenant?.userId || 'u1010000-0000-4000-8000-000000000001';
+      const actorName = (req as any).tenant?.name || 'Front Desk Receptionist';
+
+      const settlement = await reconciliationService.closeShift(
+        {
+          clinicId,
+          date: body.date,
+          physicalCashCountedRupees: body.physicalCashCountedRupees,
+          notes: body.notes,
+          supervisorOverride: body.supervisorOverride,
+        },
+        { userId: actorId, name: actorName }
+      );
+
+      return reply.status(200).send({
+        success: true,
+        settlement,
+      });
+    } catch (err: any) {
+      const msg = err.message || '';
+      if (msg.includes('already closed and locked')) {
+        return reply.status(409).send({ error: 'Conflict', message: msg });
+      }
+      return reply.status(400).send({ error: 'Bad Request', message: msg });
+    }
+  });
+
+  /**
+   * Get Past Daily Reconciliation Settlements
+   * GET /api/v1/cashiering/reconciliation/history
+   */
+  fastify.get('/cashiering/reconciliation/history', async (req, reply) => {
+    const query = req.query as any;
+    const clinicId = query?.clinicId || (req as any).tenant?.activeClinicId;
+    if (!clinicId) {
+      return reply.status(400).send({ error: 'Bad Request', message: 'Missing clinicId query parameter' });
+    }
+
+    const history = reconciliationService.getSettlementHistory(clinicId);
+    return reply.status(200).send({
+      success: true,
+      history,
+    });
+  });
 }
