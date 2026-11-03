@@ -8,6 +8,7 @@ export * from './tokens';
 
 // UI Components
 export { Badge, type BadgeProps } from './components/Badge';
+export { BharatQrModal, type BharatQrModalProps } from './components/BharatQrModal';
 export { Button, type ButtonProps } from './components/Button';
 export { Card, CardHeader, CardBody, CardFooter, type CardProps } from './components/Card';
 export { ChamberBadge, type ChamberBadgeProps } from './components/ChamberBadge';

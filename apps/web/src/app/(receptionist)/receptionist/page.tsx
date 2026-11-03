@@ -13,6 +13,7 @@ import {
   StatCard,
   ChamberBadge,
   TokenCard,
+  BharatQrModal,
   getChamberStyle,
 } from '@medibooking/ui';
 
@@ -145,6 +146,9 @@ export default function ReceptionDeskDashboardPage() {
   const [isIntakeModalOpen, setIsIntakeModalOpen] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [latestIssuedToken, setLatestIssuedToken] = useState<ReceptionTokenItem | null>(null);
+  const [isUpiModalOpen, setIsUpiModalOpen] = useState(false);
+  const [selectedUpiToken, setSelectedUpiToken] = useState<ReceptionTokenItem | null>(null);
+  const [upiCollectionsRupees, setUpiCollectionsRupees] = useState(18600);
 
   // Intake Form State
   const [mobile, setMobile] = useState('');
@@ -226,7 +230,14 @@ export default function ReceptionDeskDashboardPage() {
 
     setLatestIssuedToken(newToken);
     setIsIntakeModalOpen(false);
-    setIsReceiptModalOpen(true);
+
+    // If UPI QR selected, open dynamic BharatQR modal; otherwise open thermal receipt
+    if (paymentMode === 'PAID_UPI_QR') {
+      setSelectedUpiToken(newToken);
+      setIsUpiModalOpen(true);
+    } else {
+      setIsReceiptModalOpen(true);
+    }
 
     // Reset Form
     setMobile('');
@@ -234,6 +245,23 @@ export default function ReceptionDeskDashboardPage() {
     setIsUrgent(false);
     setPaymentMode('PAID_CASH');
     setFormError(null);
+  };
+
+  const handleUpiSuccess = (txnId: string, amount: number) => {
+    if (selectedUpiToken) {
+      const updated: ReceptionTokenItem = {
+        ...selectedUpiToken,
+        paymentStatus: 'PAID_UPI_QR',
+        feePaidRupees: amount,
+      };
+      setTokens((prev) =>
+        prev.map((t) => (t.id === selectedUpiToken.id ? updated : t))
+      );
+      setLatestIssuedToken(updated);
+    }
+    setUpiCollectionsRupees((prev) => prev + amount);
+    setIsUpiModalOpen(false);
+    setIsReceiptModalOpen(true);
   };
 
   return (
@@ -301,7 +329,7 @@ export default function ReceptionDeskDashboardPage() {
           />
           <StatCard
             title="UPI Collections"
-            value="₹18,600"
+            value={`₹${upiCollectionsRupees.toLocaleString('en-IN')}`}
             subtitle="QR settlements"
             accentColor="#1D4ED8"
             badge={{ label: 'VERIFIED', variant: 'blue' }}
@@ -634,6 +662,25 @@ export default function ReceptionDeskDashboardPage() {
           </div>
         )}
       </Modal>
+
+      {/* Dynamic BharatQR UPI Collection Modal */}
+      {selectedUpiToken && (
+        <BharatQrModal
+          isOpen={isUpiModalOpen}
+          onClose={() => {
+            setIsUpiModalOpen(false);
+            setIsReceiptModalOpen(true);
+          }}
+          tokenNumber={selectedUpiToken.tokenNumber}
+          doctorName={`Dr. ${selectedUpiToken.doctorName}`}
+          chamberNumber={selectedUpiToken.chamberNumber}
+          amountRupees={
+            INITIAL_CHAMBERS.find((c) => c.chamberNumber === selectedUpiToken.chamberNumber)?.consultationFee || 600
+          }
+          patientName={selectedUpiToken.patientName}
+          onPaymentSuccess={handleUpiSuccess}
+        />
+      )}
 
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500">

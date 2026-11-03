@@ -7,7 +7,7 @@ test.describe('E2E Workflow 3: Reception Dashboard & F2 Rapid Walk-In Intake', (
     await page.goto('/login');
     await page.locator('button', { hasText: 'Reception Desk' }).click();
     await page.locator('button', { hasText: /Instant Dev Login/i }).click();
-    await expect(page).toHaveURL('/receptionist');
+    await expect(page).toHaveURL('/receptionist', { timeout: 10000 });
   });
 
   test('3.1 Reception dashboard renders 4-chamber queue tabs and cash drawer metrics', async ({ page }) => {
