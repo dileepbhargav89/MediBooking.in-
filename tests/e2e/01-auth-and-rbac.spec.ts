@@ -34,6 +34,7 @@ test.describe('E2E Workflow 1: Authentication & RBAC Dynamic Routing', () => {
     // 1. Test Super Admin Demo Role
     await page.context().clearCookies();
     await page.goto('/login');
+    await expect(page).toHaveURL(/\/login/);
     await page.locator('button', { hasText: 'Super Admin' }).click();
     await page.locator('button', { hasText: /Instant Dev Login/i }).click();
     await expect(page).toHaveURL('/super-admin', { timeout: 10000 });
@@ -42,6 +43,7 @@ test.describe('E2E Workflow 1: Authentication & RBAC Dynamic Routing', () => {
     // 2. Test Central Receptionist Demo Role
     await page.context().clearCookies();
     await page.goto('/login');
+    await expect(page).toHaveURL(/\/login/);
     await page.locator('button', { hasText: 'Reception Desk' }).click();
     await page.locator('button', { hasText: /Instant Dev Login/i }).click();
     await expect(page).toHaveURL('/receptionist', { timeout: 10000 });
@@ -50,6 +52,7 @@ test.describe('E2E Workflow 1: Authentication & RBAC Dynamic Routing', () => {
     // 3. Test Doctor Demo Role
     await page.context().clearCookies();
     await page.goto('/login');
+    await expect(page).toHaveURL(/\/login/);
     await page.locator('button', { hasText: 'Doctor Chamber' }).click();
     await page.locator('button', { hasText: /Instant Dev Login/i }).click();
     await expect(page).toHaveURL('/doctor', { timeout: 10000 });
@@ -58,6 +61,7 @@ test.describe('E2E Workflow 1: Authentication & RBAC Dynamic Routing', () => {
     // 4. Test Clinic Administrator Demo Role
     await page.context().clearCookies();
     await page.goto('/login');
+    await expect(page).toHaveURL(/\/login/);
     await page.locator('button', { hasText: 'Clinic Admin' }).click();
     await page.locator('button', { hasText: /Instant Dev Login/i }).click();
     await expect(page).toHaveURL('/admin', { timeout: 10000 });
@@ -66,6 +70,7 @@ test.describe('E2E Workflow 1: Authentication & RBAC Dynamic Routing', () => {
     // 5. Test Patient Demo Role
     await page.context().clearCookies();
     await page.goto('/login');
+    await expect(page).toHaveURL(/\/login/);
     await page.locator('button', { hasText: 'Patient Tracker' }).click();
     await page.locator('button', { hasText: /Instant Dev Login/i }).click();
     await expect(page).toHaveURL('/patient', { timeout: 10000 });
