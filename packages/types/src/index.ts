@@ -835,6 +835,51 @@ export interface WhatsAppAuditRecord {
   sentAt: string;
 }
 
+// ==========================================
+// 14. DLT-COMPLIANT INDIAN SMS BROKER (STAGE III)
+// ==========================================
+
+export type SmsTemplateType =
+  | 'BOOKING_CONFIRMATION'
+  | 'DOCTOR_DELAY'
+  | 'SESSION_CANCELLED'
+  | 'WALKIN_INTAKE'
+  | 'OTP_LOGIN';
+
+export interface SmsNotificationDTO {
+  recipientMobile: string;
+  templateType: SmsTemplateType;
+  variables: string[];
+  clinicId: string;
+  referenceId?: string;
+  simulate?: boolean;
+}
+
+export interface SmsDeliveryResult {
+  success: boolean;
+  messageId: string;
+  dltTemplateId: string;
+  dltSenderId: string;
+  recipientMobile: string;
+  renderedText: string;
+  status: 'DELIVERED' | 'QUEUED' | 'FAILED' | 'SIMULATED';
+  error?: string;
+  timestamp: string;
+}
+
+export interface SmsAuditRecord {
+  id: string;
+  clinicId: string;
+  referenceId?: string;
+  recipientMobile: string;
+  templateType: SmsTemplateType;
+  dltTemplateId: string;
+  renderedText: string;
+  result: SmsDeliveryResult;
+  sentAt: string;
+}
+
+
 
 
 

@@ -5,7 +5,8 @@
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { whatsappBroker } from '../services/whatsapp-broker';
-import { WhatsAppTemplateType } from '@medibooking/types';
+import { smsGatewayBroker } from '../services/sms-broker';
+import { WhatsAppTemplateType, SmsTemplateType } from '@medibooking/types';
 
 const sendNotificationSchema = z.object({
   recipientMobile: z.string().min(10),
@@ -20,6 +21,21 @@ const sendNotificationSchema = z.object({
   parameters: z.record(z.any()),
   clinicId: z.string().uuid(),
   appointmentId: z.string().optional(),
+  simulate: z.boolean().optional(),
+});
+
+const sendSmsSchema = z.object({
+  recipientMobile: z.string().min(10),
+  templateType: z.enum([
+    'BOOKING_CONFIRMATION',
+    'DOCTOR_DELAY',
+    'SESSION_CANCELLED',
+    'WALKIN_INTAKE',
+    'OTP_LOGIN',
+  ]),
+  variables: z.array(z.string()),
+  clinicId: z.string().uuid(),
+  referenceId: z.string().optional(),
   simulate: z.boolean().optional(),
 });
 
@@ -89,5 +105,81 @@ export async function notificationRoutes(fastify: FastifyInstance) {
       message: 'WhatsApp notification test completed',
       result,
     });
+  });
+
+  /**
+   * Send DLT-Compliant SMS: POST /api/v1/notifications/sms/send
+   */
+  fastify.post('/notifications/sms/send', async (req, reply) => {
+    const parsed = sendSmsSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return reply.status(400).send({
+        statusCode: 400,
+        error: 'Bad Request',
+        message: 'Invalid DLT SMS notification payload',
+        details: parsed.error.errors,
+      });
+    }
+
+    try {
+      const result = await smsGatewayBroker.sendSms({
+        ...parsed.data,
+        templateType: parsed.data.templateType as SmsTemplateType,
+      });
+
+      return reply.status(200).send({
+        success: result.success,
+        result,
+      });
+    } catch (err: any) {
+      return reply.status(400).send({
+        statusCode: 400,
+        error: 'Bad Request',
+        message: err.message || 'SMS processing error',
+      });
+    }
+  });
+
+  /**
+   * Get SMS Audit History: GET /api/v1/notifications/sms/history
+   */
+  fastify.get('/notifications/sms/history', async (req) => {
+    const { clinicId } = (req.query || {}) as { clinicId?: string };
+    const history = smsGatewayBroker.getHistory(clinicId);
+    return {
+      total: history.length,
+      history,
+    };
+  });
+
+  /**
+   * Developer SMS Test Ping: POST /api/v1/notifications/sms/test
+   */
+  fastify.post('/notifications/sms/test', async (req, reply) => {
+    const { mobile, clinicId } = (req.body || {}) as { mobile?: string; clinicId?: string };
+    const targetMobile = mobile || '9826012345';
+    const targetClinicId = clinicId || 'c1010000-0000-4000-8000-000000000001';
+
+    try {
+      const result = await smsGatewayBroker.sendSms({
+        recipientMobile: targetMobile,
+        templateType: 'BOOKING_CONFIRMATION',
+        variables: ['Rajesh Sharma', '10:30 AM', '12', 'Apex Care Polyclinic'],
+        clinicId: targetClinicId,
+        simulate: true,
+      });
+
+      return reply.status(200).send({
+        success: result.success,
+        message: 'DLT SMS test completed',
+        result,
+      });
+    } catch (err: any) {
+      return reply.status(400).send({
+        statusCode: 400,
+        error: 'Bad Request',
+        message: err.message,
+      });
+    }
   });
 }

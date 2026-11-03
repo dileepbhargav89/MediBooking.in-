@@ -14,6 +14,10 @@ const envSchema = z.object({
   WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
   WHATSAPP_BUSINESS_ACCOUNT_ID: z.string().optional(),
   WHATSAPP_API_VERSION: z.string().default('v22.0'),
+  SMS_GATEWAY_PROVIDER: z.string().default('SIMULATED'),
+  SMS_DLT_SENDER_ID: z.string().default('MEDIBK'),
+  SMS_DLT_ENTITY_ID: z.string().default('1101554433221100123'),
+  SMS_API_KEY: z.string().optional(),
 });
 
 export const ENV = envSchema.parse(process.env);
