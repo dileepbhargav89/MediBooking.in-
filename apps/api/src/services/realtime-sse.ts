@@ -2,6 +2,7 @@
  * MediBooking Enterprise Server-Sent Events (SSE) Real-time Stream
  * Ultra-low memory footprint (<25 MB on Android smart TVs and reception screens)
  * Backed by Multi-Instance Redis Pub/Sub Event Backplane (Phase 23)
+ * W3C Compliant with 15-second Keep-Alive Heartbeat and Chamber Filtering (Phase 24)
  */
 
 import { FastifyReply } from 'fastify';
@@ -10,6 +11,9 @@ import {
   ChamberTVState,
   MedicalSpecialty,
   RealtimeClinicEvent,
+  TVStreamOptions,
+  TVStreamClientInfo,
+  TVStatusResponse,
 } from '@medibooking/types';
 import { SEED_DATA } from '@medibooking/database';
 import { pubsubBroker, PubSubBroker } from './pubsub-broker';
@@ -17,6 +21,9 @@ import { pubsubBroker, PubSubBroker } from './pubsub-broker';
 interface SSEClient {
   id: string;
   clinicId: string;
+  connectedAt: string;
+  chamberFilter?: string;
+  ip?: string;
   reply: FastifyReply;
 }
 
@@ -25,12 +32,18 @@ export class RealtimeStreamManager {
   private clinicStates: Map<string, ClinicTVDisplayPayload> = new Map();
   private brokerSubscriptions: Set<string> = new Set();
   private broker: PubSubBroker;
+  private heartbeatTimer: NodeJS.Timeout | null = null;
+  private lastHeartbeatAt: string = new Date().toISOString();
 
-  constructor(broker: PubSubBroker = pubsubBroker) {
+  constructor(broker: PubSubBroker = pubsubBroker, startHeartbeat = true) {
     this.broker = broker;
     this.initDefaultState();
     // Pre-subscribe default seed clinic
     this.ensureBrokerSubscription(SEED_DATA.clinic.id);
+
+    if (startHeartbeat) {
+      this.startHeartbeatTimer(15000);
+    }
   }
 
   private initDefaultState() {
@@ -55,6 +68,55 @@ export class RealtimeStreamManager {
       currentTime: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
       chambers: defaultChambers,
     });
+  }
+
+  /**
+   * Starts periodic 15-second heartbeat to defeat router/proxy timeouts
+   */
+  public startHeartbeatTimer(intervalMs = 15000) {
+    if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
+
+    this.heartbeatTimer = setInterval(() => {
+      this.pulseHeartbeat();
+    }, intervalMs);
+
+    // Ensure timer does not prevent process exit during tests
+    this.heartbeatTimer.unref();
+  }
+
+  public stopHeartbeatTimer() {
+    if (this.heartbeatTimer) {
+      clearInterval(this.heartbeatTimer);
+      this.heartbeatTimer = null;
+    }
+  }
+
+  /**
+   * Pulses a 15-second keepalive comment and heartbeat event across all active TV sockets
+   */
+  public pulseHeartbeat(): number {
+    this.lastHeartbeatAt = new Date().toISOString();
+    let sentCount = 0;
+
+    const deadClients: string[] = [];
+    const pingChunk = `: keepalive\n\n`;
+    const heartbeatEventChunk = `id: hb_${Date.now()}\nevent: heartbeat\ndata: ${JSON.stringify({ timestamp: this.lastHeartbeatAt, connectedScreens: this.clients.size })}\n\n`;
+
+    for (const [id, client] of this.clients.entries()) {
+      try {
+        client.reply.raw.write(pingChunk);
+        client.reply.raw.write(heartbeatEventChunk);
+        sentCount++;
+      } catch {
+        deadClients.push(id);
+      }
+    }
+
+    for (const deadId of deadClients) {
+      this.clients.delete(deadId);
+    }
+
+    return sentCount;
   }
 
   /**
@@ -85,7 +147,7 @@ export class RealtimeStreamManager {
         }
         state.currentTime = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
       }
-      this.emitToLocalClients(clinicId, 'chamber_update', payload);
+      this.emitToLocalClients(clinicId, 'chamber_update', payload, data.chamberNumber);
     } else if (eventType === 'delay_broadcast') {
       const data = payload as { chamberNumber: string; delayMinutes: number; reason: string; statusMessage?: string };
       if (state && data.chamberNumber) {
@@ -95,7 +157,7 @@ export class RealtimeStreamManager {
           chamber.statusMessage = data.statusMessage;
         }
       }
-      this.emitToLocalClients(clinicId, 'delay_broadcast', payload);
+      this.emitToLocalClients(clinicId, 'delay_broadcast', payload, data.chamberNumber);
     } else if (eventType === 'session_cancelled') {
       const data = payload as { chamberNumber: string; statusMessage: string };
       if (state && data.chamberNumber) {
@@ -106,7 +168,7 @@ export class RealtimeStreamManager {
           chamber.currentToken = null;
         }
       }
-      this.emitToLocalClients(clinicId, 'session_cancelled', payload);
+      this.emitToLocalClients(clinicId, 'session_cancelled', payload, data.chamberNumber);
     } else if (eventType === 'emergency_triage') {
       const data = payload as { chamberNumber: string; statusMessage?: string };
       if (state && data.chamberNumber) {
@@ -115,7 +177,7 @@ export class RealtimeStreamManager {
           chamber.statusMessage = data.statusMessage;
         }
       }
-      this.emitToLocalClients(clinicId, 'emergency_triage', payload);
+      this.emitToLocalClients(clinicId, 'emergency_triage', payload, data.chamberNumber);
     } else if (eventType === 'heartbeat') {
       this.emitToLocalClients(clinicId, 'heartbeat', payload);
     } else if (eventType === 'queue_refresh') {
@@ -125,21 +187,42 @@ export class RealtimeStreamManager {
 
   /**
    * Subscribe an HTTP connection to the clinic's real-time TV stream
+   * Supports chamber filtering and W3C event ID tagging
    */
-  public subscribe(clinicId: string, reply: FastifyReply): string {
+  public subscribe(clinicId: string, reply: FastifyReply, options?: TVStreamOptions): string {
     const clientId = `client_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const now = new Date().toISOString();
 
     reply.raw.setHeader('Content-Type', 'text/event-stream');
     reply.raw.setHeader('Cache-Control', 'no-cache, no-transform');
     reply.raw.setHeader('Connection', 'keep-alive');
+    reply.raw.setHeader('X-Accel-Buffering', 'no'); // Disable Nginx proxy buffering
     reply.raw.setHeader('Access-Control-Allow-Origin', '*');
 
-    this.clients.set(clientId, { id: clientId, clinicId, reply });
+    const client: SSEClient = {
+      id: clientId,
+      clinicId,
+      connectedAt: now,
+      chamberFilter: options?.chamberFilter,
+      ip: reply.request?.ip || '127.0.0.1',
+      reply,
+    };
+
+    this.clients.set(clientId, client);
     this.ensureBrokerSubscription(clinicId);
 
-    // Send initial snapshot
-    const state = this.getClinicSnapshot(clinicId);
-    reply.raw.write(`event: snapshot\ndata: ${JSON.stringify(state)}\n\n`);
+    // Send initial snapshot (filtered if chamberFilter is requested)
+    const rawState = this.getClinicSnapshot(clinicId);
+    let effectiveState = rawState;
+    if (options?.chamberFilter) {
+      effectiveState = {
+        ...rawState,
+        chambers: rawState.chambers.filter((c) => c.chamberNumber === options.chamberFilter),
+      };
+    }
+
+    const snapshotId = `evt_snapshot_${Date.now()}`;
+    reply.raw.write(`id: ${snapshotId}\nevent: snapshot\ndata: ${JSON.stringify(effectiveState)}\n\n`);
 
     // Clean up on disconnect
     reply.raw.on('close', () => {
@@ -247,12 +330,19 @@ export class RealtimeStreamManager {
   }
 
   /**
-   * Direct emit to local connected SSE clients
+   * Direct emit to local connected SSE clients with optional chamber filtering
    */
-  private emitToLocalClients(clinicId: string, event: string, payload: unknown) {
-    const dataString = `event: ${event}\ndata: ${JSON.stringify(payload)}\n\n`;
+  private emitToLocalClients(clinicId: string, event: string, payload: unknown, chamberNumber?: string) {
+    const eventId = `evt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const dataString = `id: ${eventId}\nevent: ${event}\ndata: ${JSON.stringify(payload)}\n\n`;
+
     for (const client of this.clients.values()) {
       if (client.clinicId === clinicId) {
+        // If client is subscribed to a specific chamber, skip events for other chambers
+        if (chamberNumber && client.chamberFilter && client.chamberFilter !== chamberNumber) {
+          continue;
+        }
+
         try {
           client.reply.raw.write(dataString);
         } catch {
@@ -260,6 +350,33 @@ export class RealtimeStreamManager {
         }
       }
     }
+  }
+
+  /**
+   * Diagnostics: get active TV screens and health report
+   */
+  public getTVStatus(clinicId: string): TVStatusResponse {
+    const connectedClients: TVStreamClientInfo[] = [];
+
+    for (const client of this.clients.values()) {
+      if (client.clinicId === clinicId) {
+        connectedClients.push({
+          id: client.id,
+          clinicId: client.clinicId,
+          connectedAt: client.connectedAt,
+          chamberFilter: client.chamberFilter,
+          ip: client.ip,
+        });
+      }
+    }
+
+    return {
+      clinicId,
+      activeScreensCount: connectedClients.length,
+      connectedClients,
+      lastHeartbeatAt: this.lastHeartbeatAt,
+      currentSnapshot: this.getClinicSnapshot(clinicId),
+    };
   }
 
   public getBroker(): PubSubBroker {

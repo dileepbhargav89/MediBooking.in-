@@ -718,6 +718,32 @@ export interface PubSubStats {
   uptimeSeconds: number;
 }
 
+// ==========================================
+// 11. SSE WAITING ROOM TV STREAMING (PHASE 24)
+// ==========================================
+
+export interface TVStreamOptions {
+  chamberFilter?: string; // e.g. "CH-1"
+  lastEventId?: string;
+}
+
+export interface TVStreamClientInfo {
+  id: string;
+  clinicId: string;
+  connectedAt: string;
+  chamberFilter?: string;
+  ip?: string;
+}
+
+export interface TVStatusResponse {
+  clinicId: string;
+  activeScreensCount: number;
+  connectedClients: TVStreamClientInfo[];
+  lastHeartbeatAt: string;
+  currentSnapshot: ClinicTVDisplayPayload;
+}
+
+
 
 
 
