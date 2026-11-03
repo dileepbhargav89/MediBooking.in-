@@ -30,6 +30,8 @@ lerna-debug.log*
 !.devloop/config.example.yaml
 
 # OS and IDE files
+test-results/
+tests/reports/html-report/
 .DS_Store
 Thumbs.db
 .idea/

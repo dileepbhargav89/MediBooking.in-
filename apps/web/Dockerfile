@@ -36,3 +36,4 @@ HEALTHCHECK --interval=20s --timeout=3s --start-period=10s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 0
 
 CMD ["node", "apps/web/server.js"]
+

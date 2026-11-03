@@ -304,3 +304,4 @@ export class ThermalReceiptService {
 }
 
 export const thermalReceiptService = new ThermalReceiptService();
+

@@ -164,3 +164,4 @@ describe('Phase 28: 80mm & 58mm Thermal Printer ESC/POS Receipt Formatter', () =
     await server.close();
   });
 });
+

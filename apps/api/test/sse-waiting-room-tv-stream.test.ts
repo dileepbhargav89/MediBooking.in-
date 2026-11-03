@@ -168,3 +168,4 @@ describe('Phase 24: Server-Sent Events (SSE) Waiting Room TV Streaming Endpoint'
     assert.equal(manager.getTVStatus(clinicId).activeScreensCount, 0);
   });
 });
+

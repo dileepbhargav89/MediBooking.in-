@@ -128,3 +128,4 @@ export async function billingRoutes(fastify: FastifyInstance) {
     });
   });
 }
+

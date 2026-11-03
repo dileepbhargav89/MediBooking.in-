@@ -224,3 +224,4 @@ export class WhatsAppBroker {
 }
 
 export const whatsappBroker = new WhatsAppBroker();
+

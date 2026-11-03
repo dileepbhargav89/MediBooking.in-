@@ -62,3 +62,4 @@ describe('Phase 41: Doctor Chamber Consultation Desk Glance Portal (/doctor)', (
     assert.strictEqual(result.routedToVipQueue, true);
   });
 });
+

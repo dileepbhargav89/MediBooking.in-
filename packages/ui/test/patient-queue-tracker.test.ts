@@ -61,3 +61,4 @@ describe('Phase 38: Patient Live Queue Position Tracker Portal (/patient)', () =
     assert.ok(chamberInfo.roomNumber.includes('Room 102'));
   });
 });
+

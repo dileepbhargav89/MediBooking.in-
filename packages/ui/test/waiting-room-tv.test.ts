@@ -86,3 +86,4 @@ describe('Phase 39: Waiting Room TV Screen (/tv/:clinicSlug) with Realtime SSE &
     assert.strictEqual(CHIME_SPECS.decayTimeSec, 0.7);
   });
 });
+

@@ -85,3 +85,4 @@ describe('Phase 36: Multi-Clinic Doctor Tenant Switcher Modal', () => {
     assert.ok(cookie.includes('path=/'));
   });
 });
+

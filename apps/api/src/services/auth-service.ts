@@ -210,9 +210,50 @@ export class AuthService {
    * Resolves the full multi-tenant UserContext for a mobile number
    */
   public resolveUserContext(mobile: string, preferredRole?: UserRole): UserContext {
-    // 1. Check if user is one of the doctors
-    const doctorMatch = SEED_DATA.doctors.find((d) => d.slug.includes(mobile) || mobile.endsWith('12345'));
-    if (doctorMatch) {
+    // 1. Check if user is Platform Super Admin
+    if (preferredRole === UserRole.SUPER_ADMIN || mobile.endsWith('00000')) {
+      return {
+        userId: 'usr-superadmin-01',
+        mobile,
+        fullName: 'MediBooking Platform Super Admin',
+        activeRole: UserRole.SUPER_ADMIN,
+        allowedRoles: [UserRole.SUPER_ADMIN],
+        availableClinics: [],
+      };
+    }
+
+    // 2. Check if user is Clinic Admin
+    if (
+      preferredRole === UserRole.CLINIC_ADMIN ||
+      mobile.endsWith('99999') ||
+      mobile.endsWith('11111')
+    ) {
+      return {
+        userId: 'usr-admin-bhopal-01',
+        mobile,
+        fullName: 'Clinic Administrator',
+        activeRole: UserRole.CLINIC_ADMIN,
+        activeClinicId: SEED_DATA.clinic.id,
+        activeClinicName: SEED_DATA.clinic.name,
+        allowedRoles: [UserRole.CLINIC_ADMIN],
+        availableClinics: [
+          {
+            clinicId: SEED_DATA.clinic.id,
+            clinicName: SEED_DATA.clinic.name,
+            role: UserRole.CLINIC_ADMIN,
+          },
+        ],
+      };
+    }
+
+    // 3. Check if user is one of the doctors
+    if (
+      preferredRole === UserRole.DOCTOR ||
+      mobile.endsWith('22222') ||
+      mobile.endsWith('12345') ||
+      SEED_DATA.doctors.some((d) => d.slug.includes(mobile))
+    ) {
+      const doctorMatch = SEED_DATA.doctors[0]!;
       return {
         userId: `usr-doc-${doctorMatch.doctorId.slice(0, 8)}`,
         mobile,
@@ -233,9 +274,13 @@ export class AuthService {
       };
     }
 
-    // 2. Check if user is staff (Receptionist)
-    const staffMatch = SEED_DATA.staff.find((s) => s.userId.includes(mobile) || mobile.endsWith('22222') || mobile.endsWith('33333'));
-    if (staffMatch) {
+    // 4. Check if user is staff (Receptionist)
+    if (
+      preferredRole === UserRole.RECEPTIONIST ||
+      mobile.endsWith('33333') ||
+      SEED_DATA.staff.some((s) => s.userId.includes(mobile))
+    ) {
+      const staffMatch = SEED_DATA.staff[0]!;
       return {
         userId: staffMatch.userId,
         mobile,
@@ -253,38 +298,6 @@ export class AuthService {
             role: UserRole.RECEPTIONIST,
           },
         ],
-      };
-    }
-
-    // 3. Check if user is Clinic Admin
-    if (mobile.endsWith('99999') || preferredRole === UserRole.CLINIC_ADMIN) {
-      return {
-        userId: 'usr-admin-bhopal-01',
-        mobile,
-        fullName: 'Clinic Administrator',
-        activeRole: UserRole.CLINIC_ADMIN,
-        activeClinicId: SEED_DATA.clinic.id,
-        activeClinicName: SEED_DATA.clinic.name,
-        allowedRoles: [UserRole.CLINIC_ADMIN],
-        availableClinics: [
-          {
-            clinicId: SEED_DATA.clinic.id,
-            clinicName: SEED_DATA.clinic.name,
-            role: UserRole.CLINIC_ADMIN,
-          },
-        ],
-      };
-    }
-
-    // 4. Check if user is Platform Super Admin
-    if (mobile.endsWith('00000') || preferredRole === UserRole.SUPER_ADMIN) {
-      return {
-        userId: 'usr-superadmin-01',
-        mobile,
-        fullName: 'MediBooking Platform Super Admin',
-        activeRole: UserRole.SUPER_ADMIN,
-        allowedRoles: [UserRole.SUPER_ADMIN],
-        availableClinics: [],
       };
     }
 

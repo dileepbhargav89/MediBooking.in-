@@ -301,3 +301,4 @@ describe('Phase 22: Automated 14-Day VIP Priority Reschedule Queue Service', () 
     assert.ok(body.message.includes('restricted to doctor'));
   });
 });
+

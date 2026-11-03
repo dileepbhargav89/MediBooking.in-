@@ -120,3 +120,4 @@ describe('Phase 47: Bhopal 10-Clinic Pilot Seed Migration & Deployment Scripts',
     assert.ok(report.durationMs < 100, `Migration benchmark completed in ${report.durationMs.toFixed(2)}ms`);
   });
 });
+

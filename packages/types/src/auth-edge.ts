@@ -134,13 +134,14 @@ export function parseSessionToken(token: string | null | undefined): DecodedSess
     const jsonStr = atob(padded);
 
     const payload = JSON.parse(jsonStr);
+    const userId = payload.userId || payload.sub;
 
-    if (!payload.userId || !payload.role) {
+    if (!userId || !payload.role) {
       return null;
     }
 
     return {
-      userId: payload.userId,
+      userId,
       role: payload.role as UserRole,
       clinicId: payload.clinicId,
       doctorId: payload.doctorId,

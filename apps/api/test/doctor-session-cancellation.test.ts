@@ -291,3 +291,4 @@ describe('Phase 21: Doctor Emergency Session Cancellation & Slot Invalidation En
     assert.equal(body.error, 'Validation Error');
   });
 });
+

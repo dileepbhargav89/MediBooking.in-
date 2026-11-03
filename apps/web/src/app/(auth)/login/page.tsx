@@ -42,7 +42,7 @@ const QUICK_ROLES: QuickRole[] = [
   {
     role: UserRole.SUPER_ADMIN,
     label: 'Super Admin',
-    mobile: '9999999999',
+    mobile: '9826000000',
     portalRoute: '/super-admin',
     badgeVariant: 'purple',
   },
@@ -156,28 +156,38 @@ export default function LoginPage() {
       const response = await fetch(`${API_BASE_URL}/api/v1/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile: phone, otp: code }),
+        body: JSON.stringify({
+          mobile: phone,
+          otp: code,
+          preferredRole: activeRole?.role,
+        }),
       });
 
       if (response.ok) {
         const data = await response.json();
         sessionToken = data.token;
-        const user = data.user;
-        if (user?.role) {
-          switch (user.role) {
+        const user = data.userContext || data.user;
+        const role = user?.activeRole || user?.role || activeRole?.role;
+        if (role) {
+          switch (role) {
             case UserRole.SUPER_ADMIN:
+            case 'SUPER_ADMIN':
               targetPath = '/super-admin';
               break;
             case UserRole.CLINIC_ADMIN:
+            case 'CLINIC_ADMIN':
               targetPath = '/admin';
               break;
             case UserRole.DOCTOR:
+            case 'DOCTOR':
               targetPath = '/doctor';
               break;
             case UserRole.RECEPTIONIST:
+            case 'RECEPTIONIST':
               targetPath = '/receptionist';
               break;
             case UserRole.PATIENT:
+            case 'PATIENT':
             default:
               targetPath = '/patient';
               break;
@@ -410,3 +420,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

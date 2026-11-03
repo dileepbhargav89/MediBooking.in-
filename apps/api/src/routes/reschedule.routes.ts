@@ -122,3 +122,4 @@ export async function rescheduleRoutes(fastify: FastifyInstance) {
     }
   );
 }
+

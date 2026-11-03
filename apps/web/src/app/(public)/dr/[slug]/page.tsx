@@ -464,6 +464,10 @@ export default function DoctorPublicProfilePage({
 
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-left text-xs space-y-2">
               <div className="flex justify-between">
+                <span className="text-slate-500">Patient Name:</span>
+                <span className="font-bold text-slate-900">{patientName}</span>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-slate-500">Doctor:</span>
                 <span className="font-bold text-slate-900">Dr. Rajesh Sharma</span>
               </div>
@@ -519,3 +523,4 @@ export default function DoctorPublicProfilePage({
     </div>
   );
 }
+
