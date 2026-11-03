@@ -281,6 +281,29 @@ export class SlotService {
     this.slots.set(slot.id, slot);
   }
 
+  /**
+   * Invalidates / cancels all active slots for a doctor on a specific date (Phase 21)
+   */
+  async invalidateDoctorSlotsForDate(
+    clinicId: string,
+    doctorId: string,
+    dateStr: string
+  ): Promise<AvailabilitySlot[]> {
+    const affected: AvailabilitySlot[] = [];
+    for (const slot of this.slots.values()) {
+      if (
+        slot.clinicId === clinicId &&
+        slot.doctorId === doctorId &&
+        slot.slotDate === dateStr
+      ) {
+        slot.status = SlotStatus.CANCELLED;
+        await slotLockManager.releaseLock(slot.id, slot.lockedBySessionId || 'emergency-cancellation');
+        affected.push(slot);
+      }
+    }
+    return affected;
+  }
+
   private getSlotMinutes(timeStr: string): number {
     const timePart = timeStr.includes('T') ? (timeStr.split('T')[1]?.slice(0, 5) || '00:00') : timeStr;
     return sessionService.timeToMinutes(timePart);

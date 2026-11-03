@@ -172,6 +172,7 @@ export enum SlotStatus {
   BOOKED = 'BOOKED',
   BLOCKED = 'BLOCKED', // Blocked by doctor/admin
   WALK_IN_RESERVED = 'WALK_IN_RESERVED',
+  CANCELLED = 'CANCELLED',
 }
 
 export interface AvailabilitySlot {
@@ -290,8 +291,50 @@ export interface Appointment {
   actualStartTime?: string;
   actualEndTime?: string;
   cancellationReason?: string;
+  rescheduleEligibleUntil?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+// ==========================================
+// 4B. EMERGENCY SESSION CANCELLATION DTOs (PHASE 21)
+// ==========================================
+
+export interface DoctorSessionCancellationDTO {
+  clinicId: string;
+  doctorId: string;
+  date: string; // YYYY-MM-DD
+  cancellationReason: string;
+  notifyPatients?: boolean;
+  rescheduleWindowDays?: number;
+}
+
+export interface SessionCancellationRecord {
+  id: string;
+  clinicId: string;
+  doctorId: string;
+  chamberNumber: string;
+  sessionDate: string;
+  cancellationReason: string;
+  cancelledAppointmentsCount: number;
+  invalidatedSlotsCount: number;
+  actorUserId: string;
+  actorRole: UserRole;
+  timestamp: string;
+}
+
+export interface SessionCancellationResult {
+  success: boolean;
+  clinicId: string;
+  doctorId: string;
+  chamberNumber: string;
+  sessionDate: string;
+  cancellationReason: string;
+  cancelledAppointmentsCount: number;
+  invalidatedSlotsCount: number;
+  cancelledAppointmentIds: string[];
+  message: string;
+  timestamp: string;
 }
 
 // ==========================================
