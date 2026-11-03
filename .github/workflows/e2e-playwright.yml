@@ -1,0 +1,97 @@
+name: MediBooking Enterprise CI/CD Pipeline & Playwright E2E Suite
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-verify:
+    name: Full Regression & Playwright E2E Suite (14 Workflows)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      NODE_ENV: test
+      PORT: 4000
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:4000
+      JWT_SECRET: ci_test_secret_for_medibooking_playwright_2026
+      POSTGRES_PASSWORD: test_password
+      REDIS_PASSWORD: test_redis_password
+      WHATSAPP_WEBHOOK_VERIFY_TOKEN: medibooking_wa_secret_2026
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm Package Manager
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js 20 LTS Runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Monorepo Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium Browser & OS Dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Start Fastify API Gateway Server
+        run: |
+          npx tsx apps/api/src/server.ts &
+          sleep 4
+          curl -f http://127.0.0.1:4000/health || exit 1
+
+      - name: Start Next.js Web Application Server
+        run: |
+          pnpm --filter @medibooking/web dev &
+          sleep 8
+          curl -f http://localhost:3000 || exit 1
+
+      - name: Execute Full Playwright E2E Test Suite (All 34 Tests)
+        run: npx playwright test
+
+      - name: Upload Playwright Test Results & Traces
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-e2e-results
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 14
+
+  docker-build-verification:
+    name: Multi-AZ Docker Container Build Verification
+    runs-on: ubuntu-latest
+    needs: test-and-verify
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Fastify API Gateway Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: false
+          tags: medibooking-api:ci-test
+
+      - name: Build Next.js Web App Standalone Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: false
+          tags: medibooking-web:ci-test
+
