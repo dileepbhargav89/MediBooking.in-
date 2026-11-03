@@ -1105,6 +1105,96 @@ export function maskPatientIdentity(
   };
 }
 
+// ==========================================
+// 18. B2B SAAS SUBSCRIPTION BILLING (STAGE III)
+// ==========================================
+
+export type PlanTier =
+  | 'TRIAL_30'
+  | 'SOLO_ESSENTIAL'
+  | 'CLINIC_PRO'
+  | 'POLYCLINIC_ENTERPRISE';
+
+export type SubscriptionStatus =
+  | 'TRIALING'
+  | 'ACTIVE'
+  | 'PAST_DUE'
+  | 'GRACE_PERIOD'
+  | 'SUSPENDED'
+  | 'CANCELLED';
+
+export interface PlanDefinition {
+  tier: PlanTier;
+  name: string;
+  monthlyPriceInr: number;
+  annualPriceInr: number;
+  maxChambers: number;
+  maxDoctors: number;
+  monthlyNotifications: number;
+  tvStreamAllowed: boolean;
+  prioritySupport: boolean;
+}
+
+export interface ClinicSubscription {
+  id: string;
+  clinicId: string;
+  tier: PlanTier;
+  status: SubscriptionStatus;
+  monthlyPriceInr: number;
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  gracePeriodEnd?: string;
+  gatewaySubscriptionId?: string;
+  maxChambers: number;
+  maxDoctors: number;
+  tvStreamAllowed: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RazorpayOrderDTO {
+  clinicId: string;
+  tier: PlanTier;
+  billingCycle: 'MONTHLY' | 'ANNUAL';
+  currency?: string;
+}
+
+export interface RazorpayOrderResult {
+  orderId: string;
+  amountPaise: number;
+  currency: string;
+  clinicId: string;
+  tier: PlanTier;
+  keyId: string;
+  notes: Record<string, string>;
+  createdAt: string;
+}
+
+export interface RazorpayPaymentVerifyDTO {
+  clinicId: string;
+  orderId: string;
+  paymentId: string;
+  signature: string;
+  tier: PlanTier;
+}
+
+export interface BillingInvoiceDTO {
+  id: string;
+  clinicId: string;
+  invoiceNumber: string;
+  tier: PlanTier;
+  baseAmountRupees: number;
+  cgstRupees: number; // 9%
+  sgstRupees: number; // 9%
+  totalAmountRupees: number;
+  paymentId: string;
+  paidAt: string;
+  periodStart: string;
+  periodEnd: string;
+  gstin?: string;
+}
+
+
 
 
 

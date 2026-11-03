@@ -18,6 +18,9 @@ const envSchema = z.object({
   SMS_DLT_SENDER_ID: z.string().default('MEDIBK'),
   SMS_DLT_ENTITY_ID: z.string().default('1101554433221100123'),
   SMS_API_KEY: z.string().optional(),
+  RAZORPAY_KEY_ID: z.string().default('rzp_test_TvOutO2qI4jaN0'),
+  RAZORPAY_KEY_SECRET: z.string().default('w8WBkozXwQOSZtx7f15gcAC9'),
+  RAZORPAY_WEBHOOK_SECRET: z.string().default('medibooking_whsec_dev'),
 });
 
 export const ENV = envSchema.parse(process.env);
