@@ -10,6 +10,10 @@ const envSchema = z.object({
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   JWT_SECRET: z.string().default('medibooking-enterprise-jwt-secret-key-32charsmin'),
   CORS_ORIGIN: z.string().default('*'),
+  WHATSAPP_ACCESS_TOKEN: z.string().optional(),
+  WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
+  WHATSAPP_BUSINESS_ACCOUNT_ID: z.string().optional(),
+  WHATSAPP_API_VERSION: z.string().default('v22.0'),
 });
 
 export const ENV = envSchema.parse(process.env);

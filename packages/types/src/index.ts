@@ -793,6 +793,49 @@ export interface BatchSyncResponse {
   syncedAt: string;
 }
 
+// ==========================================
+// 13. WHATSAPP BUSINESS CLOUD API BROKER (PHASE 26)
+// ==========================================
+
+export type WhatsAppTemplateType =
+  | 'booking_confirmation_v1'
+  | 'doctor_delay_v1'
+  | 'session_cancelled_v1'
+  | 'walkin_intake_v1'
+  | 'custom_utility_v1';
+
+export interface WhatsAppNotificationDTO {
+  recipientMobile: string;
+  template: WhatsAppTemplateType;
+  language?: string;
+  parameters: Record<string, string | number>;
+  clinicId: string;
+  appointmentId?: string;
+  simulate?: boolean;
+}
+
+export interface WhatsAppMessageResult {
+  success: boolean;
+  wamid?: string;
+  recipient: string;
+  status: 'SENT' | 'SIMULATED' | 'FAILED' | 'FALLBACK_TO_SMS';
+  shouldFallbackToSms: boolean;
+  errorCode?: number;
+  errorMessage?: string;
+  timestamp: string;
+}
+
+export interface WhatsAppAuditRecord {
+  id: string;
+  clinicId: string;
+  appointmentId?: string;
+  recipientMobile: string;
+  template: WhatsAppTemplateType;
+  result: WhatsAppMessageResult;
+  sentAt: string;
+}
+
+
 
 
 
