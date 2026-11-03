@@ -14,6 +14,7 @@ import {
   ChamberBadge,
   TokenCard,
   BharatQrModal,
+  EscposPrinterDriver,
   getChamberStyle,
 } from '@medibooking/ui';
 
@@ -149,6 +150,8 @@ export default function ReceptionDeskDashboardPage() {
   const [isUpiModalOpen, setIsUpiModalOpen] = useState(false);
   const [selectedUpiToken, setSelectedUpiToken] = useState<ReceptionTokenItem | null>(null);
   const [upiCollectionsRupees, setUpiCollectionsRupees] = useState(18600);
+  const [directPrintNotice, setDirectPrintNotice] = useState<string | null>(null);
+  const [isPrintingDirect, setIsPrintingDirect] = useState(false);
 
   // Intake Form State
   const [mobile, setMobile] = useState('');
@@ -262,6 +265,34 @@ export default function ReceptionDeskDashboardPage() {
     setUpiCollectionsRupees((prev) => prev + amount);
     setIsUpiModalOpen(false);
     setIsReceiptModalOpen(true);
+  };
+
+  const handleDirectHardwarePrint = async () => {
+    if (!latestIssuedToken) return;
+    setIsPrintingDirect(true);
+    setDirectPrintNotice(null);
+
+    const assignedDoctor = INITIAL_CHAMBERS.find(
+      (c) => c.chamberNumber === latestIssuedToken.chamberNumber
+    );
+
+    const result = await EscposPrinterDriver.printDirect({
+      clinicName: 'Bhopal City Care Polyclinic',
+      clinicAddress: 'MP Nagar Zone II, Bhopal',
+      clinicPhone: '0755-4019283',
+      tokenNumber: latestIssuedToken.tokenNumber,
+      chamberNumber: latestIssuedToken.chamberNumber,
+      patientName: latestIssuedToken.patientName,
+      patientMobile: latestIssuedToken.patientMobile,
+      doctorName: latestIssuedToken.doctorName,
+      specialty: assignedDoctor?.specialty || 'General Practice',
+      paymentStatus: latestIssuedToken.paymentStatus,
+      feePaidRupees: latestIssuedToken.feePaidRupees,
+    });
+
+    setIsPrintingDirect(false);
+    setDirectPrintNotice(`✓ ${result.message}`);
+    setTimeout(() => setDirectPrintNotice(null), 5000);
   };
 
   return (
@@ -640,24 +671,42 @@ export default function ReceptionDeskDashboardPage() {
               </p>
             </div>
 
-            <div className="flex gap-2">
+            {directPrintNotice && (
+              <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-300 text-[11px] font-bold text-emerald-800 text-center animate-pulse">
+                {directPrintNotice}
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2">
               <Button
-                variant="primary"
+                variant="urgent"
                 fullWidth
                 size="md"
-                onClick={() => {
-                  if (typeof window !== 'undefined') window.print();
-                }}
+                isLoading={isPrintingDirect}
+                onClick={handleDirectHardwarePrint}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm"
               >
-                🖨️ Print Slip (80mm)
+                ⚡ Direct Hardware Print (ESC/POS)
               </Button>
-              <Button
-                variant="outline"
-                size="md"
-                onClick={() => setIsReceiptModalOpen(false)}
-              >
-                Done
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  fullWidth
+                  size="sm"
+                  onClick={() => {
+                    if (typeof window !== 'undefined') window.print();
+                  }}
+                >
+                  🖨️ Browser Print (Dialog)
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsReceiptModalOpen(false)}
+                >
+                  Done
+                </Button>
+              </div>
             </div>
           </div>
         )}
