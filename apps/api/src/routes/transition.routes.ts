@@ -92,3 +92,4 @@ export async function transitionRoutes(fastify: FastifyInstance) {
     }
   );
 }
+

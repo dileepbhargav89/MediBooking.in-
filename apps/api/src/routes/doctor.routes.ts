@@ -12,12 +12,13 @@ import { doctorService } from '../services/doctor-service';
 import { affiliationService } from '../services/affiliation-service';
 import { clinicService } from '../services/clinic-service';
 import { sessionService } from '../services/session-service';
+import { delayBroadcastEngine } from '../services/delay-broadcast-engine';
 
 const delayBroadcastSchema = z.object({
   clinicId: z.string().uuid(),
   doctorId: z.string().uuid(),
-  delayMinutes: z.union([z.literal(15), z.literal(30), z.literal(45), z.literal(60)]),
-  reasonOption: z.enum(['HOSPITAL_EMERGENCY', 'TRAFFIC_DELAY', 'EXTENDED_ROUNDS', 'PERSONAL_EMERGENCY']),
+  delayMinutes: z.number().int().min(0).max(240),
+  reasonOption: z.string().default('HOSPITAL_EMERGENCY'),
   customNote: z.string().optional(),
 });
 
@@ -319,12 +320,18 @@ export async function doctorRoutes(fastify: FastifyInstance) {
   );
 
   /**
-   * 1-Click Delay Broadcast: POST /api/v1/doctor/delay-broadcast
-   * Restricted to DOCTOR role
+   * 1-Click Delay Broadcast with Downstream ETA Recalculation: POST /api/v1/doctor/delay-broadcast
    */
   fastify.post(
     '/doctor/delay-broadcast',
-    { preHandler: [requireAuth({ allowedRoles: [UserRole.DOCTOR, UserRole.CLINIC_ADMIN] })] },
+    {
+      preHandler: [
+        requireAuth({
+          allowedRoles: [UserRole.DOCTOR, UserRole.CLINIC_ADMIN, UserRole.RECEPTIONIST],
+          requireClinic: true,
+        }),
+      ],
+    },
     async (req, reply) => {
       const parseResult = delayBroadcastSchema.safeParse(req.body);
       if (!parseResult.success) {
@@ -334,21 +341,91 @@ export async function doctorRoutes(fastify: FastifyInstance) {
         });
       }
 
-      const payload: DoctorDelayBroadcastDTO = parseResult.data;
+      const user = req.tenant!;
+      try {
+        const result = await delayBroadcastEngine.broadcastDelay(parseResult.data, {
+          userId: user.userId,
+          role: user.activeRole,
+          staffScope: user.staffScope,
+          dedicatedDoctorId: user.dedicatedDoctorId,
+        });
 
-      // Broadcast to Waiting Room TV via SSE
-      realtimeStreamManager.broadcastDoctorDelay(
-        payload.clinicId,
-        payload.doctorId,
-        payload.delayMinutes,
-        payload.reasonOption
-      );
+        return reply.status(200).send(result);
+      } catch (err: any) {
+        const msg = err.message || 'Delay broadcast failed';
+        if (msg.includes('not found')) {
+          return reply.status(404).send({ error: 'Not Found', message: msg });
+        }
+        if (msg.includes('Forbidden') || msg.includes('restricted')) {
+          return reply.status(403).send({ error: 'Forbidden', message: msg });
+        }
+        return reply.status(400).send({ error: 'Bad Request', message: msg });
+      }
+    }
+  );
 
-      return {
-        success: true,
-        message: `Delay broadcast of ${payload.delayMinutes} mins activated across chamber and waiting room screens`,
-        timestamp: new Date().toISOString(),
-      };
+  /**
+   * Get Active Delay Status for a Doctor
+   * GET /api/v1/doctor/delay-status
+   */
+  fastify.get(
+    '/doctor/delay-status',
+    {
+      preHandler: [
+        requireAuth({
+          allowedRoles: [
+            UserRole.DOCTOR,
+            UserRole.CLINIC_ADMIN,
+            UserRole.RECEPTIONIST,
+            UserRole.PATIENT,
+            UserRole.SUPER_ADMIN,
+          ],
+        }),
+      ],
+    },
+    async (req, reply) => {
+      const { clinicId, doctorId } = req.query as { clinicId?: string; doctorId?: string };
+      const resolvedClinicId = clinicId || req.tenant?.activeClinicId || SEED_DATA.clinic.id;
+      const resolvedDoctorId =
+        doctorId ||
+        req.tenant?.dedicatedDoctorId ||
+        req.tenant?.userId ||
+        SEED_DATA.doctors[0]!.doctorId;
+
+      const status = delayBroadcastEngine.getDelayStatus(resolvedClinicId, resolvedDoctorId);
+      return reply.status(200).send({
+        clinicId: resolvedClinicId,
+        doctorId: resolvedDoctorId,
+        isDelayActive: status?.isDelayActive || false,
+        delayMinutes: status?.delayMinutes || 0,
+        reasonMessage: status?.reasonMessage || 'Consultations running on time',
+        status,
+      });
+    }
+  );
+
+  /**
+   * Get Delay Broadcast Audit History
+   * GET /api/v1/doctor/delay-history
+   */
+  fastify.get(
+    '/doctor/delay-history',
+    {
+      preHandler: [
+        requireAuth({
+          allowedRoles: [UserRole.DOCTOR, UserRole.CLINIC_ADMIN, UserRole.RECEPTIONIST, UserRole.SUPER_ADMIN],
+        }),
+      ],
+    },
+    async (req, reply) => {
+      const { clinicId, doctorId } = req.query as { clinicId?: string; doctorId?: string };
+      const resolvedClinicId = clinicId || req.tenant?.activeClinicId || SEED_DATA.clinic.id;
+      const history = delayBroadcastEngine.getDelayHistory(resolvedClinicId, doctorId);
+      return reply.status(200).send({
+        clinicId: resolvedClinicId,
+        count: history.length,
+        history,
+      });
     }
   );
 }

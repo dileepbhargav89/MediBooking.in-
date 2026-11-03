@@ -323,3 +323,4 @@ export class CashieringService {
 }
 
 export const cashieringService = new CashieringService();
+

@@ -321,9 +321,54 @@ export interface QuickIntakeDTO {
 export interface DoctorDelayBroadcastDTO {
   clinicId: string;
   doctorId: string;
-  delayMinutes: 15 | 30 | 45 | 60;
-  reasonOption: 'HOSPITAL_EMERGENCY' | 'TRAFFIC_DELAY' | 'EXTENDED_ROUNDS' | 'PERSONAL_EMERGENCY';
+  delayMinutes: number; // 0 (clear), 15, 30, 45, 60
+  reasonOption: 'HOSPITAL_EMERGENCY' | 'TRAFFIC_DELAY' | 'EXTENDED_ROUNDS' | 'PERSONAL_EMERGENCY' | 'ON_TIME_RESUMED' | string;
   customNote?: string;
+}
+
+export interface DelayBroadcastResult {
+  success: boolean;
+  clinicId: string;
+  doctorId: string;
+  chamberNumber: string;
+  delayMinutes: number;
+  isDelayActive: boolean;
+  reasonMessage: string;
+  affectedAppointmentsCount: number;
+  recalculatedAppointments: Array<{
+    id: string;
+    tokenNumber: number;
+    patientName: string;
+    oldEstimatedTime?: string;
+    newEstimatedTime?: string;
+  }>;
+  broadcastTimestamp: string;
+  message: string;
+}
+
+export interface DelayStatusRecord {
+  clinicId: string;
+  doctorId: string;
+  chamberNumber: string;
+  isDelayActive: boolean;
+  delayMinutes: number;
+  reasonMessage?: string;
+  activatedAt?: string;
+  updatedAt: string;
+}
+
+export interface DelayHistoryRecord {
+  id: string;
+  clinicId: string;
+  doctorId: string;
+  chamberNumber: string;
+  delayMinutes: number;
+  reasonOption: string;
+  customNote?: string;
+  actorUserId: string;
+  actorRole: UserRole;
+  affectedCount: number;
+  timestamp: string;
 }
 
 /** Waiting Room TV Real-Time Display State */
