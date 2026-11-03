@@ -28,6 +28,7 @@ import { cashieringService } from '../services/cashiering-service';
 import { sessionService } from '../services/session-service';
 import { queueTransitionController } from '../services/queue-transition-controller';
 import { offlineSyncService } from '../services/offline-sync-service';
+import { thermalReceiptService } from '../services/thermal-receipt-service';
 
 const intakeSchema = z.object({
   clinicId: z.string().uuid(),
@@ -561,5 +562,43 @@ export async function receptionRoutes(fastify: FastifyInstance) {
       return reply.status(404).send({ error: 'Appointment not found' });
     }
   );
+
+  /**
+   * Format Thermal Receipt Preview: POST /api/v1/reception/thermal-receipt/preview
+   */
+  fastify.post('/reception/thermal-receipt/preview', async (req, reply) => {
+    const body = req.body as any;
+    if (!body || !body.clinicName || !body.tokenFormatted) {
+      return reply.status(400).send({ error: 'Bad Request', message: 'Missing required thermal slip fields' });
+    }
+
+    const width = body.width === '58mm' ? '58mm' : '80mm';
+    const formatted = thermalReceiptService.formatReceipt(body, { width, cutPaper: body.cutPaper });
+
+    return reply.status(200).send({
+      success: true,
+      formatted,
+    });
+  });
+
+  /**
+   * Generate Binary ESC/POS Stream: POST /api/v1/reception/thermal-receipt/escpos
+   */
+  fastify.post('/reception/thermal-receipt/escpos', async (req, reply) => {
+    const body = req.body as any;
+    if (!body || !body.clinicName || !body.tokenFormatted) {
+      return reply.status(400).send({ error: 'Bad Request', message: 'Missing required thermal slip fields' });
+    }
+
+    const width = body.width === '58mm' ? '58mm' : '80mm';
+    const buffer = thermalReceiptService.generateEscPosBuffer(body, {
+      width,
+      cutPaper: body.cutPaper !== false,
+    });
+
+    reply.header('Content-Type', 'application/octet-stream');
+    reply.header('Content-Disposition', `inline; filename="receipt-${body.receiptNumber || 'print'}.bin"`);
+    return reply.send(buffer);
+  });
 }
 

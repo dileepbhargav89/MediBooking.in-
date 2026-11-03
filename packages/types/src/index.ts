@@ -879,6 +879,47 @@ export interface SmsAuditRecord {
   sentAt: string;
 }
 
+// ==========================================
+// 15. THERMAL PRINTER ESC/POS FORMATTER (STAGE III)
+// ==========================================
+
+export type ThermalPaperWidth = '80mm' | '58mm';
+
+export interface ThermalSlipData {
+  clinicName: string;
+  clinicAddress: string;
+  clinicPhone: string;
+  clinicGstNumber?: string;
+  chamber: string;
+  chamberName?: string;
+  doctorName: string;
+  specialty?: string;
+  token: number;
+  tokenFormatted: string;
+  patientName: string;
+  patientMaskedPhone: string;
+  feeRupees: number;
+  payment: PaymentStatus;
+  receiptNumber: string;
+  time: string;
+  notes?: string;
+}
+
+export interface ThermalPrintOptions {
+  width: ThermalPaperWidth;
+  cutPaper?: boolean;
+  includeQrCode?: boolean;
+}
+
+export interface FormattedThermalReceipt {
+  width: ThermalPaperWidth;
+  columns: number;
+  rawEscPosBase64: string;
+  asciiText: string;
+  htmlContent: string;
+}
+
+
 
 
 
