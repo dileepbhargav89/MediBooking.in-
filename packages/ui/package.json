@@ -5,14 +5,20 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
+    "test": "tsx --test test/*.test.ts",
     "type-check": "tsc --noEmit",
     "lint": "echo \"@medibooking/ui lint passed\""
   },
   "dependencies": {
     "@medibooking/types": "workspace:*"
   },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
   "devDependencies": {
     "@types/react": "^19.0.8",
+    "react": "^19.0.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
 }

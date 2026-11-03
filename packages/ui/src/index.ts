@@ -1,33 +1,17 @@
 /**
- * MediBooking Enterprise UI Design System Tokens & Base Types
+ * MediBooking Enterprise UI Design System Tokens & Component Library
+ * Document ID: MB-SPEC-14 (Stage IV, Phase 33)
  */
+
 export * from '@medibooking/types';
+export * from './tokens';
 
-export interface ButtonProps {
-  variant?: 'primary' | 'secondary' | 'urgent' | 'outline' | 'ghost';
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  isLoading?: boolean;
-  disabled?: boolean;
-  children: React.ReactNode;
-  onClick?: () => void;
-  className?: string;
-}
-
-export interface ChamberBadgeProps {
-  chamberNumber: string;
-  doctorName: string;
-  specialty: string;
-  status: 'ACTIVE' | 'BREAK' | 'DELAYED' | 'OFFLINE';
-  delayMinutes?: number;
-}
-
-export interface TokenCardProps {
-  tokenNumber: number;
-  patientName: string;
-  status: string;
-  isUrgent?: boolean;
-  estimatedTime?: string;
-  source: string;
-  paymentStatus: string;
-}
-
+// UI Components
+export { Badge, type BadgeProps } from './components/Badge';
+export { Button, type ButtonProps } from './components/Button';
+export { Card, CardHeader, CardBody, CardFooter, type CardProps } from './components/Card';
+export { ChamberBadge, type ChamberBadgeProps } from './components/ChamberBadge';
+export { Input, type InputProps } from './components/Input';
+export { Modal, type ModalProps } from './components/Modal';
+export { StatCard, type StatCardProps } from './components/StatCard';
+export { TokenCard, type TokenCardProps } from './components/TokenCard';

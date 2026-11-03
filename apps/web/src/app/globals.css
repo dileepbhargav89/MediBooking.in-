@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #FFFFFF;
+  --bg-medical-tint: #F8FAFC;
+  --brand-blue: #1D4ED8;
+  --brand-blue-hover: #1E40AF;
+  --accent-mint: #10B981;
+  --accent-mint-surface: #D1FAE5;
+  --accent-amber: #F59E0B;
+  --accent-red: #EF4444;
+  --text-main: #0F172A;
+  --text-secondary: #475569;
+  --border-subtle: #E2E8F0;
+}
+
+html {
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'tnum';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--bg-medical-tint);
+  color: var(--text-main);
+  min-height: 100vh;
+}
+
+/* Tabular numerals for tokens and countdown timers */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom scrollbars for high-density clinic tables */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
