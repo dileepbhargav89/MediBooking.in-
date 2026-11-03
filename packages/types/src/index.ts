@@ -292,6 +292,9 @@ export interface Appointment {
   actualEndTime?: string;
   cancellationReason?: string;
   rescheduleEligibleUntil?: string;
+  rescheduledFromAppointmentId?: string;
+  rescheduledToAppointmentId?: string;
+  isVipPriorityReschedule?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -335,6 +338,44 @@ export interface SessionCancellationResult {
   cancelledAppointmentIds: string[];
   message: string;
   timestamp: string;
+}
+
+// ==========================================
+// 4C. VIP PRIORITY RESCHEDULE DTOs (PHASE 22)
+// ==========================================
+
+export interface ClaimVipRescheduleDTO {
+  cancelledAppointmentId: string;
+  targetDate: string; // YYYY-MM-DD
+  targetSlotId?: string;
+  targetChamberNumber?: string;
+  notes?: string;
+}
+
+export interface VipRescheduleResult {
+  success: boolean;
+  originalAppointmentId: string;
+  newAppointment: Appointment;
+  rescheduledDate: string;
+  tokenNumber: number;
+  feeWaived: boolean;
+  message: string;
+  timestamp: string;
+}
+
+export interface EligibleRescheduleItem {
+  appointmentId: string;
+  clinicId: string;
+  doctorId: string;
+  doctorName: string;
+  patientName: string;
+  patientMobile: string;
+  originalDate: string;
+  originalTokenNumber: number;
+  cancellationReason?: string;
+  rescheduleEligibleUntil: string;
+  daysRemaining: number;
+  originalPaymentStatus: PaymentStatus;
 }
 
 // ==========================================

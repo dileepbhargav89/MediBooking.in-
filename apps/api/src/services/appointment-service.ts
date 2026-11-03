@@ -538,12 +538,25 @@ export class AppointmentService {
       arrivedAt: dto.arrivedAt,
       actualStartTime: dto.actualStartTime,
       actualEndTime: dto.actualEndTime,
+      cancellationReason: dto.cancellationReason,
+      rescheduleEligibleUntil: dto.rescheduleEligibleUntil,
+      rescheduledFromAppointmentId: dto.rescheduledFromAppointmentId,
+      rescheduledToAppointmentId: dto.rescheduledToAppointmentId,
+      isVipPriorityReschedule: dto.isVipPriorityReschedule,
       receiptNumber: dto.receiptNumber || `MB-TEST-${id.slice(0, 4)}`,
       createdAt: now,
       updatedAt: now,
     };
     this.appointments.set(id, appt);
     return appt;
+  }
+
+  public getAllAppointments(): Appointment[] {
+    return Array.from(this.appointments.values());
+  }
+
+  public addAppointment(appt: Appointment): void {
+    this.appointments.set(appt.id, appt);
   }
 
   /**
