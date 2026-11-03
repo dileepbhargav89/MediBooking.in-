@@ -1242,6 +1242,9 @@ export interface CloseShiftDTO {
   supervisorOverride?: boolean;
 }
 
+export * from './auth-edge';
+
+
 
 
 
