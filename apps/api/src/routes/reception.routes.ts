@@ -12,6 +12,7 @@ import {
   AppointmentStatus,
   BookingSource,
   PaymentStatus,
+  PaymentMode,
   TriageSeverity,
   QuickIntakeDTO,
   QueueAppointmentItem,
@@ -26,6 +27,7 @@ import { appointmentService } from '../services/appointment-service';
 import { cashieringService } from '../services/cashiering-service';
 import { sessionService } from '../services/session-service';
 import { queueTransitionController } from '../services/queue-transition-controller';
+import { offlineSyncService } from '../services/offline-sync-service';
 
 const intakeSchema = z.object({
   clinicId: z.string().uuid(),
@@ -46,6 +48,29 @@ const intakeSchema = z.object({
   amountRupees: z.number().positive().optional(),
   allowDuplicate: z.boolean().optional().default(false),
   emergencyOverride: z.boolean().optional().default(false),
+});
+
+const offlineIntakeItemSchema = z.object({
+  clientOfflineId: z.string().min(1),
+  idempotencyKey: z.string().uuid(),
+  offlineRecordedAt: z.string(),
+  patientName: z.string().min(2),
+  patientPhone: z.string(),
+  patientAge: z.number().int().min(0).max(125),
+  patientGender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+  doctorId: z.string().uuid(),
+  chamberNumber: z.string(),
+  paymentMode: z.nativeEnum(PaymentMode),
+  amount: z.number().min(0),
+  triageSeverity: z.nativeEnum(TriageSeverity).optional(),
+  notes: z.string().optional(),
+});
+
+const batchSyncSchema = z.object({
+  clinicId: z.string().uuid(),
+  batchId: z.string().min(1),
+  syncedAt: z.string(),
+  intakes: z.array(offlineIntakeItemSchema),
 });
 
 // In-memory queue state for active appointments
@@ -196,6 +221,67 @@ export async function receptionRoutes(fastify: FastifyInstance) {
         }
         return reply.status(400).send({
           error: 'Intake Error',
+          message,
+        });
+      }
+    }
+  );
+
+  /**
+   * Offline Queue Buffer Batch Sync: POST /api/v1/reception/intake/batch-sync
+   * Reconciles offline walk-in intakes collected during internet dropouts
+   */
+  fastify.post(
+    '/reception/intake/batch-sync',
+    {
+      preHandler: [
+        requireAuth({
+          allowedRoles: [
+            UserRole.RECEPTIONIST,
+            UserRole.CLINIC_ADMIN,
+            UserRole.DOCTOR,
+            UserRole.SUPER_ADMIN,
+          ],
+          requireClinic: true,
+        }),
+      ],
+    },
+    async (req, reply) => {
+      const user = req.tenant!;
+      const parsed = batchSyncSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return reply.status(400).send({
+          statusCode: 400,
+          error: 'Bad Request',
+          message: 'Invalid offline batch sync payload',
+          details: parsed.error.errors,
+        });
+      }
+
+      try {
+        const actor = {
+          userId: user.userId,
+          role: user.activeRole,
+          activeClinicId: user.activeClinicId,
+          name: user.fullName || 'Reception Staff',
+          dedicatedDoctorId: user.dedicatedDoctorId,
+          staffScope: user.staffScope,
+        };
+
+        const result = await offlineSyncService.syncBatch(parsed.data, actor);
+        return reply.status(200).send(result);
+      } catch (err: any) {
+        const message = err.message || '';
+        if (message.includes('FORBIDDEN_SCOPE')) {
+          return reply.status(403).send({
+            statusCode: 403,
+            error: 'Forbidden',
+            message,
+          });
+        }
+        return reply.status(400).send({
+          statusCode: 400,
+          error: 'Bad Request',
           message,
         });
       }

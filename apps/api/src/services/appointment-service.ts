@@ -49,6 +49,7 @@ export interface CreateWalkInIntakeDTO {
   appointmentDate?: string;
   allowDuplicate?: boolean;
   emergencyOverride?: boolean;
+  idempotencyKey?: string;
 }
 
 export interface ThermalSlipData {
@@ -172,6 +173,40 @@ export class AppointmentService {
   async createWalkInIntake(
     dto: CreateWalkInIntakeDTO
   ): Promise<{ appointment: Appointment; thermalSlipData: ThermalSlipData }> {
+    // 0. Idempotency Replay Check
+    if (dto.idempotencyKey && this.idempotencyMap.has(dto.idempotencyKey)) {
+      const cached = this.idempotencyMap.get(dto.idempotencyKey)!;
+      const clinicDetails = await clinicService.getClinicById(cached.clinicId);
+      const doctor = await doctorService.getDoctorById(cached.doctorId);
+      const chamberInfo = clinicDetails?.chambers.find((c) => c.chamberNumber === cached.chamberNumber);
+      const chamberPrefix = cached.chamberNumber.replace(/[^A-Za-z0-9]/g, '');
+      const tokenFormatted = `${chamberPrefix}-${cached.tokenNumber.toString().padStart(3, '0')}`;
+      const maskedPhone =
+        cached.patientMobile.length >= 10
+          ? `${cached.patientMobile.slice(0, 5)}*****`
+          : cached.patientMobile;
+
+      return {
+        appointment: cached,
+        thermalSlipData: {
+          clinicName: clinicDetails?.clinic.name || 'Clinic',
+          clinicAddress: `${clinicDetails?.clinic.addressLine || ''}, ${clinicDetails?.clinic.city || ''}`,
+          clinicPhone: clinicDetails?.clinic.contactPhone || '',
+          chamber: cached.chamberNumber,
+          chamberName: chamberInfo?.chamberName || cached.chamberNumber,
+          doctorName: doctor?.fullName || 'Doctor',
+          token: cached.tokenNumber,
+          tokenFormatted,
+          patientName: cached.patientName,
+          patientMaskedPhone: maskedPhone,
+          feeRupees: cached.amountRupees,
+          payment: cached.paymentStatus,
+          receiptNumber: cached.receiptNumber || `MB-${cached.tokenNumber}`,
+          time: new Date().toLocaleTimeString('en-IN'),
+        },
+      };
+    }
+
     const appointmentDate =
       dto.appointmentDate || (new Date().toISOString().split('T')[0] as string);
 
@@ -283,12 +318,16 @@ export class AppointmentService {
       patientName: dto.patientName.trim(),
       patientMobile: dto.patientMobile.trim(),
       patientAge: dto.patientAge,
+      idempotencyKey: dto.idempotencyKey,
       receiptNumber,
       createdAt: now,
       updatedAt: now,
     };
 
     this.appointments.set(appointment.id, appointment);
+    if (dto.idempotencyKey) {
+      this.idempotencyMap.set(dto.idempotencyKey, appointment);
+    }
 
     const thermalSlipData: ThermalSlipData = {
       clinicName: clinicDetails.clinic.name,
@@ -557,6 +596,13 @@ export class AppointmentService {
 
   public addAppointment(appt: Appointment): void {
     this.appointments.set(appt.id, appt);
+    if (appt.idempotencyKey) {
+      this.idempotencyMap.set(appt.idempotencyKey, appt);
+    }
+  }
+
+  public findByIdempotencyKey(key: string): Appointment | undefined {
+    return this.idempotencyMap.get(key);
   }
 
   /**

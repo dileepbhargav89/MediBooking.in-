@@ -743,6 +743,57 @@ export interface TVStatusResponse {
   currentSnapshot: ClinicTVDisplayPayload;
 }
 
+// ==========================================
+// 12. FRONT-DESK OFFLINE BATCH SYNC DTOs (PHASE 25)
+// ==========================================
+
+export type PaymentMode = PaymentStatus;
+export const PaymentMode = PaymentStatus;
+
+export interface OfflineIntakeItem {
+  clientOfflineId: string;
+  idempotencyKey: string;
+  offlineRecordedAt: string; // ISO 8601
+  patientName: string;
+  patientPhone: string;
+  patientAge: number;
+  patientGender?: 'MALE' | 'FEMALE' | 'OTHER';
+  doctorId: string;
+  chamberNumber: string;
+  paymentMode: PaymentMode;
+  amount: number;
+  triageSeverity?: TriageSeverity;
+  notes?: string;
+}
+
+export interface BatchSyncIntakeDTO {
+  clinicId: string;
+  batchId: string;
+  syncedAt: string;
+  intakes: OfflineIntakeItem[];
+}
+
+export interface BatchSyncResultItem {
+  clientOfflineId: string;
+  idempotencyKey: string;
+  status: 'SYNCHRONIZED' | 'DUPLICATE_SKIPPED' | 'FAILED';
+  appointmentId?: string;
+  assignedTokenNumber?: number;
+  errorMessage?: string;
+}
+
+export interface BatchSyncResponse {
+  batchId: string;
+  clinicId: string;
+  totalSubmitted: number;
+  synchronizedCount: number;
+  duplicateCount: number;
+  failedCount: number;
+  results: BatchSyncResultItem[];
+  syncedAt: string;
+}
+
+
 
 
 
