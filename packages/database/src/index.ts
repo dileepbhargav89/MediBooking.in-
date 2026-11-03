@@ -3,6 +3,7 @@
  */
 export * from '@medibooking/types';
 export * from './seed-data';
+export * from './seed-bhopal-pilot';
 export * from './client';
 
 export interface DatabaseConfig {

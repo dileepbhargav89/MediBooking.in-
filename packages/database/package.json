@@ -5,6 +5,8 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
+    "test": "tsx --test test/*.test.ts",
+    "seed:bhopal": "tsx src/seed-bhopal-pilot.ts",
     "type-check": "tsc --noEmit",
     "lint": "echo \"@medibooking/database lint passed\""
   },
@@ -14,6 +16,7 @@
   },
   "devDependencies": {
     "@types/pg": "^8.23.1",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
 }
