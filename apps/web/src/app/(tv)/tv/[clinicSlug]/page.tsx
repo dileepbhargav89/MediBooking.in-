@@ -78,7 +78,9 @@ export default function WaitingRoomTVPage({
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
+  const [voiceEnabled, setVoiceEnabled] = useState<boolean>(true);
   const [lastAnnouncedToken, setLastAnnouncedToken] = useState<string | null>(null);
+  const [lastAnnouncedHindi, setLastAnnouncedHindi] = useState<string | null>(null);
 
   // Audio Context Ref for synthetic Web Audio chime
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -126,6 +128,59 @@ export default function WaitingRoomTVPage({
     }
   }, [audioEnabled]);
 
+  // Bilingual Hindi & English Real-Time Voice Synthesizer
+  const speakBilingualAnnouncement = useCallback(
+    (tokenNumber: number, chamber: string, doctorName: string) => {
+      // 1. Play dual-tone hospital chime
+      playChime();
+
+      if (!voiceEnabled || typeof window === 'undefined') return;
+
+      const chamberNum = chamber.replace(/^CH-/i, '');
+      const cleanDoctor = doctorName.replace(/^Dr\.\s*/i, '');
+
+      // Devanagari Hindi Text
+      const hindiSpeech = `टोकन नंबर ${tokenNumber}, कृपया कक्ष क्रमांक ${chamberNum} में डॉ. ${cleanDoctor} के पास जाएँ।`;
+      // Indian English Text
+      const engSpeech = `Token number ${tokenNumber}, please proceed to Chamber ${chamberNum} for Dr. ${cleanDoctor}.`;
+
+      // Persist to window for testing & debugging
+      (window as any).__LAST_ANNOUNCED_VOICE__ = {
+        tokenNumber,
+        chamber,
+        hindi: hindiSpeech,
+        english: engSpeech,
+        timestamp: Date.now(),
+      };
+
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel(); // Prevent queue accumulation
+
+          const hindiUtterance = new SpeechSynthesisUtterance(hindiSpeech);
+          hindiUtterance.lang = 'hi-IN';
+          hindiUtterance.rate = 0.95;
+          hindiUtterance.pitch = 1.0;
+
+          const engUtterance = new SpeechSynthesisUtterance(engSpeech);
+          engUtterance.lang = 'en-IN';
+          engUtterance.rate = 1.0;
+          engUtterance.pitch = 1.0;
+
+          // Chain English after Hindi completes
+          hindiUtterance.onend = () => {
+            window.speechSynthesis.speak(engUtterance);
+          };
+
+          window.speechSynthesis.speak(hindiUtterance);
+        } catch {
+          // Speech synthesis silent fallback
+        }
+      }
+    },
+    [playChime, voiceEnabled]
+  );
+
   // Digital Clock Updater
   useEffect(() => {
     const updateTime = () => {
@@ -164,7 +219,8 @@ export default function WaitingRoomTVPage({
           const remaining = c.nextTokens.slice(1);
 
           setLastAnnouncedToken(`${c.chamberNumber}: #${newCurrentToken} (${newPatient})`);
-          playChime();
+          setLastAnnouncedHindi(`टोकन #${newCurrentToken}, कक्ष ${c.chamberNumber.replace(/CH-/i, '')}`);
+          speakBilingualAnnouncement(newCurrentToken, c.chamberNumber, c.doctorName);
 
           return {
             ...c,
@@ -220,6 +276,17 @@ export default function WaitingRoomTVPage({
             </button>
 
             <button
+              onClick={() => setVoiceEnabled(!voiceEnabled)}
+              className={`px-3 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-2 transition-colors ${
+                voiceEnabled
+                  ? 'bg-blue-950/60 border-blue-700 text-blue-300'
+                  : 'bg-slate-800 border-slate-700 text-slate-400'
+              }`}
+            >
+              <span>{voiceEnabled ? '🗣️ Voice (हिंदी+Eng) ON' : '🔇 Voice Muted'}</span>
+            </button>
+
+            <button
               onClick={playChime}
               className="px-2.5 py-1.5 rounded-lg bg-blue-600/30 border border-blue-500/40 text-blue-300 text-xs font-semibold hover:bg-blue-600/50"
             >
@@ -240,11 +307,19 @@ export default function WaitingRoomTVPage({
 
       {/* Announced Callout Flash Banner (if active) */}
       {lastAnnouncedToken && (
-        <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 text-white py-2 px-6 text-center text-sm font-bold shadow-lg animate-pulse flex items-center justify-center gap-2">
-          <span>🔔 NOW CALLING:</span>
-          <span className="font-mono tabular-nums tracking-wide underline">
+        <div className="bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-700 text-white py-2.5 px-6 text-center text-sm font-bold shadow-xl animate-pulse flex flex-wrap items-center justify-center gap-3">
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-400 animate-ping" />
+            🔔 NOW CALLING:
+          </span>
+          <span className="font-mono tabular-nums tracking-wide underline text-amber-300">
             {lastAnnouncedToken}
           </span>
+          {lastAnnouncedHindi && (
+            <span className="px-2 py-0.5 rounded bg-blue-900/60 text-xs font-medium border border-blue-400/30">
+              {lastAnnouncedHindi}
+            </span>
+          )}
         </div>
       )}
 
