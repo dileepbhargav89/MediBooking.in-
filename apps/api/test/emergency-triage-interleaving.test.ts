@@ -82,8 +82,16 @@ describe('Phase 19: Emergency Override & Triage Priority Interleaving', () => {
     // Find session for Dr. Sharma and cap walk-ins to 1
     const sessions = await sessionService.getSessionsByDoctor(doctorSharma.doctorId, testClinicId);
     assert.ok(sessions.length > 0);
-    const dayOfWeek = (new Date().getDay() === 0 ? 7 : new Date().getDay()) as any;
-    await sessionService.updateSession(sessions[0]!.id, { dayOfWeek, maxWalkInTokens: 1 });
+    const d = new Date(today + 'T00:00:00Z');
+    const jsDay = d.getUTCDay();
+    const dayOfWeek = (jsDay === 0 ? 7 : jsDay) as any;
+    let targetSession = sessions.find((s) => s.dayOfWeek === dayOfWeek);
+    if (!targetSession) {
+      targetSession = sessions[0]!;
+      await sessionService.updateSession(targetSession.id, { dayOfWeek, maxWalkInTokens: 1 });
+    } else {
+      await sessionService.updateSession(targetSession.id, { maxWalkInTokens: 1 });
+    }
 
     // Intake 1 -> Routine Token #1 (allowed)
     const res1 = await app.inject({
