@@ -24,3 +24,11 @@ export {
   type EscposReceiptData,
   type DirectPrintResult,
 } from './printers/escpos-printer-driver';
+
+// Offline PWA & Storage Drivers
+export {
+  OfflineSyncQueueManager,
+  type OfflineIntakeRecord,
+  type SyncBatchResult,
+} from './storage/offline-sync-queue';
+

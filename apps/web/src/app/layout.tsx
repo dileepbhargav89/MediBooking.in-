@@ -1,11 +1,16 @@
 import React from 'react';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
   title: 'MediBooking.in | Clinic-First Operations & Polyclinic SaaS',
   description:
     'High-throughput multi-chamber queue management and doctor-first appointment scheduling for modern healthcare clinics.',
+  manifest: '/manifest.json',
+};
+
+export const viewport: Viewport = {
+  themeColor: '#0284c7',
 };
 
 export default function RootLayout({

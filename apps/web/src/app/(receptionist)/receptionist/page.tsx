@@ -15,6 +15,8 @@ import {
   TokenCard,
   BharatQrModal,
   EscposPrinterDriver,
+  OfflineSyncQueueManager,
+  type OfflineIntakeRecord,
   getChamberStyle,
 } from '@medibooking/ui';
 
@@ -153,6 +155,13 @@ export default function ReceptionDeskDashboardPage() {
   const [directPrintNotice, setDirectPrintNotice] = useState<string | null>(null);
   const [isPrintingDirect, setIsPrintingDirect] = useState(false);
 
+  // Phase 53: Front-Desk PWA Offline Sync State
+  const [isOnline, setIsOnline] = useState(true);
+  const [simulatedOffline, setSimulatedOffline] = useState(false);
+  const [pendingOfflineCount, setPendingOfflineCount] = useState(0);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncFeedbackNotice, setSyncFeedbackNotice] = useState<string | null>(null);
+
   // Intake Form State
   const [mobile, setMobile] = useState('');
   const [patientName, setPatientName] = useState('');
@@ -178,6 +187,55 @@ export default function ReceptionDeskDashboardPage() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  // Phase 53: Network Connectivity & IndexedDB Offline Queue Listener
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsOnline(navigator.onLine);
+      OfflineSyncQueueManager.getPendingCount().then(setPendingOfflineCount);
+
+      const handleOnline = () => {
+        setIsOnline(true);
+        triggerAutoSync();
+      };
+      const handleOffline = () => {
+        setIsOnline(false);
+      };
+
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
+
+      // Register PWA Service Worker in production/supporting environments
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      }
+
+      return () => {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+      };
+    }
+  }, []);
+
+  const triggerAutoSync = async () => {
+    setIsSyncing(true);
+    setSyncFeedbackNotice(null);
+    try {
+      const result = await OfflineSyncQueueManager.syncPendingRecords(
+        process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000'
+      );
+      setPendingOfflineCount(0);
+      setSyncFeedbackNotice(
+        `✓ Cloud Sync Reconciled: ${result.syncedCount} offline walk-in tokens synchronized with central server.`
+      );
+      setTimeout(() => setSyncFeedbackNotice(null), 6000);
+    } catch {
+      setSyncFeedbackNotice('Sync deferred: Waiting for server connectivity.');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
 
   // Filter tokens based on chamber tab
   const filteredTokens =
@@ -213,6 +271,8 @@ export default function ReceptionDeskDashboardPage() {
         ? `${patientName[0]}*** ${patientName.split(' ')[1] || ''}`.trim()
         : `${patientName}***`;
 
+    const isEffectivelyOffline = !isOnline || simulatedOffline;
+
     const newToken: ReceptionTokenItem = {
       id: `tok-${Date.now()}`,
       tokenNumber: nextTokenNum,
@@ -224,9 +284,29 @@ export default function ReceptionDeskDashboardPage() {
       isUrgent,
       paymentStatus: paymentMode,
       estimatedTime: '25 mins',
-      source: 'WALK_IN',
+      source: isEffectivelyOffline ? 'OFFLINE_WALK_IN' : 'WALK_IN',
       feePaidRupees: paymentMode === 'PENDING' ? 0 : assignedDoctor.consultationFee,
     };
+
+    // If offline, buffer into IndexedDB sync queue
+    if (isEffectivelyOffline) {
+      OfflineSyncQueueManager.enqueueIntake({
+        tokenNumber: nextTokenNum,
+        patientName,
+        patientMobile: mobile,
+        chamberNumber: selectedChamber,
+        doctorName: assignedDoctor.doctorName.replace(/^Dr\.\s*/i, ''),
+        paymentMode,
+        feePaidRupees: paymentMode === 'PENDING' ? 0 : assignedDoctor.consultationFee,
+        isUrgent,
+      }).then(() => {
+        OfflineSyncQueueManager.getPendingCount().then(setPendingOfflineCount);
+      });
+      setSyncFeedbackNotice(
+        `⚡ Token #${nextTokenNum} saved to local offline storage (${selectedChamber}). Will sync to cloud automatically.`
+      );
+      setTimeout(() => setSyncFeedbackNotice(null), 6000);
+    }
 
     // Insert token: if urgent, interleave ahead of regular waiting
     setTokens((prev) => (isUrgent ? [newToken, ...prev] : [...prev, newToken]));
@@ -321,6 +401,40 @@ export default function ReceptionDeskDashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Phase 53: PWA Network & Offline Queue Status */}
+            <div className="flex items-center gap-2">
+              {!isOnline || simulatedOffline || pendingOfflineCount > 0 ? (
+                <div className="flex items-center gap-1.5">
+                  <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1.5 shadow-sm">
+                    <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    Offline Mode ({pendingOfflineCount} queued)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={triggerAutoSync}
+                    disabled={isSyncing}
+                    className="text-xs font-semibold px-2.5 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm"
+                  >
+                    {isSyncing ? 'Syncing...' : 'Sync Now'}
+                  </button>
+                </div>
+              ) : (
+                <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                  Online (Synced)
+                </span>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setSimulatedOffline(!simulatedOffline)}
+                className="text-[11px] font-medium text-slate-500 hover:text-slate-800 underline ml-1"
+                title="Toggle offline intake simulation"
+              >
+                {simulatedOffline ? '📶 Reconnect' : '📡 Simulate Offline'}
+              </button>
+            </div>
+
             {/* Global F2 Trigger Button */}
             <Button
               variant="urgent"
@@ -349,6 +463,23 @@ export default function ReceptionDeskDashboardPage() {
 
       {/* Main Reception Dashboard Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full space-y-6">
+        {/* Phase 53: Offline Sync Feedback Alert Banner */}
+        {syncFeedbackNotice && (
+          <div className="bg-blue-50 border border-blue-200 text-blue-900 px-4 py-3 rounded-lg flex items-center justify-between text-xs font-medium shadow-sm transition-all animate-fadeIn">
+            <div className="flex items-center gap-2">
+              <span className="text-base">🔄</span>
+              <span>{syncFeedbackNotice}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSyncFeedbackNotice(null)}
+              className="text-blue-500 hover:text-blue-800 font-bold ml-4"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* Cash Drawer & Shift Summary Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <StatCard
@@ -401,11 +532,10 @@ export default function ReceptionDeskDashboardPage() {
           <div className="flex items-center gap-2 overflow-x-auto">
             <button
               onClick={() => setSelectedChamberTab('ALL')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                selectedChamberTab === 'ALL'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-              }`}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${selectedChamberTab === 'ALL'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                }`}
             >
               All Chambers ({tokens.length})
             </button>
@@ -413,11 +543,10 @@ export default function ReceptionDeskDashboardPage() {
               <button
                 key={ch.chamberNumber}
                 onClick={() => setSelectedChamberTab(ch.chamberNumber)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all ${
-                  selectedChamberTab === ch.chamberNumber
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                }`}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all ${selectedChamberTab === ch.chamberNumber
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                  }`}
               >
                 {ch.chamberNumber} ({tokens.filter((t) => t.chamberNumber === ch.chamberNumber).length})
               </button>
@@ -516,11 +645,10 @@ export default function ReceptionDeskDashboardPage() {
                   key={ch.chamberNumber}
                   type="button"
                   onClick={() => setSelectedChamber(ch.chamberNumber)}
-                  className={`p-3 rounded-xl border text-left transition-all ${
-                    selectedChamber === ch.chamberNumber
-                      ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-600/20'
-                      : 'border-slate-200 bg-white hover:bg-slate-50'
-                  }`}
+                  className={`p-3 rounded-xl border text-left transition-all ${selectedChamber === ch.chamberNumber
+                    ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-600/20'
+                    : 'border-slate-200 bg-white hover:bg-slate-50'
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-bold text-xs font-mono text-blue-700">
@@ -548,22 +676,20 @@ export default function ReceptionDeskDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setIsUrgent(false)}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${
-                    !isUrgent
-                      ? 'border-slate-400 bg-slate-100 text-slate-800'
-                      : 'border-slate-200 bg-white text-slate-500'
-                  }`}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${!isUrgent
+                    ? 'border-slate-400 bg-slate-100 text-slate-800'
+                    : 'border-slate-200 bg-white text-slate-500'
+                    }`}
                 >
                   Normal
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsUrgent(true)}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${
-                    isUrgent
-                      ? 'border-amber-400 bg-amber-50 text-amber-700 ring-2 ring-amber-400/20'
-                      : 'border-slate-200 bg-white text-slate-500'
-                  }`}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${isUrgent
+                    ? 'border-amber-400 bg-amber-50 text-amber-700 ring-2 ring-amber-400/20'
+                    : 'border-slate-200 bg-white text-slate-500'
+                    }`}
                 >
                   🚨 Urgent Priority
                 </button>
@@ -579,33 +705,30 @@ export default function ReceptionDeskDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setPaymentMode('PAID_CASH')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${
-                    paymentMode === 'PAID_CASH'
-                      ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
-                      : 'border-slate-200 bg-white text-slate-600'
-                  }`}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${paymentMode === 'PAID_CASH'
+                    ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
+                    : 'border-slate-200 bg-white text-slate-600'
+                    }`}
                 >
                   💵 Cash
                 </button>
                 <button
                   type="button"
                   onClick={() => setPaymentMode('PAID_UPI_QR')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${
-                    paymentMode === 'PAID_UPI_QR'
-                      ? 'border-blue-500 bg-blue-50 text-blue-800'
-                      : 'border-slate-200 bg-white text-slate-600'
-                  }`}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${paymentMode === 'PAID_UPI_QR'
+                    ? 'border-blue-500 bg-blue-50 text-blue-800'
+                    : 'border-slate-200 bg-white text-slate-600'
+                    }`}
                 >
                   📱 UPI QR
                 </button>
                 <button
                   type="button"
                   onClick={() => setPaymentMode('PENDING')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${
-                    paymentMode === 'PENDING'
-                      ? 'border-amber-500 bg-amber-50 text-amber-800'
-                      : 'border-slate-200 bg-white text-slate-600'
-                  }`}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${paymentMode === 'PENDING'
+                    ? 'border-amber-500 bg-amber-50 text-amber-800'
+                    : 'border-slate-200 bg-white text-slate-600'
+                    }`}
                 >
                   ⏳ Pay Later
                 </button>
@@ -671,43 +794,44 @@ export default function ReceptionDeskDashboardPage() {
               </p>
             </div>
 
-            {directPrintNotice && (
-              <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-300 text-[11px] font-bold text-emerald-800 text-center animate-pulse">
-                {directPrintNotice}
-              </div>
-            )}
+              {/* Direct ESC/POS Hardware Print Banner / Feedback */}
+              {directPrintNotice && (
+                <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-semibold text-center animate-fadeIn">
+                  {directPrintNotice}
+                </div>
+              )}
 
-            <div className="flex flex-col gap-2">
-              <Button
-                variant="urgent"
-                fullWidth
-                size="md"
-                isLoading={isPrintingDirect}
-                onClick={handleDirectHardwarePrint}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm"
-              >
-                ⚡ Direct Hardware Print (ESC/POS)
-              </Button>
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2">
                 <Button
-                  variant="outline"
+                  variant="urgent"
                   fullWidth
-                  size="sm"
-                  onClick={() => {
-                    if (typeof window !== 'undefined') window.print();
-                  }}
+                  size="md"
+                  isLoading={isPrintingDirect}
+                  onClick={handleDirectHardwarePrint}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm"
                 >
-                  🖨️ Browser Print (Dialog)
+                  ⚡ Direct Hardware Print (ESC/POS)
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsReceiptModalOpen(false)}
-                >
-                  Done
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    fullWidth
+                    size="sm"
+                    onClick={() => {
+                      if (typeof window !== 'undefined') window.print();
+                    }}
+                  >
+                    🖨️ Browser Print (Dialog)
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsReceiptModalOpen(false)}
+                  >
+                    Done
+                  </Button>
+                </div>
               </div>
-            </div>
           </div>
         )}
       </Modal>

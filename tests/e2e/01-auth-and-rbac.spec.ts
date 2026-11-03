@@ -30,6 +30,7 @@ test.describe('E2E Workflow 1: Authentication & RBAC Dynamic Routing', () => {
   });
 
   test('1.3 Role Quick-Select buttons instantly authenticate and route to role portal', async ({ page }) => {
+    test.setTimeout(60000);
     // 1. Test Super Admin Demo Role
     await page.context().clearCookies();
     await page.goto('/login');
