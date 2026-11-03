@@ -21,6 +21,7 @@ import { affiliationService } from './affiliation-service';
 import { clinicService } from './clinic-service';
 import { doctorService } from './doctor-service';
 import { sessionService } from './session-service';
+import { getTriageTierWeight } from './triage-interleaving-service';
 
 export interface CreateOnlineBookingDTO {
   slotId: string;
@@ -216,7 +217,8 @@ export class AppointmentService {
     }
 
     // 5. Session Walk-In Quota Cap Guard
-    if (!dto.emergencyOverride) {
+    const isEmergency = dto.emergencyOverride || dto.triageSeverity === TriageSeverity.EMERGENCY;
+    if (!isEmergency) {
       const dayOfWeek = slotService.getDayOfWeek(appointmentDate);
       const doctorSessions = await sessionService.getSessionsByDoctor(dto.doctorId, dto.clinicId, true);
       const activeSession = doctorSessions.find((s) => s.dayOfWeek === dayOfWeek);
@@ -473,16 +475,16 @@ export class AppointmentService {
       this.appointments.set(completedAppointment.id, completedAppointment);
     }
 
-    // 2. Find next waiting patient (sorted by URGENT_TRIAGE first, then tokenNumber)
+    // 2. Find next waiting patient (sorted by 4-tier triage priority interleaving, then tokenNumber)
     const waitingAppts = doctorAppts.filter(
       (a) => a.status === AppointmentStatus.WAITING || a.status === AppointmentStatus.ARRIVED
     );
 
     waitingAppts.sort((a, b) => {
-      const aUrgent = a.triageSeverity === TriageSeverity.URGENT_TRIAGE ? 1 : 0;
-      const bUrgent = b.triageSeverity === TriageSeverity.URGENT_TRIAGE ? 1 : 0;
-      if (aUrgent !== bUrgent) {
-        return bUrgent - aUrgent;
+      const weightA = getTriageTierWeight(a.triageSeverity);
+      const weightB = getTriageTierWeight(b.triageSeverity);
+      if (weightA !== weightB) {
+        return weightB - weightA;
       }
       return a.tokenNumber - b.tokenNumber;
     });
@@ -533,7 +535,6 @@ export class AppointmentService {
       patientName: dto.patientName,
       patientMobile: dto.patientMobile,
       patientAge: dto.patientAge,
-      patientGender: dto.patientGender,
       arrivedAt: dto.arrivedAt,
       actualStartTime: dto.actualStartTime,
       actualEndTime: dto.actualEndTime,

@@ -220,10 +220,39 @@ export enum PaymentStatus {
 }
 
 export enum TriageSeverity {
-  ROUTINE = 'ROUTINE',
+  EMERGENCY = 'EMERGENCY',
   URGENT_TRIAGE = 'URGENT_TRIAGE',
-  FOLLOW_UP = 'FOLLOW_UP',
   POST_OP = 'POST_OP',
+  ROUTINE = 'ROUTINE',
+  FOLLOW_UP = 'FOLLOW_UP',
+}
+
+export interface TriageUpdateDTO {
+  triageSeverity: TriageSeverity;
+  clinicalJustification: string;
+}
+
+export interface TriageAuditRecord {
+  id: string;
+  appointmentId: string;
+  clinicId: string;
+  doctorId: string;
+  chamberNumber: string;
+  tokenNumber: number;
+  fromSeverity: TriageSeverity;
+  toSeverity: TriageSeverity;
+  clinicalJustification: string;
+  actorUserId: string;
+  actorRole: UserRole;
+  timestamp: string;
+}
+
+export interface InterleavedQueueItem {
+  appointment: Appointment;
+  priorityRank: number;
+  triageTierWeight: number;
+  isEmergencyInterleaved: boolean;
+  estimatedWaitMinutes: number;
 }
 
 export interface PatientRecord {
