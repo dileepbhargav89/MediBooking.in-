@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect } from 'react';
 
 export interface ModalProps {
@@ -94,3 +96,4 @@ export const Modal: React.FC<ModalProps> = ({
     </div>
   );
 };
+
