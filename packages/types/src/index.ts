@@ -688,6 +688,37 @@ export interface QueueTransitionResult {
   message: string;
 }
 
+// ==========================================
+// 10. REALTIME REDIS PUB/SUB EVENT BACKPLANE (PHASE 23)
+// ==========================================
+
+export type RealtimeEventType =
+  | 'chamber_update'
+  | 'delay_broadcast'
+  | 'session_cancelled'
+  | 'emergency_triage'
+  | 'queue_refresh'
+  | 'heartbeat';
+
+export interface RealtimeClinicEvent<T = unknown> {
+  eventId: string;
+  clinicId: string;
+  eventType: RealtimeEventType;
+  timestamp: string;
+  senderInstanceId: string;
+  payload: T;
+}
+
+export interface PubSubStats {
+  instanceId: string;
+  driver: 'redis' | 'memory';
+  activeChannels: string[];
+  totalPublished: number;
+  totalReceived: number;
+  uptimeSeconds: number;
+}
+
+
 
 
 
