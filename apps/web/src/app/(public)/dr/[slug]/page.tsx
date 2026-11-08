@@ -465,6 +465,24 @@ export default function DoctorPublicProfilePage({
                   onChange={(e) => setSymptoms(e.target.value)}
                   className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {[
+                    'Routine Checkup',
+                    'Chest Heaviness',
+                    'High Blood Pressure',
+                    'Breathlessness',
+                    '14-Day Follow-Up Review',
+                  ].map((chip) => (
+                    <button
+                      key={chip}
+                      type="button"
+                      onClick={() => setSymptoms(chip)}
+                      className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 transition-colors"
+                    >
+                      + {chip}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -482,7 +500,7 @@ export default function DoctorPublicProfilePage({
                 <span className="font-mono font-semibold text-slate-900">₹{selectedVenue.feeRupees} (Pay at Clinic Desk)</span>
               </div>
               <p className="text-[11px] text-slate-500 leading-tight">
-                Collecting only the nominal booking fee (₹49) guarantees your confirmed token and pre-prints your prescription sheet at the reception before you arrive. Doctor fees and procedures are settled directly at the counter.
+                💡 <span className="font-semibold text-slate-700">Why ₹49?</span> Confirms your chamber token and prepares your physical <span className="font-semibold text-blue-700">Pre-Consultation Prescription Sheet</span> (with Doctor NMC registration & vitals checklist) at the counter before you arrive. Doctor fees and procedures are settled directly at the clinic.
               </p>
             </div>
 

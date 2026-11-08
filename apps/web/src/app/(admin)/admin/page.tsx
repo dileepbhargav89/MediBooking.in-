@@ -358,7 +358,33 @@ export default function ClinicAdministratorPortal() {
 
         {/* TAB 1: Doctor Affiliations & Chambers */}
         {activeTab === 'AFFILIATIONS' && (
-          <Card>
+          <div className="space-y-4">
+            {/* Phase 61 Policy Card: Nominal Booking & Pre-Consultation Sheet */}
+            <div className="p-4 rounded-xl bg-blue-50/70 border border-blue-200 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-lg shrink-0">
+                  📋
+                </div>
+                <div>
+                  <span className="font-bold text-slate-900 block text-sm">
+                    Clinic-First Nominal Booking Fee & Pre-Consultation Prescription Engine Active
+                  </span>
+                  <span className="text-slate-600 text-[11px]">
+                    Patients pay nominal ₹49 online to guarantee tokens and pre-print clinical prescription sheets with Doctor NMC credentials. Full consultation fees & procedures are collected at the counter with 80/20 split.
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold font-mono text-[11px] border border-emerald-300">
+                  ✓ ₹49 Token Fee Active
+                </span>
+                <span className="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 font-bold font-mono text-[11px] border border-blue-300">
+                  ✓ Dual A4 / 80mm Print
+                </span>
+              </div>
+            </div>
+
+            <Card>
             <CardHeader>
               <div>
                 <h3 className="font-bold text-slate-900 text-sm">
@@ -438,7 +464,8 @@ export default function ClinicAdministratorPortal() {
               </div>
             </CardBody>
           </Card>
-        )}
+        </div>
+      )}
 
         {/* TAB 2: End-of-Day Cash Drawer Reconciliation */}
         {activeTab === 'RECONCILIATION' && (

@@ -314,6 +314,24 @@ export default function PatientQueueTrackerPage() {
               className="col-span-2 sm:col-span-1"
             />
           </div>
+
+          {/* Pre-Consultation Prescription Sheet Ready Notice */}
+          <div className="mt-6 p-4 rounded-xl bg-blue-50/70 border border-blue-200 text-xs flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <span className="text-xl">📋</span>
+              <div>
+                <span className="font-bold text-blue-900 block">
+                  Pre-Consultation Prescription Sheet Prepared
+                </span>
+                <span className="text-slate-600 text-[11px]">
+                  Your prescription slip with Dr. Rajesh Sharma&apos;s NMC details is ready at the reception desk. Please have your BP and pulse checked by the compounder before chamber call.
+                </span>
+              </div>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 font-bold text-[10px] shrink-0 font-mono">
+              ₹49 BOOKING PAID
+            </span>
+          </div>
         </div>
 
         {/* Phase 54 & Phase 60: Two-Way WhatsApp Cloud Bot Interactive Assistant */}

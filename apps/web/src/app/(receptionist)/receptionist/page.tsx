@@ -215,6 +215,7 @@ export default function ReceptionDeskDashboardPage() {
   const [selectedRxToken, setSelectedRxToken] = useState<ReceptionTokenItem | null>(null);
   const [isRxModalOpen, setIsRxModalOpen] = useState(false);
   const [rxPrintNotice, setRxPrintNotice] = useState<string | null>(null);
+  const [rxSheetFormat, setRxSheetFormat] = useState<'A4' | 'THERMAL_80MM'>('A4');
 
   const [selectedSettleToken, setSelectedSettleToken] = useState<ReceptionTokenItem | null>(null);
   const [isSettleModalOpen, setIsSettleModalOpen] = useState(false);
@@ -1122,126 +1123,211 @@ export default function ReceptionDeskDashboardPage() {
           subtitle="Auto-formatted for A4 / 80mm Print • Generated prior to Chamber Entry"
         >
           <div data-testid="modal-prescription-sheet" className="space-y-4">
-            {/* Printable Prescription Body */}
-            <div className="p-6 bg-white border border-slate-300 rounded-xl shadow-inner text-slate-800 space-y-4 font-sans">
-              {/* Polyclinic Header */}
-              <div className="border-b-2 border-slate-800 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                <div>
-                  <h2 className="text-xl font-black text-slate-900 tracking-tight">
-                    BHOPAL CITYCARE POLYCLINIC
-                  </h2>
-                  <p className="text-xs text-blue-700 font-semibold">
-                    Multi-Specialty Consultation & Diagnostic Centre
-                  </p>
-                  <p className="text-[11px] text-slate-500">
-                    Plot 42, MP Nagar Zone-II, Bhopal • Ph: +91 755 492 8800 • UPI: bhopalcare@icici
-                  </p>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold text-sm text-slate-900">Dr. {selectedRxToken.doctorName}</div>
-                  <div className="text-[11px] text-slate-600 font-medium">MBBS, MD, DM (Cardiology)</div>
-                  <div className="text-[10px] font-mono text-slate-500">Reg: MP-38492-NMC</div>
-                  <span className="inline-block mt-1 px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold text-xs font-mono">
-                    {selectedRxToken.chamberNumber}
-                  </span>
-                </div>
-              </div>
-
-              {/* Patient Demographics & Booking Fee Strip */}
-              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <div>
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Token Number</span>
-                  <span className="font-mono font-black text-base text-slate-900">
-                    #{selectedRxToken.tokenNumber}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Patient Name</span>
-                  <span className="font-bold text-slate-900">{selectedRxToken.patientName}</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Age / Gender</span>
-                  <span className="font-bold text-slate-900">
-                    {selectedRxToken.patientAge || 48} Yrs / {selectedRxToken.patientGender || 'MALE'}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Date</span>
-                  <span className="font-semibold text-slate-900 font-mono">
-                    {new Date().toLocaleDateString('en-IN')}
-                  </span>
-                </div>
-
-                <div className="sm:col-span-2 pt-1 border-t border-slate-200">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Chief Complaints</span>
-                  <span className="text-slate-700 font-medium">
-                    {selectedRxToken.symptoms || 'Routine Examination / General Consultation'}
-                  </span>
-                </div>
-                <div className="sm:col-span-2 pt-1 border-t border-slate-200">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Fees Status</span>
-                  <span className="text-emerald-700 font-bold">
-                    ✓ ₹{selectedRxToken.bookingFeeRupees ?? 49} Booking Fee Paid Online (UPI)
-                  </span>
-                  <span className="text-slate-500 block text-[11px]">
-                    Consultation Fee Due at Desk: ₹{selectedRxToken.consultationFeeDue ?? 600}
-                  </span>
-                </div>
-              </div>
-
-              {/* Compounder Pre-Consultation Vitals Grid */}
-              <div className="border border-slate-300 rounded-lg p-3 bg-white">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-2">
-                  Compounder Pre-Consultation Vitals Recording
-                </span>
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center text-xs">
-                  <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
-                    <span className="text-[10px] text-slate-400 block">BP (mmHg)</span>
-                    <span className="font-mono font-bold text-slate-700">____ / ____</span>
-                  </div>
-                  <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
-                    <span className="text-[10px] text-slate-400 block">Pulse (bpm)</span>
-                    <span className="font-mono font-bold text-slate-700">____</span>
-                  </div>
-                  <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
-                    <span className="text-[10px] text-slate-400 block">SpO2 (%)</span>
-                    <span className="font-mono font-bold text-slate-700">____ %</span>
-                  </div>
-                  <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
-                    <span className="text-[10px] text-slate-400 block">Temp (°F)</span>
-                    <span className="font-mono font-bold text-slate-700">____ °F</span>
-                  </div>
-                  <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
-                    <span className="text-[10px] text-slate-400 block">Weight (kg)</span>
-                    <span className="font-mono font-bold text-slate-700">____ kg</span>
-                  </div>
-                  <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
-                    <span className="text-[10px] text-slate-400 block">RBS (mg/dL)</span>
-                    <span className="font-mono font-bold text-slate-700">____</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Rx Blank Section for Doctor Handwriting */}
-              <div className="border border-slate-200 rounded-lg p-4 min-h-[160px] bg-white relative">
-                <span className="text-3xl font-serif font-black text-blue-600/30 select-none">Rx</span>
-                <div className="mt-2 space-y-4">
-                  <div className="border-b border-dashed border-slate-200 h-6" />
-                  <div className="border-b border-dashed border-slate-200 h-6" />
-                  <div className="border-b border-dashed border-slate-200 h-6" />
-                  <div className="border-b border-dashed border-slate-200 h-6" />
-                </div>
-              </div>
-
-              {/* Footer Signature */}
-              <div className="pt-4 flex justify-between items-end text-xs text-slate-500">
-                <span className="text-[10px]">MediBooking.in Pre-Consultation EHR Slip • Chamber {selectedRxToken.chamberNumber}</span>
-                <div className="text-center">
-                  <div className="w-48 border-b border-slate-400 mb-1" />
-                  <span className="font-semibold text-slate-700">Doctor Signature & Stamp</span>
-                </div>
+            {/* Format Switcher: A4 vs 80mm Thermal */}
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+              <span className="text-xs font-semibold text-slate-600">Select Print Media:</span>
+              <div className="flex gap-1.5 bg-slate-100 p-1 rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => setRxSheetFormat('A4')}
+                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${
+                    rxSheetFormat === 'A4'
+                      ? 'bg-white text-blue-700 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  📄 A4 Letterhead
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRxSheetFormat('THERMAL_80MM')}
+                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${
+                    rxSheetFormat === 'THERMAL_80MM'
+                      ? 'bg-white text-blue-700 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  🧾 80mm Thermal (Zero-Ink)
+                </button>
               </div>
             </div>
+
+            {/* Printable Prescription Body: A4 or 80mm */}
+            {rxSheetFormat === 'A4' ? (
+              <div className="p-6 bg-white border border-slate-300 rounded-xl shadow-inner text-slate-800 space-y-4 font-sans">
+                {/* Polyclinic Header */}
+                <div className="border-b-2 border-slate-800 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                  <div>
+                    <h2 className="text-xl font-black text-slate-900 tracking-tight">
+                      BHOPAL CITYCARE POLYCLINIC
+                    </h2>
+                    <p className="text-xs text-blue-700 font-semibold">
+                      Multi-Specialty Consultation & Diagnostic Centre
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      Plot 42, MP Nagar Zone-II, Bhopal • Ph: +91 755 492 8800 • UPI: bhopalcare@icici
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold text-sm text-slate-900">Dr. {selectedRxToken.doctorName}</div>
+                    <div className="text-[11px] text-slate-600 font-medium">MBBS, MD, DM (Cardiology)</div>
+                    <div className="text-[10px] font-mono text-slate-500">Reg: MP-38492-NMC</div>
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold text-xs font-mono">
+                      {selectedRxToken.chamberNumber}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Patient Demographics & Booking Fee Strip */}
+                <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div>
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Token Number</span>
+                    <span className="font-mono font-black text-base text-slate-900">
+                      #{selectedRxToken.tokenNumber}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Patient Name</span>
+                    <span className="font-bold text-slate-900">{selectedRxToken.patientName}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Age / Gender</span>
+                    <span className="font-bold text-slate-900">
+                      {selectedRxToken.patientAge || 48} Yrs / {selectedRxToken.patientGender || 'MALE'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Date</span>
+                    <span className="font-semibold text-slate-900 font-mono">
+                      {new Date().toLocaleDateString('en-IN')}
+                    </span>
+                  </div>
+
+                  <div className="sm:col-span-2 pt-1 border-t border-slate-200">
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Chief Complaints</span>
+                    <span className="text-slate-700 font-medium">
+                      {selectedRxToken.symptoms || 'Routine Examination / General Consultation'}
+                    </span>
+                  </div>
+                  <div className="sm:col-span-2 pt-1 border-t border-slate-200">
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Fees Status</span>
+                    <span className="text-emerald-700 font-bold">
+                      ✓ ₹{selectedRxToken.bookingFeeRupees ?? 49} Booking Fee Paid Online (UPI)
+                    </span>
+                    <span className="text-slate-500 block text-[11px]">
+                      Consultation Fee Due at Desk: ₹{selectedRxToken.consultationFeeDue ?? 600}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Compounder Pre-Consultation Vitals Grid */}
+                <div className="border border-slate-300 rounded-lg p-3 bg-white">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-2">
+                    Compounder Pre-Consultation Vitals Recording
+                  </span>
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center text-xs">
+                    <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
+                      <span className="text-[10px] text-slate-400 block">BP (mmHg)</span>
+                      <span className="font-mono font-bold text-slate-700">____ / ____</span>
+                    </div>
+                    <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
+                      <span className="text-[10px] text-slate-400 block">Pulse (bpm)</span>
+                      <span className="font-mono font-bold text-slate-700">____</span>
+                    </div>
+                    <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
+                      <span className="text-[10px] text-slate-400 block">SpO2 (%)</span>
+                      <span className="font-mono font-bold text-slate-700">____ %</span>
+                    </div>
+                    <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
+                      <span className="text-[10px] text-slate-400 block">Temp (°F)</span>
+                      <span className="font-mono font-bold text-slate-700">____ °F</span>
+                    </div>
+                    <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
+                      <span className="text-[10px] text-slate-400 block">Weight (kg)</span>
+                      <span className="font-mono font-bold text-slate-700">____ kg</span>
+                    </div>
+                    <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
+                      <span className="text-[10px] text-slate-400 block">RBS (mg/dL)</span>
+                      <span className="font-mono font-bold text-slate-700">____</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rx Blank Section for Doctor Handwriting */}
+                <div className="border border-slate-200 rounded-lg p-4 min-h-[160px] bg-white relative">
+                  <span className="text-3xl font-serif font-black text-blue-600/30 select-none">Rx</span>
+                  <div className="mt-2 space-y-4">
+                    <div className="border-b border-dashed border-slate-200 h-6" />
+                    <div className="border-b border-dashed border-slate-200 h-6" />
+                    <div className="border-b border-dashed border-slate-200 h-6" />
+                    <div className="border-b border-dashed border-slate-200 h-6" />
+                  </div>
+                </div>
+
+                {/* Footer Signature */}
+                <div className="pt-4 flex justify-between items-end text-xs text-slate-500">
+                  <span className="text-[10px]">MediBooking.in Pre-Consultation EHR Slip • Chamber {selectedRxToken.chamberNumber}</span>
+                  <div className="text-center">
+                    <div className="w-48 border-b border-slate-400 mb-1" />
+                    <span className="font-semibold text-slate-700">Doctor Signature & Stamp</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* 80mm Monospace Thermal Prescription Slip */
+              <div className="p-4 bg-slate-50 border border-slate-300 rounded-xl font-mono text-center text-xs leading-relaxed text-slate-800 shadow-inner">
+                <p className="font-bold text-sm tracking-wider">BHOPAL CITYCARE POLYCLINIC</p>
+                <p className="text-[10px] text-slate-500">MP Nagar Zone-II, Bhopal • +91 755 492 8800</p>
+                <p className="border-b border-dashed border-slate-400 my-2" />
+                <span className="text-[11px] font-bold text-slate-500 block uppercase">PRE-CONSULTATION RX SHEET</span>
+                <span className="text-4xl font-black text-slate-900 block my-1">#{selectedRxToken.tokenNumber}</span>
+                <span className="text-xs font-bold text-blue-700 block">
+                  Dr. {selectedRxToken.doctorName} (NMC: MP-38492-NMC) • {selectedRxToken.chamberNumber}
+                </span>
+                <p className="border-b border-dashed border-slate-400 my-2" />
+                <div className="text-left text-[11px] space-y-1">
+                  <div className="flex justify-between">
+                    <span>Patient:</span>
+                    <span className="font-bold">{selectedRxToken.patientName} ({selectedRxToken.patientAge || 48}M)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Mobile:</span>
+                    <span>+91 {selectedRxToken.patientMobile}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Complaints:</span>
+                    <span className="font-medium truncate max-w-44">{selectedRxToken.symptoms || 'Routine Examination'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Booking Fee:</span>
+                    <span className="font-bold text-emerald-700">✓ ₹{selectedRxToken.bookingFeeRupees ?? 49} PAID (UPI)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Counter Due:</span>
+                    <span className="font-bold">₹{selectedRxToken.consultationFeeDue ?? 600}</span>
+                  </div>
+                </div>
+                <p className="border-b border-dashed border-slate-400 my-2" />
+                <span className="text-[10px] font-bold uppercase text-slate-600 block text-left">
+                  Compounder Pre-Consultation Vitals Recording:
+                </span>
+                <div className="text-left text-[11px] font-mono grid grid-cols-2 gap-1 my-1">
+                  <div>BP (mmHg): ____/____</div>
+                  <div>Pulse: ____ bpm</div>
+                  <div>SpO2 (%): ____ %</div>
+                  <div>Temp: ____ °F</div>
+                  <div>Weight: ____ kg</div>
+                  <div>RBS: ____ mg/dL</div>
+                </div>
+                <p className="border-b border-dashed border-slate-400 my-2" />
+                <div className="text-left min-h-24 py-2 border-b border-dashed border-slate-400 text-slate-400">
+                  [ Rx - Doctor Handwriting / Advice ]
+                </div>
+                <div className="pt-2 text-right text-[10px] text-slate-500">
+                  Doctor Signature: ____________________
+                </div>
+              </div>
+            )}
 
             {rxPrintNotice && (
               <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-semibold text-center animate-fadeIn">

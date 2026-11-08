@@ -264,6 +264,24 @@ export default function DoctorChamberGlancePortal() {
                 </Badge>
               </div>
 
+              {/* Pre-Consultation Physical Rx Sheet Status Banner */}
+              <div className="mb-4 p-3 rounded-xl bg-blue-50/70 border border-blue-200 text-xs flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">📋</span>
+                  <div>
+                    <span className="font-bold text-blue-900 block">
+                      Pre-Consultation Prescription Sheet Ready on Desk
+                    </span>
+                    <span className="text-slate-600 text-[11px]">
+                      Demographics pre-printed at reception with NMC registration MP-38492. Vitals below recorded by compounder.
+                    </span>
+                  </div>
+                </div>
+                <Badge variant="mint" size="sm">
+                  ✓ Vitals Recorded
+                </Badge>
+              </div>
+
               {/* Patient Vitals Glance */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-center">
@@ -310,9 +328,34 @@ export default function DoctorChamberGlancePortal() {
 
               {/* Quick Rx / Clinical Advice Input */}
               <div className="space-y-2 mb-6">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Clinical Diagnosis & Rx Notes
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Clinical Diagnosis & Rx Notes
+                  </label>
+                  <span className="text-[10px] text-slate-400 font-medium">Click chip to auto-append</span>
+                </div>
+
+                {/* 1-Click Common Prescription & Diagnostic Chips */}
+                <div className="flex flex-wrap gap-1.5 pb-1">
+                  {[
+                    'Tab. Telmisartan 40mg OD',
+                    'Tab. Metformin 500mg BD',
+                    'Tab. Amlodipine 5mg OD',
+                    'Tab. Paracetamol 650mg SOS',
+                    'Advised 12-Lead ECG Review',
+                    'Fasting Lipid Profile & HbA1c',
+                  ].map((chip) => (
+                    <button
+                      key={chip}
+                      type="button"
+                      onClick={() => setRxNotes((prev) => (prev ? `${prev} • ${chip}` : chip))}
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 transition-colors"
+                    >
+                      + {chip}
+                    </button>
+                  ))}
+                </div>
+
                 <textarea
                   rows={3}
                   value={rxNotes}
@@ -354,6 +397,32 @@ export default function DoctorChamberGlancePortal() {
 
           {/* Right Col: Delay Broadcast & Emergency Chamber Controls */}
           <div className="space-y-6">
+            {/* Session Velocity & Doctor 80% Earnings Glance Card */}
+            <Card className="p-5 bg-gradient-to-br from-slate-900 to-slate-800 text-white border-slate-700 shadow-md">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Today's Session Velocity
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  80% Consultant Split
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between mb-2">
+                <div>
+                  <span className="text-2xl font-black font-mono text-emerald-400">₹6,720</span>
+                  <span className="text-[11px] text-slate-400 block mt-0.5">Doctor Net Share</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-base font-bold font-mono text-white">14</span>
+                  <span className="text-[10px] text-slate-400 block">Consultations</span>
+                </div>
+              </div>
+              <div className="pt-2.5 border-t border-slate-700/60 flex items-center justify-between text-[11px] text-slate-300">
+                <span>⏱️ Avg Consult: <span className="font-semibold text-white">7.2 mins</span></span>
+                <span className="text-emerald-300 font-semibold">⚡ ~42m Saved (Pre-Printed Rx)</span>
+              </div>
+            </Card>
+
             {/* 1-Click Doctor Delay Broadcast Box */}
             <Card className="p-5">
               <div className="flex items-center justify-between mb-2">

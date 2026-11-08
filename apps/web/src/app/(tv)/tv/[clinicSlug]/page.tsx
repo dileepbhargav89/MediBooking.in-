@@ -450,6 +450,21 @@ export default function WaitingRoomTVPage({
         </div>
       </main>
 
+      {/* Polyclinic Services Promotional Ticker */}
+      <div className="bg-blue-950/80 border-t border-blue-900/60 px-6 py-2.5 flex items-center justify-between text-xs text-blue-200">
+        <div className="flex items-center gap-2 overflow-hidden whitespace-nowrap">
+          <span className="px-2 py-0.5 rounded bg-blue-700/40 text-blue-300 font-bold text-[10px] uppercase font-mono">
+            CLINIC SERVICES
+          </span>
+          <span className="font-medium text-slate-300">
+            🏥 In-Chamber 12-Lead ECG • 🧪 Full Diagnostic Pathology Tests • 💨 Duolin Nebulization • 💉 Vaccination & Sterile Dressing Available at Front Desk
+          </span>
+        </div>
+        <div className="shrink-0 text-slate-400 text-[11px] font-mono hidden md:block">
+          Pre-Consultation Vitals Checked by Compounder
+        </div>
+      </div>
+
       {/* Bottom Ticker / Footer Bar */}
       <footer className="bg-slate-950 border-t border-slate-800 px-6 py-3 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
         <div className="flex items-center gap-3">
