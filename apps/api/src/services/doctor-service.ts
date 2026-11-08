@@ -19,6 +19,7 @@ export interface CreateDoctorDTO {
   experienceYears: number;
   bio?: string;
   profilePhotoUrl?: string;
+  isVerified?: boolean;
 }
 
 export interface UpdateDoctorProfileDTO {
@@ -92,7 +93,7 @@ export class DoctorService {
       experienceYears: dto.experienceYears,
       bio: dto.bio?.trim(),
       profilePhotoUrl: dto.profilePhotoUrl?.trim(),
-      isVerified: false, // New doctors require Super Admin NMC verification
+      isVerified: dto.isVerified ?? false,
       createdAt: now,
       updatedAt: now,
     };

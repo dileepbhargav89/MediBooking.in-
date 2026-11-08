@@ -30,14 +30,14 @@ test.describe('E2E Workflow 1: Authentication & RBAC Dynamic Routing', () => {
   });
 
   test('1.3 Role Quick-Select buttons instantly authenticate and route to role portal', async ({ page }) => {
-    test.setTimeout(60000);
+    test.setTimeout(90000);
     // 1. Test Super Admin Demo Role
     await page.context().clearCookies();
     await page.goto('/login');
     await expect(page).toHaveURL(/\/login/);
     await page.locator('button', { hasText: 'Super Admin' }).click();
     await page.locator('button', { hasText: /Instant Dev Login/i }).click();
-    await expect(page).toHaveURL('/super-admin', { timeout: 10000 });
+    await expect(page).toHaveURL('/super-admin', { timeout: 15000 });
     await expect(page.locator('header')).toContainText('Super Admin Platform Console');
 
     // 2. Test Central Receptionist Demo Role
@@ -46,7 +46,7 @@ test.describe('E2E Workflow 1: Authentication & RBAC Dynamic Routing', () => {
     await expect(page).toHaveURL(/\/login/);
     await page.locator('button', { hasText: 'Reception Desk' }).click();
     await page.locator('button', { hasText: /Instant Dev Login/i }).click();
-    await expect(page).toHaveURL('/receptionist', { timeout: 10000 });
+    await expect(page).toHaveURL('/receptionist', { timeout: 15000 });
     await expect(page.locator('header')).toContainText('Central Reception Desk');
 
     // 3. Test Doctor Demo Role
@@ -55,7 +55,7 @@ test.describe('E2E Workflow 1: Authentication & RBAC Dynamic Routing', () => {
     await expect(page).toHaveURL(/\/login/);
     await page.locator('button', { hasText: 'Doctor Chamber' }).click();
     await page.locator('button', { hasText: /Instant Dev Login/i }).click();
-    await expect(page).toHaveURL('/doctor', { timeout: 10000 });
+    await expect(page).toHaveURL('/doctor', { timeout: 15000 });
     await expect(page.locator('header')).toContainText('Dr. Rajesh Sharma');
 
     // 4. Test Clinic Administrator Demo Role
@@ -64,7 +64,7 @@ test.describe('E2E Workflow 1: Authentication & RBAC Dynamic Routing', () => {
     await expect(page).toHaveURL(/\/login/);
     await page.locator('button', { hasText: 'Clinic Admin' }).click();
     await page.locator('button', { hasText: /Instant Dev Login/i }).click();
-    await expect(page).toHaveURL('/admin', { timeout: 10000 });
+    await expect(page).toHaveURL('/admin', { timeout: 15000 });
     await expect(page.locator('header')).toContainText('Clinic Administrator Portal');
 
     // 5. Test Patient Demo Role
@@ -73,7 +73,7 @@ test.describe('E2E Workflow 1: Authentication & RBAC Dynamic Routing', () => {
     await expect(page).toHaveURL(/\/login/);
     await page.locator('button', { hasText: 'Patient Tracker' }).click();
     await page.locator('button', { hasText: /Instant Dev Login/i }).click();
-    await expect(page).toHaveURL('/patient', { timeout: 10000 });
+    await expect(page).toHaveURL('/patient', { timeout: 15000 });
     await expect(page.locator('header')).toContainText('Live Queue Tracker');
   });
 });

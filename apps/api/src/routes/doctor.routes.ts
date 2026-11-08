@@ -4,6 +4,7 @@
 
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+import crypto from 'crypto';
 import { requireAuth } from '../middleware/tenant-context';
 import { UserRole, MedicalSpecialty, DoctorDelayBroadcastDTO } from '@medibooking/types';
 import { SEED_DATA } from '@medibooking/database';
@@ -13,6 +14,7 @@ import { affiliationService } from '../services/affiliation-service';
 import { clinicService } from '../services/clinic-service';
 import { sessionService } from '../services/session-service';
 import { delayBroadcastEngine } from '../services/delay-broadcast-engine';
+import { authService } from '../services/auth-service';
 
 const delayBroadcastSchema = z.object({
   clinicId: z.string().uuid(),
@@ -20,6 +22,23 @@ const delayBroadcastSchema = z.object({
   delayMinutes: z.number().int().min(0).max(240),
   reasonOption: z.string().default('HOSPITAL_EMERGENCY'),
   customNote: z.string().optional(),
+});
+
+const onboardDoctorSchema = z.object({
+  fullName: z.string().min(3, 'Full name must be at least 3 characters'),
+  mobile: z.string().regex(/^[6-9]\d{9}$/, 'Must be a valid 10-digit Indian mobile number'),
+  email: z.string().email().optional(),
+  registrationNumber: z.string().min(3, 'NMC Registration number is required'),
+  stateMedicalCouncil: z.string().min(3, 'State Medical Council is required'),
+  specialties: z.array(z.nativeEnum(MedicalSpecialty)).min(1, 'Select at least 1 specialty'),
+  qualifications: z.array(z.string()).min(1, 'At least 1 qualification required'),
+  experienceYears: z.number().int().min(0).default(1),
+  bio: z.string().optional(),
+  clinicId: z.string().optional(),
+  chamberNumber: z.string().default('CH-1'),
+  consultationFeeRupees: z.number().positive().default(600),
+  followUpFeeRupees: z.number().nonnegative().optional(),
+  followUpValidityDays: z.number().int().positive().default(14),
 });
 
 const createDoctorSchema = z.object({
@@ -49,6 +68,103 @@ const updateProfileSchema = z.object({
 });
 
 export async function doctorRoutes(fastify: FastifyInstance) {
+  /**
+   * Self-Serve Doctor Onboarding & Chamber Affiliation: POST /api/v1/doctors/onboard-doctor
+   * Public onboarding wizard endpoint for doctors
+   */
+  fastify.post('/doctors/onboard-doctor', async (req, reply) => {
+    const parseResult = onboardDoctorSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return reply.status(400).send({
+        error: 'Validation Error',
+        details: parseResult.error.format(),
+      });
+    }
+
+    try {
+      const data = parseResult.data;
+      const targetClinicId = data.clinicId || SEED_DATA.clinic.id;
+      const clinicDetails = await clinicService.getClinicById(targetClinicId);
+      const clinicName = clinicDetails?.clinic.name || SEED_DATA.clinic.name;
+
+      const doctorId = crypto.randomUUID();
+      const userId = `usr-doc-${doctorId.slice(0, 8)}`;
+
+      // 1. Create Doctor Master Profile
+      const doctor = await doctorService.createDoctor({
+        userId,
+        fullName: data.fullName,
+        registrationNumber: data.registrationNumber,
+        stateMedicalCouncil: data.stateMedicalCouncil,
+        specialties: data.specialties,
+        qualifications: data.qualifications,
+        experienceYears: data.experienceYears,
+        bio: data.bio || `Specialist in ${data.specialties.join(', ')} at ${clinicName}`,
+        isVerified: true, // Auto-verified in live onboarding
+      });
+
+      // 2. Affiliate Doctor to Clinic Chamber
+      const affiliation = await affiliationService.affiliateDoctor({
+        clinicId: targetClinicId,
+        doctorId: doctor.id,
+        chamberNumber: data.chamberNumber || 'CH-1',
+        consultationFeeRupees: data.consultationFeeRupees || 600,
+        followUpFeeRupees: data.followUpFeeRupees ?? Math.round((data.consultationFeeRupees || 600) / 2),
+        followUpValidityDays: data.followUpValidityDays || 14,
+        isPrimaryClinic: true,
+      });
+
+      // 3. Register Dynamic User in AuthService & Issue JWT
+      const cleanMobile = data.mobile.trim().replace(/^\+91/, '');
+      authService.registerDynamicUser({
+        userId,
+        mobile: cleanMobile,
+        fullName: data.fullName,
+        email: data.email,
+        activeRole: UserRole.DOCTOR,
+        activeClinicId: targetClinicId,
+        activeClinicName: clinicName,
+        activeChamberNumber: data.chamberNumber || 'CH-1',
+        allowedRoles: [UserRole.DOCTOR],
+        availableClinics: [
+          {
+            clinicId: targetClinicId,
+            clinicName,
+            role: UserRole.DOCTOR,
+            chamberNumber: data.chamberNumber || 'CH-1',
+          },
+        ],
+      });
+
+      const token = authService.signToken({
+        sub: userId,
+        mobile: cleanMobile,
+        role: UserRole.DOCTOR,
+        clinicId: targetClinicId,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+      });
+
+      return reply.status(201).send({
+        success: true,
+        message: `Dr. ${doctor.fullName} provisioned with NMC verified chamber profile at ${clinicName}!`,
+        doctor,
+        affiliation,
+        token,
+        urls: {
+          publicProfileUrl: `/dr/${doctor.slug}`,
+          doctorPortalUrl: `/doctor`,
+        },
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Doctor onboarding failed';
+      return reply.status(500).send({
+        error: 'Internal Server Error',
+        message,
+      });
+    }
+  });
+
   /**
    * Public Doctor Directory Search: GET /api/v1/doctors
    */

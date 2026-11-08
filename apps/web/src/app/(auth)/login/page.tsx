@@ -152,14 +152,16 @@ export default function LoginPage() {
     try {
       let sessionToken = '';
       let targetPath = activeRole?.portalRoute || '/receptionist';
+      const targetMobile = phone || activeRole?.mobile || '9826033333';
+      const targetRole = activeRole?.role || UserRole.RECEPTIONIST;
 
       const response = await fetch(`${API_BASE_URL}/api/v1/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          mobile: phone,
+          mobile: targetMobile,
           otp: code,
-          preferredRole: activeRole?.role,
+          preferredRole: targetRole,
         }),
       });
 
@@ -167,7 +169,7 @@ export default function LoginPage() {
         const data = await response.json();
         sessionToken = data.token;
         const user = data.userContext || data.user;
-        const role = user?.activeRole || user?.role || activeRole?.role;
+        const role = user?.activeRole || user?.role || targetRole;
         if (role) {
           switch (role) {
             case UserRole.SUPER_ADMIN:
@@ -196,7 +198,7 @@ export default function LoginPage() {
       } else {
         // Fallback simulation for dev/standalone UI test
         if (code === '123456') {
-          sessionToken = `mock-token-${phone}-${activeRole?.role || 'RECEPTIONIST'}`;
+          sessionToken = `mock-token-${targetMobile}-${targetRole}`;
         } else {
           setError('Invalid OTP code. Please use 123456 in test mode.');
           setIsLoading(false);
@@ -211,8 +213,8 @@ export default function LoginPage() {
         localStorage.setItem(
           'medibooking_user',
           JSON.stringify({
-            mobile: phone,
-            role: activeRole?.role || UserRole.RECEPTIONIST,
+            mobile: targetMobile,
+            role: targetRole,
             clinicId: activeRole?.clinicId || 'c1010000-0000-4000-8000-000000000001',
           })
         );

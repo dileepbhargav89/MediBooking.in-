@@ -30,6 +30,13 @@ export default function HomePage() {
             >
               Launch Clinic (3 Min)
             </Link>
+            <Link
+              href="/onboarding/doctor"
+              data-testid="nav-btn-onboard-doctor"
+              className="inline-flex items-center px-2.5 py-1.5 text-xs font-bold rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors"
+            >
+              Join as Doctor
+            </Link>
             <Link href="/login">
               <Button variant="outline" size="sm">
                 Staff Login
@@ -66,6 +73,13 @@ export default function HomePage() {
               className="inline-flex items-center justify-center px-6 py-3 text-base font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors duration-150"
             >
               ✨ Launch My Clinic (3-Min Setup)
+            </Link>
+            <Link
+              href="/onboarding/doctor"
+              data-testid="hero-btn-onboard-doctor"
+              className="inline-flex items-center justify-center px-6 py-3 text-base font-bold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 shadow-sm transition-colors duration-150"
+            >
+              🩺 Doctor Self-Registration
             </Link>
             <Link href="/login">
               <Button size="lg" variant="outline">

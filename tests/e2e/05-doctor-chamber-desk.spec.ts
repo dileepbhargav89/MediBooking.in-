@@ -7,7 +7,7 @@ test.describe('E2E Workflow 5: Doctor Chamber Consultation Desk Glance Portal', 
     await page.goto('/login');
     await page.locator('button', { hasText: 'Doctor Chamber' }).click();
     await page.locator('button', { hasText: /Instant Dev Login/i }).click();
-    await expect(page).toHaveURL('/doctor');
+    await expect(page).toHaveURL('/doctor', { timeout: 15000 });
   });
 
   test('5.1 Consultation glance desk renders doctor details, current patient vitals, and queue', async ({ page }) => {

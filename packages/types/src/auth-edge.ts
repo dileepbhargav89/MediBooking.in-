@@ -110,16 +110,14 @@ export function parseSessionToken(token: string | null | undefined): DecodedSess
   // Handle Dev / Mock Tokens (e.g. mock-token-9826033333-RECEPTIONIST)
   if (token.startsWith('mock-token-') || token === 'mock-offline-token') {
     const parts = token.split('-');
-    const rolePart = parts[3] as UserRole;
-    const role = Object.values(UserRole).includes(rolePart)
-      ? rolePart
-      : UserRole.RECEPTIONIST;
+    const role = (Object.values(UserRole) as string[]).find((r) => token.includes(r)) as UserRole || UserRole.RECEPTIONIST;
+    const mobilePart = parts.find((p) => /^[6-9]\d{9}$/.test(p)) || '9826033333';
 
     return {
-      userId: `usr-mock-${parts[2] || 'staff'}`,
+      userId: `usr-mock-${mobilePart}`,
       role,
       clinicId: 'c1010000-0000-4000-8000-000000000001',
-      mobile: parts[2] || '9826033333',
+      mobile: mobilePart,
     };
   }
 
