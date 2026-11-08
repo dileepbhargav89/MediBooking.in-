@@ -18,6 +18,8 @@ import {
   OfflineSyncQueueManager,
   type OfflineIntakeRecord,
   getChamberStyle,
+  HardwareDiagnosticModal,
+  ProductTourGuide,
 } from '@medibooking/ui';
 
 interface ChamberDeskInfo {
@@ -162,6 +164,10 @@ export default function ReceptionDeskDashboardPage() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncFeedbackNotice, setSyncFeedbackNotice] = useState<string | null>(null);
 
+  // Phase 59: Guided Tour & Hardware Diagnostics
+  const [isDiagnosticModalOpen, setIsDiagnosticModalOpen] = useState(false);
+  const [isTourActive, setIsTourActive] = useState(false);
+
   // Intake Form State
   const [mobile, setMobile] = useState('');
   const [patientName, setPatientName] = useState('');
@@ -207,7 +213,7 @@ export default function ReceptionDeskDashboardPage() {
 
       // Register PWA Service Worker in production/supporting environments
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').catch(() => {});
+        navigator.serviceWorker.register('/sw.js').catch(() => { });
       }
 
       return () => {
@@ -435,16 +441,45 @@ export default function ReceptionDeskDashboardPage() {
               </button>
             </div>
 
-            {/* Global F2 Trigger Button */}
-            <Button
-              variant="urgent"
-              size="sm"
-              hotkey="F2"
-              onClick={() => setIsIntakeModalOpen(true)}
-              className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-sm"
+            {/* Phase 59: Help Tour Trigger */}
+            <button
+              type="button"
+              data-testid="btn-start-tour"
+              onClick={() => setIsTourActive(true)}
+              className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-xs"
+              title="Interactive reception tour"
             >
-              + Walk-In Intake
-            </Button>
+              <span>🎓</span>
+              <span className="hidden md:inline">Tour Guide</span>
+            </button>
+
+            {/* Phase 59: Hardware Diagnostics Modal Trigger */}
+            <div data-testid="tour-hardware-step">
+              <button
+                type="button"
+                data-testid="btn-hardware-diagnostics"
+                onClick={() => setIsDiagnosticModalOpen(true)}
+                className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 flex items-center gap-1.5 transition-colors shadow-xs"
+                title="Run hardware self-tests for printer, TV, and SSE"
+              >
+                <span>⚡</span>
+                <span className="hidden md:inline">Hardware Diagnostics</span>
+              </button>
+            </div>
+
+            {/* Global F2 Trigger Button */}
+            <div data-testid="tour-intake-step">
+              <Button
+                variant="urgent"
+                size="sm"
+                hotkey="F2"
+                data-testid="btn-walkin-intake"
+                onClick={() => setIsIntakeModalOpen(true)}
+                className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-sm"
+              >
+                + Walk-In Intake
+              </Button>
+            </div>
 
             <Link href="/tv/bhopal-city-care">
               <Button variant="outline" size="sm" className="hidden sm:inline-flex">
@@ -481,7 +516,7 @@ export default function ReceptionDeskDashboardPage() {
         )}
 
         {/* Cash Drawer & Shift Summary Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div data-testid="tour-cashier-step" className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <StatCard
             title="Cash In Drawer"
             value="₹12,400"
@@ -528,7 +563,7 @@ export default function ReceptionDeskDashboardPage() {
         </div>
 
         {/* Chamber Tab Bar */}
-        <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+        <div data-testid="tour-chambers-step" className="flex items-center justify-between border-b border-slate-200 pb-2">
           <div className="flex items-center gap-2 overflow-x-auto">
             <button
               onClick={() => setSelectedChamberTab('ALL')}
@@ -854,6 +889,19 @@ export default function ReceptionDeskDashboardPage() {
           onPaymentSuccess={handleUpiSuccess}
         />
       )}
+
+      {/* Phase 59: Interactive Product Tour Guide */}
+      <ProductTourGuide
+        isActive={isTourActive}
+        onClose={() => setIsTourActive(false)}
+      />
+
+      {/* Phase 59: Polyclinic Hardware Diagnostics Modal */}
+      <HardwareDiagnosticModal
+        isOpen={isDiagnosticModalOpen}
+        onClose={() => setIsDiagnosticModalOpen(false)}
+        clinicName="Bhopal City Care Polyclinic"
+      />
 
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500">

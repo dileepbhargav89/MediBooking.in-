@@ -12,6 +12,7 @@ import {
   StatCard,
   Modal,
   getChamberStyle,
+  HardwareDiagnosticModal,
 } from '@medibooking/ui';
 
 interface AdminDoctorAffiliation {
@@ -89,6 +90,7 @@ export default function ClinicAdministratorPortal() {
   const [cashierNotes, setCashierNotes] = useState('Shift balanced. All cash vouchers verified.');
   const [isShiftLocked, setIsShiftLocked] = useState(false);
   const [lockNotice, setLockNotice] = useState<string | null>(null);
+  const [isDiagnosticModalOpen, setIsDiagnosticModalOpen] = useState(false);
 
   // Phase 55: Doctor Revenue Split & Settlement State
   const [settlementSummary, setSettlementSummary] = useState<any>({
@@ -254,6 +256,16 @@ export default function ClinicAdministratorPortal() {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              data-testid="btn-hardware-diagnostics"
+              onClick={() => setIsDiagnosticModalOpen(true)}
+              className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 flex items-center gap-1.5 transition-colors shadow-xs"
+              title="Run hardware self-tests for printer, TV, and SSE"
+            >
+              <span>⚡</span>
+              <span className="hidden sm:inline">Hardware Diagnostics</span>
+            </button>
             <Badge variant="blue" size="sm">
               CLINIC PRO (₹1,999/mo)
             </Badge>
@@ -793,6 +805,13 @@ export default function ClinicAdministratorPortal() {
           </div>
         </form>
       </Modal>
+
+      {/* Phase 59: Polyclinic Hardware Diagnostics Modal */}
+      <HardwareDiagnosticModal
+        isOpen={isDiagnosticModalOpen}
+        onClose={() => setIsDiagnosticModalOpen(false)}
+        clinicName="Bhopal City Care Polyclinic"
+      />
 
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500">

@@ -55,7 +55,7 @@ const QUICK_ROLES: QuickRole[] = [
   },
 ];
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -139,7 +139,7 @@ export default function LoginPage() {
   };
 
   // Verify OTP and persist session
-  const handleVerifyOtp = async (overrideOtp?: string) => {
+  const handleVerifyOtp = async (overrideOtp?: string, roleOverride?: QuickRole) => {
     const code = overrideOtp || otp;
     if (!code || code.length !== 6) {
       setError('Please enter the 6-digit numeric OTP');
@@ -149,12 +149,13 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
 
-    try {
-      let sessionToken = '';
-      let targetPath = activeRole?.portalRoute || '/receptionist';
-      const targetMobile = phone || activeRole?.mobile || '9826033333';
-      const targetRole = activeRole?.role || UserRole.RECEPTIONIST;
+    const currentRole = roleOverride || activeRole;
+    let targetPath = currentRole?.portalRoute || '/receptionist';
+    const targetMobile = phone || currentRole?.mobile || '9826033333';
+    const targetRole = currentRole?.role || UserRole.RECEPTIONIST;
+    let sessionToken = `mock-token-${targetMobile}-${targetRole}`;
 
+    try {
       const response = await fetch(`${API_BASE_URL}/api/v1/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -205,36 +206,33 @@ export default function LoginPage() {
           return;
         }
       }
-
-      // Store in cookie for Next.js Middleware inspection
-      document.cookie = `medibooking_session=${sessionToken}; path=/; max-age=604800; SameSite=Lax`;
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('medibooking_session', sessionToken);
-        localStorage.setItem(
-          'medibooking_user',
-          JSON.stringify({
-            mobile: targetMobile,
-            role: targetRole,
-            clinicId: activeRole?.clinicId || 'c1010000-0000-4000-8000-000000000001',
-          })
-        );
-      }
-
-      // Navigate to destination portal
-      router.push(targetPath);
     } catch {
       // In case of network fault, allow 123456 bypass
       if (code === '123456') {
-        const targetPath = activeRole?.portalRoute || '/receptionist';
-        const role = activeRole?.role || UserRole.RECEPTIONIST;
-        document.cookie = `medibooking_session=mock-token-${phone}-${role}; path=/; max-age=604800; SameSite=Lax`;
-        router.push(targetPath);
+        sessionToken = `mock-token-${targetMobile}-${targetRole}`;
       } else {
         setError('Connection error. Please try again or use 123456.');
+        setIsLoading(false);
+        return;
       }
-    } finally {
-      setIsLoading(false);
     }
+
+    // Store in cookie for Next.js Middleware inspection
+    document.cookie = `medibooking_session=${sessionToken}; path=/; max-age=604800; SameSite=Lax`;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('medibooking_session', sessionToken);
+      localStorage.setItem(
+        'medibooking_user',
+        JSON.stringify({
+          mobile: targetMobile,
+          role: targetRole,
+          clinicId: currentRole?.clinicId || 'c1010000-0000-4000-8000-000000000001',
+        })
+      );
+    }
+
+    setIsLoading(false);
+    router.push(targetPath);
   };
 
   return (
@@ -376,7 +374,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => {
                   setOtp('123456');
-                  handleVerifyOtp('123456');
+                  handleVerifyOtp('123456', activeRole || undefined);
                 }}
                 className="w-full py-1.5 px-3 rounded-md bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold text-center transition-colors"
               >

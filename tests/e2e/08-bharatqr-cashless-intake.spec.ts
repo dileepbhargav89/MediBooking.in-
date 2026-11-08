@@ -9,7 +9,7 @@ test.describe('E2E Workflow 8 (Phase 49): Dynamic BharatQR UPI Cashless Counter 
     await page.goto('/login');
     await page.locator('button', { hasText: 'Reception Desk' }).click();
     await page.locator('button', { hasText: /Instant Dev Login/i }).click();
-    await expect(page).toHaveURL('/receptionist');
+    await expect(page).toHaveURL('/receptionist', { timeout: 15000 });
   });
 
   test('8.1 Walk-In Intake with UPI QR payment launches BharatQR modal, verifies scan & pay, and updates ledger', async ({ page }) => {

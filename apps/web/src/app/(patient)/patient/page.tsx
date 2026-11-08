@@ -63,7 +63,8 @@ export default function PatientQueueTrackerPage() {
     setIsBotTyping(true);
 
     try {
-      const res = await fetch('http://127.0.0.1:4000/api/v1/whatsapp/simulate-inbound', {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const res = await fetch(`${apiBase}/api/v1/whatsapp/simulate-inbound`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -90,7 +91,7 @@ export default function PatientQueueTrackerPage() {
         {
           id: `bot-${Date.now()}`,
           sender: 'BOT',
-          text: `📋 टोकन #14 (Dr. Rajesh Sharma, CH-1) वर्तमान में WAITING है। वर्तमान में #11 चल रहा है।`,
+          text: `🙏 *नमस्ते Ramesh Kumar!*\n\n📋 *आपकी टोकन स्थिति (Live Token Status)*:\n• टोकन क्रमांक: #15\n• कक्ष (Chamber): CH-1 (डॉ. Rajesh Sharma)\n• स्थिति: WAITING`,
           time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
         },
       ]);

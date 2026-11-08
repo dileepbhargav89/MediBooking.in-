@@ -8,7 +8,8 @@ test.describe('E2E Workflow 9 (Phase 50): Native Web Bluetooth / Serial ESC/POS 
     await page.goto('/login');
     await page.locator('button', { hasText: 'Reception Desk' }).click();
     await page.locator('button', { hasText: /Instant Dev Login/i }).click();
-    await expect(page).toHaveURL('/receptionist', { timeout: 10000 });
+    await expect(page).toHaveURL('/receptionist', { timeout: 15000 });
+    await expect(page.locator('header')).toContainText('Central Reception Desk');
   });
 
   test('9.1 Reception receipt modal triggers direct binary ESC/POS hardware print without browser print dialog', async ({ page }) => {

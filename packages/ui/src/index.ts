@@ -17,6 +17,8 @@ export { Input, type InputProps } from './components/Input';
 export { Modal, type ModalProps } from './components/Modal';
 export { StatCard, type StatCardProps } from './components/StatCard';
 export { TokenCard, type TokenCardProps } from './components/TokenCard';
+export { HardwareDiagnosticModal, type HardwareDiagnosticModalProps } from './components/HardwareDiagnosticModal';
+export { ProductTourGuide, type ProductTourGuideProps, type TourStep } from './components/ProductTourGuide';
 
 // Hardware Printer Drivers
 export {
