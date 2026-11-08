@@ -288,6 +288,10 @@ export interface Appointment {
   patientName: string;
   patientMobile: string;
   patientAge?: number;
+  patientGender?: 'MALE' | 'FEMALE' | 'OTHER' | 'UNSPECIFIED';
+  symptoms?: string;
+  bookingFeeRupees?: number;
+  consultationFeeDue?: number;
   idempotencyKey?: string;
   receiptNumber?: string;
   vitals?: PatientVitals;

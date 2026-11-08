@@ -30,7 +30,10 @@ export interface CreateOnlineBookingDTO {
   patientMobile: string;
   patientAge?: number;
   patientGender?: 'MALE' | 'FEMALE' | 'OTHER' | 'UNSPECIFIED';
+  symptoms?: string;
   notes?: string;
+  bookingFeeRupees?: number;
+  bookingPaymentMethod?: string;
   idempotencyKey?: string;
 }
 
@@ -77,6 +80,36 @@ export class AppointmentService {
   private idempotencyMap = new Map<string, Appointment>();
   // Key: `${clinicId}:${doctorId}:${date}` -> current token count
   private tokenCounters = new Map<string, number>();
+
+  constructor() {
+    // Seed Phase 61 Demo Record for Instant Pre-Consultation Sheet Access
+    const demoAppt: Appointment = {
+      id: 'appt-phase61-demo',
+      clinicId: 'c1010000-0000-4000-8000-000000000001',
+      doctorId: 'd3010000-0000-4000-8000-000000000001',
+      patientId: 'pat-phase61-demo',
+      chamberNumber: 'CH-1',
+      appointmentDate: '2026-11-08',
+      tokenNumber: 15,
+      status: AppointmentStatus.SCHEDULED,
+      source: BookingSource.ONLINE_PORTAL,
+      paymentStatus: PaymentStatus.PENDING_AT_DESK,
+      amountRupees: 600,
+      triageSeverity: TriageSeverity.ROUTINE,
+      patientName: 'Ramesh Kumar',
+      patientMobile: '9826011111',
+      patientAge: 48,
+      patientGender: 'MALE',
+      symptoms: 'Routine checkup & chest discomfort',
+      bookingFeeRupees: 49,
+      consultationFeeDue: 600,
+      receiptNumber: 'MB-20261108-CH1-015',
+      estimatedConsultTime: '10:30 AM',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.appointments.set(demoAppt.id, demoAppt);
+  }
 
   /**
    * Online Patient Slot Booking Transaction
@@ -146,7 +179,11 @@ export class AppointmentService {
       triageSeverity: TriageSeverity.ROUTINE,
       patientName: dto.patientName.trim(),
       patientMobile: dto.patientMobile.trim(),
-      patientAge: dto.patientAge,
+      patientAge: dto.patientAge || 48,
+      patientGender: dto.patientGender || 'MALE',
+      symptoms: dto.symptoms || dto.notes || '',
+      bookingFeeRupees: dto.bookingFeeRupees ?? 49,
+      consultationFeeDue: amountRupees,
       idempotencyKey: dto.idempotencyKey,
       receiptNumber,
       estimatedConsultTime: slot.startTime,
@@ -318,7 +355,11 @@ export class AppointmentService {
       triageSeverity: dto.triageSeverity || TriageSeverity.ROUTINE,
       patientName: dto.patientName.trim(),
       patientMobile: dto.patientMobile.trim(),
-      patientAge: dto.patientAge,
+      patientAge: dto.patientAge || 48,
+      patientGender: dto.patientGender || 'MALE',
+      symptoms: dto.symptoms || dto.notes || '',
+      bookingFeeRupees: dto.bookingFeeRupees ?? 49,
+      consultationFeeDue: amountRupees,
       idempotencyKey: dto.idempotencyKey,
       receiptNumber,
       createdAt: now,
@@ -410,6 +451,75 @@ export class AppointmentService {
    */
   async getAppointmentById(appointmentId: string): Promise<Appointment | null> {
     return this.appointments.get(appointmentId) || null;
+  }
+
+  /**
+   * Phase 61: Generate Pre-Consultation Prescription Sheet Data
+   * Formatted for A4 / 80mm thermal print prior to chamber entry
+   */
+  async getPrescriptionSheet(appointmentId: string) {
+    const appointment = this.appointments.get(appointmentId);
+    if (!appointment) {
+      throw new Error(`Appointment '${appointmentId}' not found`);
+    }
+
+    const clinicDetails = await clinicService.getClinicById(appointment.clinicId);
+    const doctor = await doctorService.getDoctorById(appointment.doctorId);
+
+    const chamberPrefix = appointment.chamberNumber.replace(/[^A-Za-z0-9]/g, '');
+    const tokenFormatted = `${chamberPrefix}-${appointment.tokenNumber.toString().padStart(3, '0')}`;
+
+    return {
+      success: true,
+      clinic: {
+        id: appointment.clinicId,
+        name: clinicDetails?.clinic.name || 'Bhopal CityCare Polyclinic',
+        tagline: 'Multi-Specialty Consultation & Diagnostic Centre',
+        address: clinicDetails?.clinic.address || 'Plot 42, MP Nagar Zone-II',
+        city: clinicDetails?.clinic.city || 'Bhopal',
+        state: clinicDetails?.clinic.state || 'Madhya Pradesh',
+        phone: clinicDetails?.clinic.contactPhone || '+91 755 492 8800',
+        upiVpa: clinicDetails?.clinic.upiVpa || 'bhopalcare@icici',
+      },
+      doctor: {
+        id: appointment.doctorId,
+        fullName: doctor?.fullName || 'Dr. Rajesh Sharma',
+        qualifications: doctor?.qualifications || ['MBBS', 'MD (Medicine)', 'DM (Cardiology)'],
+        specialties: doctor?.specialties || ['CARDIOLOGY'],
+        registrationNumber: doctor?.registrationNumber || 'MP-38492-NMC',
+        stateMedicalCouncil: doctor?.stateMedicalCouncil || 'Madhya Pradesh Medical Council',
+        chamberNumber: appointment.chamberNumber,
+      },
+      patient: {
+        id: appointment.patientId,
+        fullName: appointment.patientName,
+        ageYears: appointment.patientAge || 48,
+        gender: appointment.patientGender || 'MALE',
+        mobile: appointment.patientMobile,
+        chiefComplaints: appointment.symptoms || 'Routine Examination / General Consultation',
+      },
+      appointment: {
+        id: appointment.id,
+        tokenNumber: appointment.tokenNumber,
+        tokenFormatted,
+        receiptNumber: appointment.receiptNumber || `MB-REC-${appointment.tokenNumber}`,
+        appointmentDate: appointment.appointmentDate,
+        estimatedConsultTime: appointment.estimatedConsultTime || '10:30 AM',
+        bookingFeeRupees: appointment.bookingFeeRupees ?? 49,
+        bookingFeeStatus: 'PAID_ONLINE_UPI',
+        consultationFeeDue: appointment.consultationFeeDue ?? appointment.amountRupees ?? 600,
+        status: appointment.status,
+      },
+      vitalsTemplate: {
+        bp: appointment.vitals?.bloodPressure || '____ / ____ mmHg',
+        pulse: appointment.vitals?.heartRate ? `${appointment.vitals.heartRate} bpm` : '____ bpm',
+        spo2: appointment.vitals?.spo2Percent ? `${appointment.vitals.spo2Percent}%` : '____ %',
+        temp: appointment.vitals?.temperatureF ? `${appointment.vitals.temperatureF} °F` : '____ °F',
+        weight: appointment.vitals?.weightKg ? `${appointment.vitals.weightKg} kg` : '____ kg',
+        rbs: '____ mg/dL',
+      },
+      generatedAt: new Date().toISOString(),
+    };
   }
 
   /**

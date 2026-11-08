@@ -4,6 +4,7 @@ import { PaymentStatus, UserRole } from '@medibooking/types';
 import { requireAuth } from '../middleware/tenant-context';
 import { cashieringService } from '../services/cashiering-service';
 import { reconciliationService } from '../services/reconciliation-service';
+import { appointmentService } from '../services/appointment-service';
 
 const processPaymentSchema = z.object({
   appointmentId: z.string().min(1, 'Appointment ID is required'),
@@ -387,6 +388,189 @@ export async function cashieringRoutes(fastify: FastifyInstance) {
       failedCount: 0,
       reconciledTokens,
       serverMessage: `Successfully reconciled ${reconciledTokens.length} offline walk-in tokens.`,
+    });
+  });
+
+  /**
+   * Phase 61: Procedure Catalog for In-Chamber Add-ons
+   * GET /api/v1/cashiering/procedure-catalog
+   */
+  const procedureCatalog = [
+    { id: 'proc-ecg', name: '12-Lead ECG with Rhythm Strip', code: 'ECG', amountRupees: 200, doctorSplitPercent: 80, clinicSplitPercent: 20 },
+    { id: 'proc-dressing', name: 'Sterile Wound Dressing / Suture Care', code: 'DRESSING', amountRupees: 150, doctorSplitPercent: 70, clinicSplitPercent: 30 },
+    { id: 'proc-nebulization', name: 'Duolin/Budecort Nebulization (1 Cycle)', code: 'NEB', amountRupees: 100, doctorSplitPercent: 60, clinicSplitPercent: 40 },
+    { id: 'proc-rbs', name: 'Random Blood Sugar (Accu-Chek Glucometer)', code: 'RBS', amountRupees: 50, doctorSplitPercent: 50, clinicSplitPercent: 50 },
+    { id: 'proc-injection', name: 'IM / IV Antibiotic / Pain Injection', code: 'INJ', amountRupees: 40, doctorSplitPercent: 50, clinicSplitPercent: 50 },
+  ];
+
+  fastify.get('/cashiering/procedure-catalog', async (_req, reply) => {
+    return reply.status(200).send({
+      success: true,
+      procedures: procedureCatalog,
+    });
+  });
+
+  /**
+   * Phase 61: Offline Consultation Settlement with Custom Editing Charges
+   * POST /api/v1/cashiering/settle-consultation-charges
+   */
+  fastify.post('/cashiering/settle-consultation-charges', async (req, reply) => {
+    const settleSchema = z.object({
+      appointmentId: z.string().optional(),
+      tokenNumber: z.number().int().positive().optional(),
+      patientName: z.string().optional(),
+      chamberNumber: z.string().optional(),
+      doctorName: z.string().optional(),
+      consultationType: z.enum(['STANDARD', 'FOLLOW_UP', 'WAIVED']).default('STANDARD'),
+      consultationFeeRupees: z.number().min(0).default(600),
+      waiverReason: z.string().optional(),
+      selectedProcedureIds: z.array(z.string()).default([]),
+      customProcedures: z
+        .array(
+          z.object({
+            name: z.string(),
+            amountRupees: z.number().min(0),
+            doctorSplitPercent: z.number().min(0).max(100).default(80),
+          })
+        )
+        .optional(),
+      paymentMethod: z
+        .enum([PaymentStatus.PAID_CASH, PaymentStatus.PAID_UPI_QR, PaymentStatus.WAIVED_BY_DOCTOR])
+        .default(PaymentStatus.PAID_CASH),
+      notes: z.string().optional(),
+    });
+
+    const parsed = settleSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return reply.status(400).send({
+        error: 'Validation Error',
+        message: 'Invalid settlement payload',
+        details: parsed.error.format(),
+      });
+    }
+
+    const data = parsed.data;
+    let baseConsultationFee = data.consultationFeeRupees;
+    if (data.consultationType === 'WAIVED') {
+      baseConsultationFee = 0;
+    } else if (data.consultationType === 'FOLLOW_UP' && data.consultationFeeRupees === 600) {
+      baseConsultationFee = 300;
+    }
+
+    // Resolve selected catalog procedures
+    const itemizedProcedures: Array<{ name: string; amountRupees: number; doctorSplitPercent: number }> = [];
+    for (const procId of data.selectedProcedureIds) {
+      const match = procedureCatalog.find((p) => p.id === procId);
+      if (match) {
+        itemizedProcedures.push({
+          name: match.name,
+          amountRupees: match.amountRupees,
+          doctorSplitPercent: match.doctorSplitPercent,
+        });
+      }
+    }
+
+    // Add custom procedures if any
+    if (data.customProcedures && data.customProcedures.length > 0) {
+      for (const cp of data.customProcedures) {
+        itemizedProcedures.push({
+          name: cp.name,
+          amountRupees: cp.amountRupees,
+          doctorSplitPercent: cp.doctorSplitPercent,
+        });
+      }
+    }
+
+    const proceduresTotal = itemizedProcedures.reduce((sum, p) => sum + p.amountRupees, 0);
+    const grossTotalRupees = baseConsultationFee + proceduresTotal;
+
+    // Doctor & Polyclinic Split calculation
+    const doctorConsultationSplit = Math.round(baseConsultationFee * 0.8);
+    const clinicConsultationSplit = baseConsultationFee - doctorConsultationSplit;
+
+    let doctorProceduresSplit = 0;
+    let clinicProceduresSplit = 0;
+    for (const p of itemizedProcedures) {
+      const dShare = Math.round(p.amountRupees * (p.doctorSplitPercent / 100));
+      doctorProceduresSplit += dShare;
+      clinicProceduresSplit += p.amountRupees - dShare;
+    }
+
+    const totalDoctorShareRupees = doctorConsultationSplit + doctorProceduresSplit;
+    const totalClinicShareRupees = clinicConsultationSplit + clinicProceduresSplit;
+
+    // Update appointment if appointmentId provided
+    if (data.appointmentId) {
+      const appt = await appointmentService.getAppointmentById(data.appointmentId);
+      if (appt) {
+        appointmentService.updateAppointment(data.appointmentId, {
+          paymentStatus: data.paymentMethod,
+          amountRupees: grossTotalRupees,
+        });
+      }
+    }
+
+    const cleanDate = new Date().toISOString().split('T')[0]?.replace(/-/g, '') || '20261108';
+    const receiptNumber = `ESC-REC-${cleanDate}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const itemsSummary = [
+      {
+        item: `Doctor Consultation (${data.consultationType})`,
+        amount: baseConsultationFee,
+        rate: baseConsultationFee,
+        qty: 1,
+      },
+      ...itemizedProcedures.map((p) => ({
+        item: p.name,
+        amount: p.amountRupees,
+        rate: p.amountRupees,
+        qty: 1,
+      })),
+    ];
+
+    const escPosReceiptLines = [
+      '========================================',
+      '      BHOPAL CITYCARE POLYCLINIC',
+      '    Plot 42, MP Nagar Zone-II, Bhopal',
+      '        Phone: +91 755 492 8800',
+      '========================================',
+      `Receipt No : ${receiptNumber}`,
+      `Date & Time: ${new Date().toLocaleString('en-IN')}`,
+      `Patient    : ${data.patientName || 'Patient'}`,
+      `Token #    : ${data.tokenNumber || 1}  Chamber: ${data.chamberNumber || 'CH-1'}`,
+      `Doctor     : ${data.doctorName || 'Dr. Rajesh Sharma'}`,
+      '----------------------------------------',
+      'ITEM                       QTY    AMOUNT',
+      '----------------------------------------',
+      ...itemsSummary.map((item) => {
+        const title = item.item.length > 24 ? item.item.slice(0, 24) : item.item.padEnd(24);
+        return `${title}  1   ₹${item.amount.toString().padStart(5)}`;
+      }),
+      '----------------------------------------',
+      `TOTAL CHARGES COLLECTED:          ₹${grossTotalRupees}`,
+      `Payment Mode: ${data.paymentMethod}`,
+      '----------------------------------------',
+      `Doctor Share (80% / Proc):        ₹${totalDoctorShareRupees}`,
+      `Polyclinic Facility Share:        ₹${totalClinicShareRupees}`,
+      '========================================',
+      '  Thank You! Get Well Soon - MediBooking',
+      '========================================',
+    ];
+
+    return reply.status(200).send({
+      success: true,
+      receiptNumber,
+      consultationType: data.consultationType,
+      consultationFeeRupees: baseConsultationFee,
+      proceduresTotalRupees: proceduresTotal,
+      grossTotalRupees,
+      waiverReason: data.waiverReason,
+      paymentMethod: data.paymentMethod,
+      doctorShareRupees: totalDoctorShareRupees,
+      clinicShareRupees: totalClinicShareRupees,
+      itemizedBreakdown: itemsSummary,
+      escPosReceiptText: escPosReceiptLines.join('\n'),
+      settledAt: new Date().toISOString(),
     });
   });
 }

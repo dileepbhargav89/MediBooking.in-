@@ -38,6 +38,9 @@ interface ReceptionTokenItem {
   tokenNumber: number;
   patientName: string;
   patientMobile: string;
+  patientAge?: number;
+  patientGender?: 'MALE' | 'FEMALE' | 'OTHER';
+  symptoms?: string;
   chamberNumber: string;
   doctorName: string;
   status: string;
@@ -46,6 +49,8 @@ interface ReceptionTokenItem {
   estimatedTime?: string;
   source: string;
   feePaidRupees: number;
+  bookingFeeRupees?: number;
+  consultationFeeDue?: number;
 }
 
 const INITIAL_CHAMBERS: ChamberDeskInfo[] = [
@@ -93,8 +98,11 @@ const INITIAL_TOKENS: ReceptionTokenItem[] = [
   {
     id: 't-1',
     tokenNumber: 15,
-    patientName: 'P*** Patel',
+    patientName: 'Ramesh Kumar',
     patientMobile: '9826011111',
+    patientAge: 48,
+    patientGender: 'MALE',
+    symptoms: 'Routine checkup & chest discomfort',
     chamberNumber: 'CH-1',
     doctorName: 'Rajesh Sharma',
     status: 'WAITING',
@@ -102,12 +110,17 @@ const INITIAL_TOKENS: ReceptionTokenItem[] = [
     estimatedTime: '10 mins',
     source: 'WALK_IN',
     feePaidRupees: 600,
+    bookingFeeRupees: 49,
+    consultationFeeDue: 600,
   },
   {
     id: 't-2',
     tokenNumber: 16,
-    patientName: 'S*** Verma',
+    patientName: 'Suresh Verma',
     patientMobile: '9826022222',
+    patientAge: 35,
+    patientGender: 'MALE',
+    symptoms: 'High blood pressure monitoring',
     chamberNumber: 'CH-1',
     doctorName: 'Rajesh Sharma',
     status: 'WAITING',
@@ -116,12 +129,17 @@ const INITIAL_TOKENS: ReceptionTokenItem[] = [
     estimatedTime: '20 mins',
     source: 'ONLINE_PORTAL',
     feePaidRupees: 600,
+    bookingFeeRupees: 49,
+    consultationFeeDue: 600,
   },
   {
     id: 't-3',
     tokenNumber: 10,
-    patientName: 'A*** Sen',
+    patientName: 'Anita Sen',
     patientMobile: '9826033333',
+    patientAge: 29,
+    patientGender: 'FEMALE',
+    symptoms: 'Skin rash & allergy',
     chamberNumber: 'CH-2',
     doctorName: 'Priya Patel',
     status: 'WAITING',
@@ -129,12 +147,17 @@ const INITIAL_TOKENS: ReceptionTokenItem[] = [
     estimatedTime: '15 mins',
     source: 'WALK_IN',
     feePaidRupees: 500,
+    bookingFeeRupees: 49,
+    consultationFeeDue: 500,
   },
   {
     id: 't-4',
     tokenNumber: 23,
-    patientName: 'Baby K***',
+    patientName: 'Baby Kavita',
     patientMobile: '9826044444',
+    patientAge: 4,
+    patientGender: 'FEMALE',
+    symptoms: 'Fever & viral cough',
     chamberNumber: 'CH-3',
     doctorName: 'Amit Verma',
     status: 'WAITING',
@@ -142,12 +165,17 @@ const INITIAL_TOKENS: ReceptionTokenItem[] = [
     estimatedTime: '25 mins',
     source: 'WALK_IN',
     feePaidRupees: 0,
+    bookingFeeRupees: 0,
+    consultationFeeDue: 600,
   },
   {
     id: 't-wa-1',
     tokenNumber: 18,
     patientName: 'Sunita Mehra',
     patientMobile: '9826055555',
+    patientAge: 52,
+    patientGender: 'FEMALE',
+    symptoms: 'Diabetes & hypertension review',
     chamberNumber: 'CH-1',
     doctorName: 'Rajesh Sharma',
     status: 'WAITING',
@@ -155,6 +183,8 @@ const INITIAL_TOKENS: ReceptionTokenItem[] = [
     estimatedTime: '18 mins',
     source: 'WHATSAPP_1TAP',
     feePaidRupees: 600,
+    bookingFeeRupees: 49,
+    consultationFeeDue: 600,
   },
 ];
 
@@ -180,6 +210,21 @@ export default function ReceptionDeskDashboardPage() {
   // Phase 59: Guided Tour & Hardware Diagnostics
   const [isDiagnosticModalOpen, setIsDiagnosticModalOpen] = useState(false);
   const [isTourActive, setIsTourActive] = useState(false);
+
+  // Phase 61: Prescription Sheet & Offline Settlement State
+  const [selectedRxToken, setSelectedRxToken] = useState<ReceptionTokenItem | null>(null);
+  const [isRxModalOpen, setIsRxModalOpen] = useState(false);
+  const [rxPrintNotice, setRxPrintNotice] = useState<string | null>(null);
+
+  const [selectedSettleToken, setSelectedSettleToken] = useState<ReceptionTokenItem | null>(null);
+  const [isSettleModalOpen, setIsSettleModalOpen] = useState(false);
+  const [consultationType, setConsultationType] = useState<'STANDARD' | 'FOLLOW_UP' | 'WAIVED'>('STANDARD');
+  const [consultationFeeRupees, setConsultationFeeRupees] = useState<number>(600);
+  const [waiverReason, setWaiverReason] = useState<string>('');
+  const [selectedProcedures, setSelectedProcedures] = useState<string[]>([]);
+  const [settlePaymentMode, setSettlePaymentMode] = useState<'PAID_CASH' | 'PAID_UPI_QR' | 'WAIVED_BY_DOCTOR'>('PAID_CASH');
+  const [settledSlipPreview, setSettledSlipPreview] = useState<string | null>(null);
+  const [isSettlementComplete, setIsSettlementComplete] = useState(false);
 
   // Intake Form State
   const [mobile, setMobile] = useState('');
@@ -253,6 +298,112 @@ export default function ReceptionDeskDashboardPage() {
     } finally {
       setIsSyncing(false);
     }
+  };
+
+  const PROCEDURE_OPTIONS = [
+    { id: 'proc-ecg', name: '12-Lead ECG with Rhythm Strip', amountRupees: 200, doctorSplit: 160, clinicSplit: 40 },
+    { id: 'proc-dressing', name: 'Sterile Wound Dressing / Suture Care', amountRupees: 150, doctorSplit: 105, clinicSplit: 45 },
+    { id: 'proc-neb', name: 'Duolin/Budecort Nebulization (1 Cycle)', amountRupees: 100, doctorSplit: 60, clinicSplit: 40 },
+    { id: 'proc-rbs', name: 'Random Blood Sugar (Accu-Chek)', amountRupees: 50, doctorSplit: 25, clinicSplit: 25 },
+    { id: 'proc-inj', name: 'IM / IV Antibiotic / Pain Injection', amountRupees: 40, doctorSplit: 20, clinicSplit: 20 },
+  ];
+
+  const calculateGrossCharges = () => {
+    const fee = consultationType === 'WAIVED' ? 0 : consultationFeeRupees;
+    const procTotal = selectedProcedures.reduce((sum, id) => {
+      const match = PROCEDURE_OPTIONS.find((p) => p.id === id);
+      return sum + (match?.amountRupees || 0);
+    }, 0);
+    return fee + procTotal;
+  };
+
+  const calculateDoctorSplit = () => {
+    const fee = consultationType === 'WAIVED' ? 0 : consultationFeeRupees;
+    const docConsult = Math.round(fee * 0.8);
+    const docProc = selectedProcedures.reduce((sum, id) => {
+      const match = PROCEDURE_OPTIONS.find((p) => p.id === id);
+      return sum + (match?.doctorSplit || 0);
+    }, 0);
+    return docConsult + docProc;
+  };
+
+  const calculateClinicSplit = () => {
+    return calculateGrossCharges() - calculateDoctorSplit();
+  };
+
+  const handleOpenRxModal = (token: ReceptionTokenItem) => {
+    setSelectedRxToken(token);
+    setIsRxModalOpen(true);
+    setRxPrintNotice(null);
+  };
+
+  const handleOpenSettleModal = (token: ReceptionTokenItem) => {
+    setSelectedSettleToken(token);
+    setConsultationType('STANDARD');
+    setConsultationFeeRupees(token.consultationFeeDue || 600);
+    setWaiverReason('');
+    setSelectedProcedures([]);
+    setSettlePaymentMode(token.paymentStatus === 'PAID_UPI_QR' ? 'PAID_UPI_QR' : 'PAID_CASH');
+    setSettledSlipPreview(null);
+    setIsSettlementComplete(false);
+    setIsSettleModalOpen(true);
+  };
+
+  const handleConfirmSettlement = () => {
+    if (!selectedSettleToken) return;
+
+    const gross = calculateGrossCharges();
+    const docSplit = calculateDoctorSplit();
+    const clinicSplit = calculateClinicSplit();
+    const cleanDate = new Date().toISOString().split('T')[0]?.replace(/-/g, '') || '20261108';
+    const receiptNo = `ESC-REC-${cleanDate}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const selectedProcDetails = selectedProcedures.map((id) =>
+      PROCEDURE_OPTIONS.find((p) => p.id === id)!
+    );
+
+    const slipLines = [
+      '========================================',
+      '      BHOPAL CITYCARE POLYCLINIC',
+      '    Plot 42, MP Nagar Zone-II, Bhopal',
+      '        Phone: +91 755 492 8800',
+      '========================================',
+      `Receipt No : ${receiptNo}`,
+      `Date & Time: ${new Date().toLocaleString('en-IN')}`,
+      `Patient    : ${selectedSettleToken.patientName}`,
+      `Token #    : ${selectedSettleToken.tokenNumber}  Chamber: ${selectedSettleToken.chamberNumber}`,
+      `Doctor     : Dr. ${selectedSettleToken.doctorName}`,
+      '----------------------------------------',
+      'ITEM                       QTY    AMOUNT',
+      '----------------------------------------',
+      `Doctor Consultation (${consultationType}) 1  ₹${consultationType === 'WAIVED' ? 0 : consultationFeeRupees}`,
+      ...selectedProcDetails.map((p) => `${p.name.slice(0, 24).padEnd(24)}  1   ₹${p.amountRupees}`),
+      '----------------------------------------',
+      `TOTAL CHARGES COLLECTED:          ₹${gross}`,
+      `Payment Mode: ${settlePaymentMode}`,
+      '----------------------------------------',
+      `Doctor Share (80% / Proc):        ₹${docSplit}`,
+      `Polyclinic Facility Share:        ₹${clinicSplit}`,
+      '========================================',
+      '  Thank You! Get Well Soon - MediBooking',
+      '========================================',
+    ];
+
+    setSettledSlipPreview(slipLines.join('\n'));
+    setIsSettlementComplete(true);
+
+    // Update tokens list
+    setTokens((prev) =>
+      prev.map((t) =>
+        t.id === selectedSettleToken.id
+          ? {
+              ...t,
+              paymentStatus: settlePaymentMode,
+              feePaidRupees: (t.bookingFeeRupees || 0) + gross,
+            }
+          : t
+      )
+    );
   };
 
 
@@ -610,28 +761,73 @@ export default function ReceptionDeskDashboardPage() {
         <div className="space-y-3">
           {filteredTokens.length > 0 ? (
             filteredTokens.map((t) => (
-              <TokenCard
-                key={t.id}
-                tokenNumber={t.tokenNumber}
-                patientName={t.patientName}
-                status={t.status}
-                chamberNumber={t.chamberNumber}
-                doctorName={t.doctorName}
-                isUrgent={t.isUrgent}
-                triageUrgency={t.isUrgent ? 'URGENT' : 'NORMAL'}
-                estimatedTime={t.estimatedTime}
-                source={t.source}
-                paymentStatus={t.paymentStatus}
-                onAction={(action) => {
-                  if (action === 'CALL') {
-                    setTokens((prev) =>
-                      prev.map((item) =>
-                        item.id === t.id ? { ...item, status: 'IN_CONSULTATION' } : item
-                      )
-                    );
-                  }
-                }}
-              />
+              <div key={t.id} className="relative group">
+                <TokenCard
+                  tokenNumber={t.tokenNumber}
+                  patientName={`${t.patientName}${t.patientAge ? ` (${t.patientAge}${t.patientGender === 'FEMALE' ? 'F' : 'M'})` : ''}`}
+                  status={t.status}
+                  chamberNumber={t.chamberNumber}
+                  doctorName={t.doctorName}
+                  isUrgent={t.isUrgent}
+                  triageUrgency={t.isUrgent ? 'URGENT' : 'NORMAL'}
+                  estimatedTime={t.estimatedTime}
+                  source={t.source}
+                  paymentStatus={t.paymentStatus}
+                  onAction={(action) => {
+                    if (action === 'CALL') {
+                      setTokens((prev) =>
+                        prev.map((item) =>
+                          item.id === t.id ? { ...item, status: 'IN_CONSULTATION' } : item
+                        )
+                      );
+                    }
+                  }}
+                />
+
+                {/* Phase 61: Pre-Consultation Sheet & Custom Counter Charges Bar */}
+                <div className="mt-1.5 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <div className="flex items-center gap-2">
+                    {t.bookingFeeRupees && t.bookingFeeRupees > 0 ? (
+                      <span
+                        data-testid="badge-booking-paid"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-emerald-100 text-emerald-800 border border-emerald-300"
+                      >
+                        ✓ ₹{t.bookingFeeRupees} Booking Paid
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-mono text-[11px] bg-slate-100 text-slate-600">
+                        Counter Token
+                      </span>
+                    )}
+
+                    {t.symptoms && (
+                      <span className="text-slate-600 truncate max-w-xs text-[11px]">
+                        <span className="font-semibold text-slate-700">Symptoms:</span> {t.symptoms}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      data-testid="btn-print-rx-sheet"
+                      onClick={() => handleOpenRxModal(t)}
+                      className="px-2.5 py-1 rounded bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 font-bold text-xs shadow-2xs flex items-center gap-1 transition-colors"
+                    >
+                      🖨️ Prescription Sheet
+                    </button>
+
+                    <button
+                      type="button"
+                      data-testid="btn-settle-custom-charges"
+                      onClick={() => handleOpenSettleModal(t)}
+                      className="px-2.5 py-1 rounded bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-xs shadow-2xs flex items-center gap-1 transition-colors"
+                    >
+                      ⚡ Settle Custom Charges
+                    </button>
+                  </div>
+                </div>
+              </div>
             ))
           ) : (
             <div className="bg-white border border-slate-200 rounded-xl p-8 text-center text-slate-400 text-xs">
@@ -915,6 +1111,424 @@ export default function ReceptionDeskDashboardPage() {
         onClose={() => setIsDiagnosticModalOpen(false)}
         clinicName="Bhopal City Care Polyclinic"
       />
+
+      {/* Phase 61: Pre-Consultation Prescription Sheet Modal */}
+      {selectedRxToken && (
+        <Modal
+          isOpen={isRxModalOpen}
+          onClose={() => setIsRxModalOpen(false)}
+          maxWidth="lg"
+          title="📋 Pre-Consultation Prescription Sheet"
+          subtitle="Auto-formatted for A4 / 80mm Print • Generated prior to Chamber Entry"
+        >
+          <div data-testid="modal-prescription-sheet" className="space-y-4">
+            {/* Printable Prescription Body */}
+            <div className="p-6 bg-white border border-slate-300 rounded-xl shadow-inner text-slate-800 space-y-4 font-sans">
+              {/* Polyclinic Header */}
+              <div className="border-b-2 border-slate-800 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900 tracking-tight">
+                    BHOPAL CITYCARE POLYCLINIC
+                  </h2>
+                  <p className="text-xs text-blue-700 font-semibold">
+                    Multi-Specialty Consultation & Diagnostic Centre
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    Plot 42, MP Nagar Zone-II, Bhopal • Ph: +91 755 492 8800 • UPI: bhopalcare@icici
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="font-bold text-sm text-slate-900">Dr. {selectedRxToken.doctorName}</div>
+                  <div className="text-[11px] text-slate-600 font-medium">MBBS, MD, DM (Cardiology)</div>
+                  <div className="text-[10px] font-mono text-slate-500">Reg: MP-38492-NMC</div>
+                  <span className="inline-block mt-1 px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold text-xs font-mono">
+                    {selectedRxToken.chamberNumber}
+                  </span>
+                </div>
+              </div>
+
+              {/* Patient Demographics & Booking Fee Strip */}
+              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div>
+                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Token Number</span>
+                  <span className="font-mono font-black text-base text-slate-900">
+                    #{selectedRxToken.tokenNumber}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Patient Name</span>
+                  <span className="font-bold text-slate-900">{selectedRxToken.patientName}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Age / Gender</span>
+                  <span className="font-bold text-slate-900">
+                    {selectedRxToken.patientAge || 48} Yrs / {selectedRxToken.patientGender || 'MALE'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Date</span>
+                  <span className="font-semibold text-slate-900 font-mono">
+                    {new Date().toLocaleDateString('en-IN')}
+                  </span>
+                </div>
+
+                <div className="sm:col-span-2 pt-1 border-t border-slate-200">
+                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Chief Complaints</span>
+                  <span className="text-slate-700 font-medium">
+                    {selectedRxToken.symptoms || 'Routine Examination / General Consultation'}
+                  </span>
+                </div>
+                <div className="sm:col-span-2 pt-1 border-t border-slate-200">
+                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Fees Status</span>
+                  <span className="text-emerald-700 font-bold">
+                    ✓ ₹{selectedRxToken.bookingFeeRupees ?? 49} Booking Fee Paid Online (UPI)
+                  </span>
+                  <span className="text-slate-500 block text-[11px]">
+                    Consultation Fee Due at Desk: ₹{selectedRxToken.consultationFeeDue ?? 600}
+                  </span>
+                </div>
+              </div>
+
+              {/* Compounder Pre-Consultation Vitals Grid */}
+              <div className="border border-slate-300 rounded-lg p-3 bg-white">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-2">
+                  Compounder Pre-Consultation Vitals Recording
+                </span>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center text-xs">
+                  <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
+                    <span className="text-[10px] text-slate-400 block">BP (mmHg)</span>
+                    <span className="font-mono font-bold text-slate-700">____ / ____</span>
+                  </div>
+                  <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
+                    <span className="text-[10px] text-slate-400 block">Pulse (bpm)</span>
+                    <span className="font-mono font-bold text-slate-700">____</span>
+                  </div>
+                  <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
+                    <span className="text-[10px] text-slate-400 block">SpO2 (%)</span>
+                    <span className="font-mono font-bold text-slate-700">____ %</span>
+                  </div>
+                  <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
+                    <span className="text-[10px] text-slate-400 block">Temp (°F)</span>
+                    <span className="font-mono font-bold text-slate-700">____ °F</span>
+                  </div>
+                  <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
+                    <span className="text-[10px] text-slate-400 block">Weight (kg)</span>
+                    <span className="font-mono font-bold text-slate-700">____ kg</span>
+                  </div>
+                  <div className="p-2 border border-dashed border-slate-300 rounded bg-slate-50">
+                    <span className="text-[10px] text-slate-400 block">RBS (mg/dL)</span>
+                    <span className="font-mono font-bold text-slate-700">____</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Rx Blank Section for Doctor Handwriting */}
+              <div className="border border-slate-200 rounded-lg p-4 min-h-[160px] bg-white relative">
+                <span className="text-3xl font-serif font-black text-blue-600/30 select-none">Rx</span>
+                <div className="mt-2 space-y-4">
+                  <div className="border-b border-dashed border-slate-200 h-6" />
+                  <div className="border-b border-dashed border-slate-200 h-6" />
+                  <div className="border-b border-dashed border-slate-200 h-6" />
+                  <div className="border-b border-dashed border-slate-200 h-6" />
+                </div>
+              </div>
+
+              {/* Footer Signature */}
+              <div className="pt-4 flex justify-between items-end text-xs text-slate-500">
+                <span className="text-[10px]">MediBooking.in Pre-Consultation EHR Slip • Chamber {selectedRxToken.chamberNumber}</span>
+                <div className="text-center">
+                  <div className="w-48 border-b border-slate-400 mb-1" />
+                  <span className="font-semibold text-slate-700">Doctor Signature & Stamp</span>
+                </div>
+              </div>
+            </div>
+
+            {rxPrintNotice && (
+              <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-semibold text-center animate-fadeIn">
+                {rxPrintNotice}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                data-testid="btn-close-rx-modal"
+                onClick={() => setIsRxModalOpen(false)}
+              >
+                Close
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                data-testid="btn-do-print-rx"
+                onClick={() => {
+                  setRxPrintNotice('✓ Prescription Sheet sent to Reception Printer (A4 / 80mm).');
+                  if (typeof window !== 'undefined') window.print();
+                }}
+              >
+                🖨️ Print Prescription Sheet (A4 / 80mm)
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Phase 61: Offline Consultation Settlement Modal */}
+      {selectedSettleToken && (
+        <Modal
+          isOpen={isSettleModalOpen}
+          onClose={() => setIsSettleModalOpen(false)}
+          maxWidth="lg"
+          title="⚡ Settle Consultation & Custom Charges"
+          subtitle="Counter Cashiering • In-Chamber Procedures & Split Accounting"
+        >
+          <div data-testid="modal-settle-charges" className="space-y-4">
+            {!isSettlementComplete ? (
+              <div className="space-y-4">
+                {/* Patient Summary Header */}
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <div>
+                    <span className="font-mono font-bold text-blue-700">
+                      Token #{selectedSettleToken.tokenNumber}
+                    </span>{' '}
+                    • <span className="font-bold text-slate-900">{selectedSettleToken.patientName}</span>
+                  </div>
+                  <div className="text-slate-600">
+                    Chamber: <span className="font-mono font-bold">{selectedSettleToken.chamberNumber}</span> • Dr. {selectedSettleToken.doctorName}
+                  </div>
+                </div>
+
+                {/* Consultation Type Selector */}
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Consultation Type
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConsultationType('STANDARD');
+                        setConsultationFeeRupees(600);
+                      }}
+                      className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all text-center ${
+                        consultationType === 'STANDARD'
+                          ? 'border-blue-600 bg-blue-50 text-blue-800 ring-2 ring-blue-600/20'
+                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      Standard (₹600)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConsultationType('FOLLOW_UP');
+                        setConsultationFeeRupees(300);
+                      }}
+                      className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all text-center ${
+                        consultationType === 'FOLLOW_UP'
+                          ? 'border-blue-600 bg-blue-50 text-blue-800 ring-2 ring-blue-600/20'
+                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      Follow-Up (₹300)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConsultationType('WAIVED');
+                        setConsultationFeeRupees(0);
+                      }}
+                      className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all text-center ${
+                        consultationType === 'WAIVED'
+                          ? 'border-amber-600 bg-amber-50 text-amber-800 ring-2 ring-amber-600/20'
+                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      Doctor Waiver (₹0)
+                    </button>
+                  </div>
+                </div>
+
+                {/* Consultation Fee Custom Editing */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                      Consultation Fee (₹)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      data-testid="input-consultation-fee"
+                      value={consultationFeeRupees}
+                      disabled={consultationType === 'WAIVED'}
+                      onChange={(e) => setConsultationFeeRupees(Number(e.target.value) || 0)}
+                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100"
+                    />
+                  </div>
+
+                  {consultationType === 'WAIVED' && (
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                        Doctor Waiver Reason
+                      </label>
+                      <input
+                        type="text"
+                        data-testid="input-waiver-reason"
+                        placeholder="e.g. Doctor courtesy, review report only"
+                        value={waiverReason}
+                        onChange={(e) => setWaiverReason(e.target.value)}
+                        className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* In-Chamber Procedures Checklist */}
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                    In-Chamber Procedures & Diagnostics
+                  </label>
+                  <div className="space-y-2 border border-slate-200 rounded-xl p-3 bg-slate-50/50">
+                    {PROCEDURE_OPTIONS.map((proc) => {
+                      const isChecked = selectedProcedures.includes(proc.id);
+                      return (
+                        <label
+                          key={proc.id}
+                          className={`flex items-center justify-between p-2 rounded-lg border cursor-pointer transition-colors text-xs ${
+                            isChecked
+                              ? 'bg-blue-50 border-blue-300 text-blue-900 font-semibold'
+                              : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              data-testid={`chk-${proc.id}`}
+                              checked={isChecked}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedProcedures([...selectedProcedures, proc.id]);
+                                } else {
+                                  setSelectedProcedures(selectedProcedures.filter((id) => id !== proc.id));
+                                }
+                              }}
+                              className="rounded text-blue-600 focus:ring-blue-500"
+                            />
+                            <span>{proc.name}</span>
+                          </div>
+                          <span className="font-mono font-bold">+₹{proc.amountRupees}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Settlement Calculation & Ledger Split Preview */}
+                <div className="p-4 rounded-xl bg-slate-900 text-white space-y-2 text-xs">
+                  <div className="flex justify-between items-center text-sm font-bold">
+                    <span>Gross Counter Charges:</span>
+                    <span data-testid="settle-gross-total" className="text-emerald-400 font-mono text-base">
+                      ₹{calculateGrossCharges()}
+                    </span>
+                  </div>
+                  <div className="pt-2 border-t border-slate-800 grid grid-cols-2 gap-2 text-[11px] text-slate-300">
+                    <div>
+                      <span>Doctor Share: </span>
+                      <span className="font-mono font-bold text-white">₹{calculateDoctorSplit()}</span>
+                    </div>
+                    <div className="text-right">
+                      <span>Polyclinic Share: </span>
+                      <span className="font-mono font-bold text-white">₹{calculateClinicSplit()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payment Mode Selector */}
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Payment Collection Method
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSettlePaymentMode('PAID_CASH')}
+                      className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${
+                        settlePaymentMode === 'PAID_CASH'
+                          ? 'border-emerald-500 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-400/20'
+                          : 'border-slate-200 bg-white text-slate-600'
+                      }`}
+                    >
+                      💵 Cash
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSettlePaymentMode('PAID_UPI_QR')}
+                      className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${
+                        settlePaymentMode === 'PAID_UPI_QR'
+                          ? 'border-blue-500 bg-blue-50 text-blue-800 ring-2 ring-blue-400/20'
+                          : 'border-slate-200 bg-white text-slate-600'
+                      }`}
+                    >
+                      📱 BharatQR UPI
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button variant="outline" size="sm" onClick={() => setIsSettleModalOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="md"
+                    data-testid="btn-confirm-settlement"
+                    onClick={handleConfirmSettlement}
+                  >
+                    Confirm Settlement & Print Itemized 80mm Slip
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              /* Settlement Confirmed & 80mm Slip Display */
+              <div className="space-y-4">
+                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-xs font-bold text-center">
+                  ✓ Consultation & Custom Charges Settled Successfully!
+                </div>
+
+                <pre
+                  data-testid="settled-thermal-slip"
+                  className="p-4 bg-slate-900 text-emerald-400 font-mono text-xs rounded-xl overflow-x-auto whitespace-pre leading-relaxed shadow-inner"
+                >
+                  {settledSlipPreview}
+                </pre>
+
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (typeof window !== 'undefined') window.print();
+                    }}
+                  >
+                    🖨️ Print Slip
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      setIsSettleModalOpen(false);
+                      setIsSettlementComplete(false);
+                    }}
+                  >
+                    Done
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
 
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500">

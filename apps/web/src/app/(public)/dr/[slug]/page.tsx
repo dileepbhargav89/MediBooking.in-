@@ -75,6 +75,8 @@ export default function DoctorPublicProfilePage({
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [patientName, setPatientName] = useState('');
   const [patientMobile, setPatientMobile] = useState('');
+  const [patientAge, setPatientAge] = useState<string>('48');
+  const [patientGender, setPatientGender] = useState<'MALE' | 'FEMALE' | 'OTHER'>('MALE');
   const [symptoms, setSymptoms] = useState('');
   const [bookingConfirmed, setBookingConfirmed] = useState<boolean>(false);
   const [allocatedToken, setAllocatedToken] = useState<number>(14);
@@ -394,54 +396,118 @@ export default function DoctorPublicProfilePage({
               </div>
             )}
 
-            <Input
-              label="Patient Full Name"
-              placeholder="e.g. Ramesh Kumar"
-              value={patientName}
-              onChange={(e) => setPatientName(e.target.value)}
-              required
-            />
+            <div className="space-y-3">
+              <Input
+                label="Patient Full Name"
+                placeholder="e.g. Ramesh Kumar"
+                value={patientName}
+                data-testid="input-patient-name"
+                onChange={(e) => setPatientName(e.target.value)}
+                required
+              />
 
-            <Input
-              label="10-Digit WhatsApp Mobile Number"
-              prefixText="+91"
-              placeholder="98260 12345"
-              value={patientMobile}
-              onChange={(e) =>
-                setPatientMobile(e.target.value.replace(/\D/g, '').slice(0, 10))
-              }
-              helperText="You will receive token updates and live delay notifications on WhatsApp"
-              required
-            />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                    Age (Years)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="120"
+                    value={patientAge}
+                    data-testid="input-patient-age"
+                    onChange={(e) => setPatientAge(e.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                    required
+                  />
+                </div>
 
-            <Input
-              label="Reason for Visit / Symptoms (Optional)"
-              placeholder="e.g. Routine blood pressure review, chest heaviness"
-              value={symptoms}
-              onChange={(e) => setSymptoms(e.target.value)}
-            />
-
-            {/* Zero Online Charge Disclaimer */}
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-              <div className="flex items-center justify-between font-bold text-slate-800">
-                <span>Direct Clinic Cashiering (Flow B)</span>
-                <span className="text-emerald-700">₹0 Payable Now</span>
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                    Gender
+                  </label>
+                  <select
+                    value={patientGender}
+                    data-testid="select-patient-gender"
+                    onChange={(e) => setPatientGender(e.target.value as any)}
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  >
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </div>
               </div>
-              <p className="text-slate-500 text-[11px]">
-                Doctor consultation fee of ₹{selectedVenue.feeRupees} is settled directly at the{' '}
-                {selectedVenue.chamberNumber} reception desk via Cash or UPI QR.
+
+              <Input
+                label="10-Digit WhatsApp Mobile Number"
+                prefixText="+91"
+                placeholder="98260 12345"
+                value={patientMobile}
+                data-testid="input-patient-mobile"
+                onChange={(e) =>
+                  setPatientMobile(e.target.value.replace(/\D/g, '').slice(0, 10))
+                }
+                helperText="Pre-printed prescription slip & live token updates sent to WhatsApp"
+                required
+              />
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                  Reason for Visit / Symptoms (Optional)
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Routine blood pressure review, chest heaviness, follow-up"
+                  value={symptoms}
+                  data-testid="input-patient-symptoms"
+                  onChange={(e) => setSymptoms(e.target.value)}
+                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Nominal Booking Fee vs Counter Fee Breakdown */}
+            <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200 text-xs space-y-2">
+              <div className="flex items-center justify-between font-bold text-slate-900">
+                <span className="flex items-center gap-1.5">
+                  <span className="text-blue-600">📱</span>
+                  Online Token Booking Fee:
+                </span>
+                <span className="font-mono text-blue-700 text-sm">₹49 (Payable Now)</span>
+              </div>
+              <div className="flex items-center justify-between text-slate-600 text-[11px] pt-1 border-t border-blue-100">
+                <span>Doctor Consultation Fee:</span>
+                <span className="font-mono font-semibold text-slate-900">₹{selectedVenue.feeRupees} (Pay at Clinic Desk)</span>
+              </div>
+              <p className="text-[11px] text-slate-500 leading-tight">
+                Collecting only the nominal booking fee (₹49) guarantees your confirmed token and pre-prints your prescription sheet at the reception before you arrive. Doctor fees and procedures are settled directly at the counter.
               </p>
             </div>
 
-            <Button
-              type="submit"
-              variant="primary"
-              fullWidth
-              size="lg"
-              isLoading={isLoading}
-            >
-              Confirm Appointment & Reserve Token
-            </Button>
+            {/* Instant UPI QR Simulation Box */}
+            <div className="p-3 bg-slate-900 text-white rounded-xl flex items-center justify-between gap-3 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-white p-1 flex items-center justify-center shrink-0">
+                  <span className="text-xl">📲</span>
+                </div>
+                <div>
+                  <div className="font-mono text-xs font-bold text-emerald-400">BHARAT UPI QR: bhopalcare@icici</div>
+                  <div className="text-[11px] text-slate-300">Fast 1-Click Secure Payment • ₹49.00</div>
+                </div>
+              </div>
+              <Button
+                type="submit"
+                variant="primary"
+                size="sm"
+                data-testid="btn-pay-booking-fee"
+                isLoading={isLoading}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shrink-0"
+              >
+                Pay ₹49 & Confirm Appointment
+              </Button>
+            </div>
           </form>
         ) : (
           /* Booking Confirmed State */
@@ -454,18 +520,31 @@ export default function DoctorPublicProfilePage({
               <span className="text-xs uppercase font-bold tracking-wider text-slate-400">
                 Your Chamber Token Number
               </span>
-              <div className="text-5xl font-black font-mono tabular-nums text-slate-900 mt-1">
+              <div
+                data-testid="confirmed-token-number"
+                className="text-5xl font-black font-mono tabular-nums text-slate-900 mt-1"
+              >
                 #{allocatedToken}
               </div>
-              <p className="text-xs text-slate-500 mt-1 font-medium">
+              <div className="mt-2">
+                <span
+                  data-testid="badge-booking-fee-paid"
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300"
+                >
+                  ✓ ₹49 Booking Fee Paid Online
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-2 font-medium">
                 Please present this token at {selectedVenue.chamberNumber} reception desk
               </p>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-left text-xs space-y-2">
               <div className="flex justify-between">
-                <span className="text-slate-500">Patient Name:</span>
-                <span className="font-bold text-slate-900">{patientName}</span>
+                <span className="text-slate-500">Patient:</span>
+                <span className="font-bold text-slate-900">
+                  {patientName} ({patientAge} / {patientGender === 'MALE' ? 'M' : patientGender === 'FEMALE' ? 'F' : 'O'})
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Doctor:</span>
@@ -485,10 +564,21 @@ export default function DoctorPublicProfilePage({
                   {selectedSlot?.time}
                 </span>
               </div>
-              <div className="flex justify-between pt-1 border-t border-slate-200 font-bold">
-                <span className="text-slate-700">Counter Fee:</span>
+              <div className="flex justify-between pt-1 border-t border-slate-200">
+                <span className="text-emerald-700 font-semibold">Online Booking Fee Paid:</span>
+                <span className="font-mono font-bold text-emerald-700">₹49 (UPI)</span>
+              </div>
+              <div className="flex justify-between font-bold">
+                <span className="text-slate-700">Doctor Consultation Fee Due at Desk:</span>
                 <span className="font-mono text-slate-900">₹{selectedVenue.feeRupees}</span>
               </div>
+            </div>
+
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-left text-xs text-amber-900">
+              <p className="font-bold mb-0.5">📋 Pre-Consultation Prescription Sheet Ready</p>
+              <p className="text-[11px] text-amber-800">
+                Your pre-consultation prescription sheet is being printed at the counter. The compounder will record your blood pressure, pulse, and vitals before you enter Chamber {selectedVenue.chamberNumber}.
+              </p>
             </div>
 
             <div className="flex flex-col gap-2.5">

@@ -16,7 +16,10 @@ const createBookingSchema = z.object({
   patientMobile: z.string().regex(/^[6-9]\d{9}$/, 'Must be a valid 10-digit Indian mobile number'),
   patientAge: z.number().int().min(0).max(120).optional(),
   patientGender: z.enum(['MALE', 'FEMALE', 'OTHER', 'UNSPECIFIED']).optional(),
+  symptoms: z.string().optional(),
   notes: z.string().optional(),
+  bookingFeeRupees: z.number().int().min(0).optional(),
+  bookingPaymentMethod: z.string().optional(),
   idempotencyKey: z.string().optional(),
 });
 
@@ -68,9 +71,14 @@ export async function bookingRoutes(fastify: FastifyInstance) {
           doctorName: doctor?.fullName || 'Doctor',
           appointmentDate: appointment.appointmentDate,
           estimatedTime: appointment.estimatedConsultTime,
+          bookingFeePaid: appointment.bookingFeeRupees ?? 49,
+          consultationFeeDue: appointment.consultationFeeDue ?? appointment.amountRupees ?? 600,
           consultationFee: appointment.amountRupees,
           patientName: appointment.patientName,
           patientMobile: appointment.patientMobile,
+          patientAge: appointment.patientAge,
+          patientGender: appointment.patientGender,
+          symptoms: appointment.symptoms,
         },
       });
     } catch (err: any) {
@@ -129,11 +137,33 @@ export async function bookingRoutes(fastify: FastifyInstance) {
         doctorName: doctor?.fullName || 'Doctor',
         appointmentDate: appointment.appointmentDate,
         estimatedTime: appointment.estimatedConsultTime,
+        bookingFeePaid: appointment.bookingFeeRupees ?? 49,
+        consultationFeeDue: appointment.consultationFeeDue ?? appointment.amountRupees ?? 600,
         consultationFee: appointment.amountRupees,
         patientName: appointment.patientName,
         patientMobile: appointment.patientMobile,
+        patientAge: appointment.patientAge,
+        patientGender: appointment.patientGender,
+        symptoms: appointment.symptoms,
       },
     };
+  });
+
+  /**
+   * Phase 61: Retrieve Pre-Consultation Prescription Sheet
+   * GET /api/v1/public/bookings/:bookingId/prescription-sheet
+   */
+  fastify.get('/public/bookings/:bookingId/prescription-sheet', async (req, reply) => {
+    const { bookingId } = req.params as { bookingId: string };
+    try {
+      const rxSheet = await appointmentService.getPrescriptionSheet(bookingId);
+      return reply.status(200).send(rxSheet);
+    } catch (err: any) {
+      return reply.status(404).send({
+        error: 'Prescription Sheet Not Found',
+        message: err.message || `No appointment found with ID '${bookingId}'`,
+      });
+    }
   });
 }
 
