@@ -29,15 +29,24 @@ export class AuthService {
   private readonly jwtSecret: string;
   private readonly otpMap = new Map<string, OtpRecord>();
   private readonly rateLimitMap = new Map<string, RateLimitRecord>();
+  private readonly dynamicUsers = new Map<string, UserContext>();
 
   // 5 minutes TTL for OTP
   private readonly OTP_TTL_MS = 5 * 60 * 1000;
-  // Maximum 3 OTP requests per 10-minute sliding window
-  private readonly RATE_LIMIT_MAX = 3;
+  // Maximum 5 OTP requests in production, high limit in development/test
+  private readonly RATE_LIMIT_MAX = process.env.NODE_ENV === 'production' ? 5 : 1000;
   private readonly RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 
   constructor(secret?: string) {
     this.jwtSecret = secret || process.env.JWT_SECRET || 'medibooking-enterprise-jwt-secret-dev-2026';
+  }
+
+  /**
+   * Register dynamically onboarded user (Admin, Doctor, Staff)
+   */
+  public registerDynamicUser(userContext: UserContext): void {
+    const cleanMobile = userContext.mobile.trim().replace(/^\+91/, '');
+    this.dynamicUsers.set(cleanMobile, userContext);
   }
 
   /**
@@ -210,6 +219,17 @@ export class AuthService {
    * Resolves the full multi-tenant UserContext for a mobile number
    */
   public resolveUserContext(mobile: string, preferredRole?: UserRole): UserContext {
+    const cleanMobile = mobile.trim().replace(/^\+91/, '');
+
+    // 0. Check dynamically registered users
+    const dynamicUser = this.dynamicUsers.get(cleanMobile);
+    if (dynamicUser) {
+      if (preferredRole && dynamicUser.allowedRoles.includes(preferredRole)) {
+        return { ...dynamicUser, activeRole: preferredRole };
+      }
+      return dynamicUser;
+    }
+
     // 1. Check if user is Platform Super Admin
     if (preferredRole === UserRole.SUPER_ADMIN || mobile.endsWith('00000')) {
       return {
@@ -322,6 +342,7 @@ export class AuthService {
   public resetStore(): void {
     this.otpMap.clear();
     this.rateLimitMap.clear();
+    this.dynamicUsers.clear();
   }
 }
 

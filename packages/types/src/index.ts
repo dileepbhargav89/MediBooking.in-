@@ -86,6 +86,11 @@ export interface Clinic {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  trialEndsAt?: string;
+  upiVpa?: string;
+  merchantName?: string;
+  openingCashFloat?: number;
+  autoPrintReceipt?: boolean;
 }
 
 export interface Chamber {

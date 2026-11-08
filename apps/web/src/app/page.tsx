@@ -23,6 +23,13 @@ export default function HomePage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <Link
+              href="/onboarding/clinic"
+              data-testid="nav-btn-onboard-clinic"
+              className="inline-flex items-center px-2.5 py-1.5 text-xs font-bold rounded-md bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
+            >
+              Launch Clinic (3 Min)
+            </Link>
             <Link href="/login">
               <Button variant="outline" size="sm">
                 Staff Login
@@ -53,14 +60,21 @@ export default function HomePage() {
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/onboarding/clinic"
+              data-testid="hero-btn-onboard-clinic"
+              className="inline-flex items-center justify-center px-6 py-3 text-base font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors duration-150"
+            >
+              ✨ Launch My Clinic (3-Min Setup)
+            </Link>
             <Link href="/login">
-              <Button size="lg" variant="primary">
+              <Button size="lg" variant="outline">
                 Open Staff Portal
               </Button>
             </Link>
             <Link href="/dr/dr-rajesh-sharma-cardio">
               <Button size="lg" variant="outline">
-                View Doctor Profile (/dr/:slug)
+                Doctor Profile (/dr/:slug)
               </Button>
             </Link>
           </div>

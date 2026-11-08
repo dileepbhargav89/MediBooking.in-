@@ -224,7 +224,8 @@ export default function LoginPage() {
       // In case of network fault, allow 123456 bypass
       if (code === '123456') {
         const targetPath = activeRole?.portalRoute || '/receptionist';
-        document.cookie = `medibooking_session=mock-offline-token; path=/; max-age=604800; SameSite=Lax`;
+        const role = activeRole?.role || UserRole.RECEPTIONIST;
+        document.cookie = `medibooking_session=mock-token-${phone}-${role}; path=/; max-age=604800; SameSite=Lax`;
         router.push(targetPath);
       } else {
         setError('Connection error. Please try again or use 123456.');

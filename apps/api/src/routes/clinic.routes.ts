@@ -34,7 +34,83 @@ const updateChamberSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
+const onboardClinicWizardSchema = z.object({
+  name: z.string().min(3, 'Clinic name must be at least 3 characters'),
+  slug: z.string().min(2).optional(),
+  tagline: z.string().optional(),
+  addressLine: z.string().min(5, 'Address line must be at least 5 characters'),
+  locality: z.string().min(2, 'Locality must be at least 2 characters'),
+  city: z.string().default('Bhopal'),
+  state: z.string().default('Madhya Pradesh'),
+  pincode: z.string().regex(/^\d{6}$/, 'Must be a valid 6-digit Indian PIN code'),
+  adminName: z.string().min(2, 'Admin full name must be at least 2 characters'),
+  contactPhone: z.string().regex(/^[6-9]\d{9}$/, 'Must be a valid 10-digit Indian mobile number'),
+  contactEmail: z.string().email().optional(),
+  chambers: z
+    .array(
+      z.object({
+        chamberNumber: z.string().min(1),
+        chamberName: z.string().min(2),
+        floor: z.string().optional(),
+      })
+    )
+    .min(1, 'At least 1 chamber must be configured'),
+  receptionistName: z.string().min(2).optional(),
+  receptionistMobile: z.string().regex(/^[6-9]\d{9}$/, 'Must be a valid 10-digit Indian mobile number').optional(),
+  upiVpa: z.string().regex(/^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/, 'Must be a valid UPI VPA handle (e.g. clinic@icici)').optional(),
+  merchantName: z.string().optional(),
+  openingCashFloat: z.number().nonnegative().optional().default(2000),
+  autoPrintReceipt: z.boolean().optional().default(true),
+});
+
 export async function clinicRoutes(fastify: FastifyInstance) {
+  /**
+   * Self-Serve Polyclinic Onboarding Wizard: POST /api/v1/clinics/onboard-wizard
+   * Public self-serve endpoint for prospective clinic administrators
+   */
+  fastify.post('/clinics/onboard-wizard', async (req, reply) => {
+    const parseResult = onboardClinicWizardSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return reply.status(400).send({
+        error: 'Validation Error',
+        details: parseResult.error.format(),
+      });
+    }
+
+    try {
+      const result = await clinicService.onboardPolyclinicWizard(parseResult.data);
+      return reply.status(201).send({
+        success: true,
+        message: `Polyclinic '${result.clinic.name}' onboarded successfully with 30-Day Pro Trial!`,
+        ...result,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to onboard clinic';
+      return reply.status(500).send({
+        error: 'Internal Server Error',
+        message,
+      });
+    }
+  });
+
+  /**
+   * Public Clinic Lookup by Slug: GET /api/v1/clinics/slug/:slug
+   */
+  fastify.get('/clinics/slug/:slug', async (req, reply) => {
+    const { slug } = req.params as { slug: string };
+    const result = await clinicService.getClinicBySlug(slug);
+    if (!result) {
+      return reply.status(404).send({
+        error: 'Not Found',
+        message: `Clinic with slug '${slug}' not found`,
+      });
+    }
+    return reply.status(200).send({
+      success: true,
+      ...result,
+    });
+  });
+
   /**
    * Provision New Clinic Tenant: POST /api/v1/admin/clinics
    * Restricted to SUPER_ADMIN role
