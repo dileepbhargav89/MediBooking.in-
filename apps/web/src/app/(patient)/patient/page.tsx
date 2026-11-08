@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Button, Card, Badge, StatCard, getChamberStyle } from '@medibooking/ui';
+import { Button, Badge, StatCard, getChamberStyle } from '@medibooking/ui';
 
 interface PatientTokenState {
   tokenNumber: number;
@@ -40,19 +40,40 @@ export default function PatientQueueTrackerPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [whatsappActive, setWhatsappActive] = useState(true);
 
-  // Phase 54: Two-Way WhatsApp Bot Assistant State
+  // Phase 54 & Phase 60: Two-Way WhatsApp Bot Assistant State
   const [chatMessages, setChatMessages] = useState<
     Array<{ id: string; sender: 'PATIENT' | 'BOT'; text: string; time: string }>
   >([
     {
       id: 'm1',
       sender: 'BOT',
-      text: '🙏 नमस्ते! MediBooking.in भोपाल केयर WhatsApp बॉट में आपका स्वागत है। टोकन स्थिति जानने के लिए STATUS बटन दबाएं या लिखें।',
+      text: '🙏 नमस्ते! MediBooking.in भोपाल केयर WhatsApp बॉट में आपका स्वागत है।\n1-टैप टोकन प्राप्त करने के लिए "HI" या "BOOK" लिखें, अथवा नीचे दिए गए बटन्स का उपयोग करें।',
       time: 'Just now',
     },
   ]);
   const [inputCommand, setInputCommand] = useState('');
   const [isBotTyping, setIsBotTyping] = useState(false);
+
+  // Sync token from URL query params (e.g., from WhatsApp live tracking link: /patient?token=18&chamber=CH-1)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tokenParam = params.get('token');
+      const chamberParam = params.get('chamber');
+      if (tokenParam) {
+        const parsedToken = parseInt(tokenParam, 10);
+        if (!isNaN(parsedToken)) {
+          setTokenState((prev) => ({
+            ...prev,
+            tokenNumber: parsedToken,
+            chamberNumber: chamberParam || prev.chamberNumber,
+            patientName: 'WhatsApp 1-Tap Patient',
+            status: 'WAITING',
+          }));
+        }
+      }
+    }
+  }, []);
 
   const sendWhatsAppCommand = async (commandText: string) => {
     if (!commandText.trim()) return;
@@ -63,7 +84,7 @@ export default function PatientQueueTrackerPage() {
     setIsBotTyping(true);
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
       const res = await fetch(`${apiBase}/api/v1/whatsapp/simulate-inbound`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -83,15 +104,40 @@ export default function PatientQueueTrackerPage() {
             time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
           },
         ]);
+
+        // Auto-update on-screen token if a new token was issued via WhatsApp DPDP Agreement
+        if (data.botReply.tokenInfo?.tokenNumber) {
+          setTokenState((prev) => ({
+            ...prev,
+            tokenNumber: data.botReply.tokenInfo.tokenNumber,
+            chamberNumber: data.botReply.tokenInfo.chamberNumber || prev.chamberNumber,
+            patientName: 'WhatsApp 1-Tap Patient',
+            status: 'WAITING',
+            currentCallingToken: data.botReply.tokenInfo.callingNow || prev.currentCallingToken,
+          }));
+        }
       }
     } catch {
       // Local fallback simulation
+      const upper = commandText.trim().toUpperCase();
+      let fallbackText = `🙏 *नमस्ते Ramesh Kumar!*\n\n📋 *आपकी टोकन स्थिति (Live Token Status)*:\n• टोकन क्रमांक: #15\n• कक्ष (Chamber): CH-1 (डॉ. Rajesh Sharma)\n• स्थिति: WAITING`;
+      if (upper === 'HI' || upper === 'BOOK') {
+        fallbackText = `🙏 *नमस्ते! MediBooking.in भोपाल केयर*\n\nडॉ. राजेश शर्मा (CH-1) के साथ लाइव टोकन प्राप्त करने के लिए कृपया सहमति दें:\n\n📜 *DPDP Act 2023 Digital Consent*:\nआपका मोबाइल नंबर केवल टोकन स्थिति एवं पर्ची भेजने हेतु उपयोग किया जाएगा।\n\nकृपया आगे बढ़ने हेतु *AGREE* या *सहमत* चुनें।`;
+      } else if (upper === 'AGREE' || upper === 'सहमत') {
+        fallbackText = `🎉 *अपॉइंटमेंट टोकन पुष्टिकरण (Token Confirmed)!*\n\n• टोकन क्रमांक: *#18*\n• कक्ष (Chamber): *CH-1* (डॉ. राजेश शर्मा)\n• स्थिति: *WAITING*\n• DPDP सहमति: *प्रदत्त (Recorded)*\n\n🔗 ट्रैकिंग: http://localhost:3000/patient?token=18&chamber=CH-1`;
+        setTokenState((prev) => ({
+          ...prev,
+          tokenNumber: 18,
+          patientName: 'WhatsApp 1-Tap Patient',
+          status: 'WAITING',
+        }));
+      }
       setChatMessages((prev) => [
         ...prev,
         {
           id: `bot-${Date.now()}`,
           sender: 'BOT',
-          text: `🙏 *नमस्ते Ramesh Kumar!*\n\n📋 *आपकी टोकन स्थिति (Live Token Status)*:\n• टोकन क्रमांक: #15\n• कक्ष (Chamber): CH-1 (डॉ. Rajesh Sharma)\n• स्थिति: WAITING`,
+          text: fallbackText,
           time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
         },
       ]);
@@ -205,7 +251,10 @@ export default function PatientQueueTrackerPage() {
                 Your Assigned Token
               </span>
               <div className="mt-1 flex items-baseline gap-3">
-                <span className="text-5xl sm:text-6xl font-black font-mono tabular-nums text-slate-900 tracking-tight">
+                <span
+                  data-testid="assigned-token-number"
+                  className="text-5xl sm:text-6xl font-black font-mono tabular-nums text-slate-900 tracking-tight"
+                >
                   #{tokenState.tokenNumber}
                 </span>
                 <Badge variant={isMyTurn ? 'mint' : 'blue'} size="md" dot pulse={isMyTurn}>
@@ -215,168 +264,79 @@ export default function PatientQueueTrackerPage() {
               <p className="text-xs text-slate-500 font-medium mt-1">
                 Patient: <span className="font-bold text-slate-800">{tokenState.patientName}</span>
               </p>
+              {tokenState.patientName.includes('WhatsApp') && (
+                <span
+                  data-testid="badge-whatsapp-onboarding"
+                  className="inline-flex items-center gap-1 mt-2 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300"
+                >
+                  <span>📱</span>
+                  <span>WhatsApp 1-Tap Booking • DPDP Verified</span>
+                </span>
+              )}
             </div>
 
             <div className="sm:text-right">
-              <span
-                className="inline-block px-3 py-1 rounded-lg text-sm font-bold font-mono border mb-1"
+              <span className="text-xs text-slate-500 block">Consultation Chamber</span>
+              <div className="mt-1 inline-flex items-center gap-2 px-4 py-2 rounded-xl border font-bold text-base shadow-xs"
                 style={{
                   backgroundColor: chamberStyle.bg,
                   borderColor: chamberStyle.border,
-                  color: chamberStyle.text,
+                  color: chamberStyle.accent,
                 }}
               >
-                {tokenState.chamberNumber}
-              </span>
-              <p className="text-xs font-bold text-slate-900">{tokenState.doctorName}</p>
-              <p className="text-[11px] text-slate-500">{tokenState.specialty}</p>
-            </div>
-          </div>
-
-          {/* Real-time Wait Metrics Grid */}
-          <div className="grid grid-cols-3 gap-3 pt-6 text-center">
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <span className="text-[11px] font-semibold text-slate-500 uppercase block">
-                Calling Now
-              </span>
-              <span className="text-2xl font-black font-mono tabular-nums text-blue-700 mt-1 block">
-                #{tokenState.currentCallingToken}
-              </span>
-            </div>
-
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <span className="text-[11px] font-semibold text-slate-500 uppercase block">
-                Ahead of You
-              </span>
-              <span className="text-2xl font-black font-mono tabular-nums text-slate-900 mt-1 block">
-                {tokensAhead}
-              </span>
-            </div>
-
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <span className="text-[11px] font-semibold text-slate-500 uppercase block">
-                Est. Wait
-              </span>
-              <span className="text-2xl font-black font-mono tabular-nums text-emerald-600 mt-1 block">
-                {tokensAhead === 0 ? 'Now!' : `~${estimatedWait}m`}
+                <span data-testid="assigned-chamber-number">{tokenState.chamberNumber}</span>
+                <span className="text-slate-400 font-normal">|</span>
+                <span className="text-slate-800">{tokenState.doctorName}</span>
+              </div>
+              <span className="block text-xs text-slate-500 mt-1 font-medium">
+                {tokenState.specialty} • {tokenState.clinicName}
               </span>
             </div>
           </div>
-        </div>
 
-        {/* Stepper Progress */}
-        <Card className="p-6">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4">
-            Consultation Progress
-          </h3>
-          <div className="relative flex items-center justify-between">
-            <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 bg-slate-100 z-0" />
-            <div
-              className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-blue-600 z-0 transition-all duration-300"
-              style={{
-                width: isMyTurn ? '100%' : '50%',
-              }}
+          {/* Real-Time Queue Metrics */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-6">
+            <StatCard
+              label="Currently Calling"
+              value={`#${tokenState.currentCallingToken}`}
+              highlight={isMyTurn}
+              subtext="Inside Doctor's Chamber"
             />
-
-            {/* Step 1: Arrived */}
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="h-7 w-7 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center">
-                ✓
-              </div>
-              <span className="text-[11px] font-bold text-slate-800 mt-1.5">Checked In</span>
-            </div>
-
-            {/* Step 2: Waiting in Lounge */}
-            <div className="relative z-10 flex flex-col items-center">
-              <div
-                className={`h-7 w-7 rounded-full font-bold text-xs flex items-center justify-center ${
-                  isMyTurn ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white animate-pulse'
-                }`}
-              >
-                2
-              </div>
-              <span className="text-[11px] font-bold text-slate-800 mt-1.5">In Waiting Area</span>
-            </div>
-
-            {/* Step 3: Chamber Consultation */}
-            <div className="relative z-10 flex flex-col items-center">
-              <div
-                className={`h-7 w-7 rounded-full font-bold text-xs flex items-center justify-center ${
-                  isMyTurn
-                    ? 'bg-emerald-600 text-white animate-ping ring-4 ring-emerald-200'
-                    : 'bg-slate-200 text-slate-500'
-                }`}
-              >
-                3
-              </div>
-              <span className="text-[11px] font-bold text-slate-600 mt-1.5">Consultation</span>
-            </div>
+            <StatCard
+              label="Patients Ahead"
+              value={tokensAhead === 0 ? 'Next Up!' : tokensAhead.toString()}
+              subtext="In Waiting Lounge"
+            />
+            <StatCard
+              label="Estimated Wait"
+              value={isMyTurn ? '0 mins' : `~${estimatedWait} mins`}
+              subtext={tokenState.delayMinutes > 0 ? `Includes +${tokenState.delayMinutes}m delay` : 'Based on 8m avg pace'}
+              className="col-span-2 sm:col-span-1"
+            />
           </div>
-        </Card>
-
-        {/* Clinic & Cashiering Card */}
-        <Card className="p-6 space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            Venue & Cashiering Details
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-            <div>
-              <span className="text-slate-400 block">Clinic Location:</span>
-              <span className="font-bold text-slate-900 block mt-0.5">{tokenState.clinicName}</span>
-              <span className="text-slate-500">Plot 42, MP Nagar Zone II, Bhopal</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block">Consultation Fee:</span>
-              <span className="font-bold text-slate-900 block mt-0.5">₹600</span>
-              <span className="text-emerald-700 font-medium">
-                Pay at {tokenState.chamberNumber} reception desk (Cash / UPI)
-              </span>
-            </div>
-          </div>
-        </Card>
-
-        {/* WhatsApp Notification Preference */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between text-xs shadow-sm">
-          <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-sm">
-              💬
-            </div>
-            <div>
-              <span className="font-bold text-slate-900 block">WhatsApp Live Queue Alerts</span>
-              <span className="text-slate-500">Receive token calls and delay alerts on phone</span>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setWhatsappActive(!whatsappActive)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-              whatsappActive
-                ? 'bg-emerald-100 text-emerald-800'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
-          >
-            {whatsappActive ? '✓ Active' : 'Enable'}
-          </button>
         </div>
 
-        {/* Phase 54: Two-Way WhatsApp Cloud Bot Assistant Simulator */}
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-          <div className="bg-[#075E54] text-white px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-full bg-emerald-700 flex items-center justify-center font-bold text-base shadow-inner">
+        {/* Phase 54 & Phase 60: Two-Way WhatsApp Cloud Bot Interactive Assistant */}
+        <div data-testid="wa-chat-container" className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          {/* WhatsApp Header */}
+          <div className="bg-[#075E54] text-white px-5 py-3.5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-full bg-[#25D366] flex items-center justify-center font-bold text-white text-lg shadow-sm">
                 💬
               </div>
               <div>
-                <span className="font-bold text-xs block leading-tight">
+                <span className="text-sm font-bold block leading-tight flex items-center gap-1.5">
                   MediBooking Bhopal Care Bot
+                  <span className="text-[10px] bg-emerald-700 px-1.5 py-0.5 rounded font-mono font-medium">
+                    2-Way AI
+                  </span>
                 </span>
-                <span className="text-[10px] text-emerald-200 flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  WhatsApp Cloud API v22.0 • Online
+                <span className="text-[11px] text-emerald-200">
+                  Online • 1-Tap Intake & DPDP Act 2023 Compliant
                 </span>
               </div>
             </div>
-            <span className="text-[10px] font-mono bg-emerald-900/60 text-emerald-100 px-2 py-0.5 rounded border border-emerald-700/50">
+            <span className="text-[11px] text-emerald-100 hidden sm:inline">
               +91 755 4019283
             </span>
           </div>
@@ -421,6 +381,23 @@ export default function PatientQueueTrackerPage() {
             <div className="flex flex-wrap gap-1.5">
               <button
                 type="button"
+                data-testid="wa-chip-book"
+                onClick={() => sendWhatsAppCommand('HI')}
+                className="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 border border-emerald-300 text-emerald-800 hover:bg-emerald-100 transition-colors shadow-xs"
+              >
+                👋 1-Tap Book (शुरू करें)
+              </button>
+              <button
+                type="button"
+                data-testid="wa-chip-agree"
+                onClick={() => sendWhatsAppCommand('AGREE')}
+                className="px-2.5 py-1 rounded-full text-xs font-semibold bg-teal-50 border border-teal-300 text-teal-800 hover:bg-teal-100 transition-colors shadow-xs"
+              >
+                ✅ Agree DPDP (सहमत)
+              </button>
+              <button
+                type="button"
+                data-testid="wa-chip-status"
                 onClick={() => sendWhatsAppCommand('STATUS')}
                 className="px-2.5 py-1 rounded-full text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:border-emerald-500 hover:text-emerald-700 transition-colors shadow-xs"
               >
@@ -428,6 +405,7 @@ export default function PatientQueueTrackerPage() {
               </button>
               <button
                 type="button"
+                data-testid="wa-chip-delay"
                 onClick={() => sendWhatsAppCommand('DELAY')}
                 className="px-2.5 py-1 rounded-full text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:border-emerald-500 hover:text-emerald-700 transition-colors shadow-xs"
               >
@@ -435,6 +413,7 @@ export default function PatientQueueTrackerPage() {
               </button>
               <button
                 type="button"
+                data-testid="wa-chip-cancel"
                 onClick={() => sendWhatsAppCommand('CANCEL')}
                 className="px-2.5 py-1 rounded-full text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:border-red-500 hover:text-red-700 transition-colors shadow-xs"
               >
@@ -442,6 +421,7 @@ export default function PatientQueueTrackerPage() {
               </button>
               <button
                 type="button"
+                data-testid="wa-chip-help"
                 onClick={() => sendWhatsAppCommand('HELP')}
                 className="px-2.5 py-1 rounded-full text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:border-blue-500 hover:text-blue-700 transition-colors shadow-xs"
               >
@@ -459,13 +439,15 @@ export default function PatientQueueTrackerPage() {
             >
               <input
                 type="text"
-                placeholder="Type WhatsApp keyword (e.g. STATUS, DELAY)..."
+                data-testid="wa-input-command"
+                placeholder="Type WhatsApp keyword (e.g. HI, AGREE, STATUS)..."
                 value={inputCommand}
                 onChange={(e) => setInputCommand(e.target.value)}
                 className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
               />
               <button
                 type="submit"
+                data-testid="wa-btn-send"
                 className="px-3 py-1.5 rounded-lg bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold shadow-sm transition-colors"
               >
                 Send
@@ -499,4 +481,3 @@ export default function PatientQueueTrackerPage() {
     </div>
   );
 }
-

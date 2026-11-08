@@ -143,6 +143,19 @@ const INITIAL_TOKENS: ReceptionTokenItem[] = [
     source: 'WALK_IN',
     feePaidRupees: 0,
   },
+  {
+    id: 't-wa-1',
+    tokenNumber: 18,
+    patientName: 'Sunita Mehra',
+    patientMobile: '9826055555',
+    chamberNumber: 'CH-1',
+    doctorName: 'Rajesh Sharma',
+    status: 'WAITING',
+    paymentStatus: 'PAID_UPI_QR',
+    estimatedTime: '18 mins',
+    source: 'WHATSAPP_1TAP',
+    feePaidRupees: 600,
+  },
 ];
 
 export default function ReceptionDeskDashboardPage() {

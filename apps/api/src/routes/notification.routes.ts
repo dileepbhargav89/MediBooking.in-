@@ -313,4 +313,66 @@ export async function notificationRoutes(fastify: FastifyInstance) {
       botReply,
     });
   });
+
+  /**
+   * Phase 60: WhatsApp Interactive 1-Tap Patient Onboarding Gateway
+   * POST /api/v1/whatsapp/patient-onboard
+   */
+  fastify.post('/whatsapp/patient-onboard', async (req, reply) => {
+    const onboardSchema = z.object({
+      mobile: z.string().min(10),
+      patientName: z.string().optional(),
+      doctorId: z.string().optional(),
+      chamberNumber: z.string().optional().default('CH-1'),
+      dpdpConsent: z.boolean(),
+      language: z.enum(['en', 'hi']).optional().default('hi'),
+    });
+
+    const parsed = onboardSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return reply.status(400).send({
+        error: 'Validation Error',
+        message: 'Invalid patient onboarding payload',
+        details: parsed.error.format(),
+      });
+    }
+
+    if (!parsed.data.dpdpConsent) {
+      return reply.status(400).send({
+        error: 'DPDP Consent Required',
+        message: 'Digital Personal Data Protection (DPDP) Act 2023 explicit consent is required for automated WhatsApp onboarding.',
+      });
+    }
+
+    try {
+      const result = whatsAppTwoWayBotService.onboardPatient({
+        mobile: parsed.data.mobile,
+        patientName: parsed.data.patientName,
+        doctorId: parsed.data.doctorId,
+        chamberNumber: parsed.data.chamberNumber,
+        dpdpConsent: parsed.data.dpdpConsent,
+        language: parsed.data.language,
+      });
+
+      return reply.status(201).send(result);
+    } catch (err: any) {
+      return reply.status(400).send({
+        error: 'Onboarding Error',
+        message: err.message,
+      });
+    }
+  });
+
+  /**
+   * Phase 60: WhatsApp Active Queue Query
+   * GET /api/v1/whatsapp/active-queue
+   */
+  fastify.get('/whatsapp/active-queue', async (_req, reply) => {
+    const queue = whatsAppTwoWayBotService.getAllActiveTokens();
+    return reply.status(200).send({
+      success: true,
+      count: Object.keys(queue).length,
+      queue,
+    });
+  });
 }
