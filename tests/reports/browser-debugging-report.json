@@ -1,0 +1,135 @@
+{
+  "timestamp": "2026-11-08T18:38:44.284Z",
+  "journeys": [
+    {
+      "name": "Journey 1: Public Doctor Booking & Nominal Intake",
+      "url": "/dr/dr-rajesh-sharma-cardio",
+      "durationMs": 3577,
+      "consoleLogs": [
+        {
+          "type": "info",
+          "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+        }
+      ],
+      "pageErrors": [],
+      "networkFailures": [],
+      "screenshot": "debug-01-doctor-booking.png",
+      "status": "PASSED",
+      "assertions": [
+        "Doctor profile and NMC credential MP-38492 verified",
+        "Selected available evening consultation slot",
+        "Clicked 1-click + Routine Checkup symptom chip",
+        "Verified ₹49 nominal fee and counter payment breakdown",
+        "Filled patient intake demographics via data-testids",
+        "Booking confirmed with live token allocated and pre-consultation notice"
+      ]
+    },
+    {
+      "name": "Journey 2: Receptionist Front Desk & Cashiering",
+      "url": "/receptionist",
+      "durationMs": 4479,
+      "consoleLogs": [
+        {
+          "type": "info",
+          "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+        }
+      ],
+      "pageErrors": [],
+      "networkFailures": [],
+      "screenshot": "debug-04-receptionist-desk.png",
+      "status": "PASSED",
+      "assertions": [
+        "Navigated to /receptionist via Reception Desk Quick Role",
+        "Cash drawer metrics verified",
+        "Pre-Consultation Prescription Sheet modal rendered with vitals recording",
+        "Settle Custom Charges modal verified with gross total",
+        "Added 12-Lead ECG procedure (+₹200)",
+        "Cashiering settled with itemized thermal slip and 80/20 split"
+      ]
+    },
+    {
+      "name": "Journey 3: Doctor Chamber Consultation Desk",
+      "url": "/doctor",
+      "durationMs": 2059,
+      "consoleLogs": [
+        {
+          "type": "info",
+          "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+        }
+      ],
+      "pageErrors": [],
+      "networkFailures": [],
+      "screenshot": "debug-05-doctor-chamber.png",
+      "status": "PASSED",
+      "assertions": [
+        "Navigated to /doctor via Doctor Chamber Quick Role",
+        "Doctor session velocity and earnings card visible",
+        "Physical prescription sheet notice visible in chamber desk",
+        "Clicked Quick Rx chip"
+      ]
+    },
+    {
+      "name": "Journey 4: Waiting Room 4K TV Screen",
+      "url": "/tv/citycare-mpnagar-bhopal",
+      "durationMs": 1652,
+      "consoleLogs": [
+        {
+          "type": "info",
+          "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+        }
+      ],
+      "pageErrors": [],
+      "networkFailures": [],
+      "screenshot": "debug-06-tv-screen.png",
+      "status": "PASSED",
+      "assertions": [
+        "TV Screen loaded with Bhopal City Care Polyclinic header",
+        "Chamber 1 card rendered with Dr. Rajesh Sharma",
+        "Polyclinic diagnostic services ticker verified"
+      ]
+    },
+    {
+      "name": "Journey 5: Patient Live Queue Tracker & WhatsApp Assistant",
+      "url": "/patient?token=18&chamber=CH-1",
+      "durationMs": 5554,
+      "consoleLogs": [
+        {
+          "type": "info",
+          "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+        },
+        {
+          "type": "info",
+          "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+        }
+      ],
+      "pageErrors": [],
+      "networkFailures": [],
+      "screenshot": "debug-07-patient-tracker.png",
+      "status": "PASSED",
+      "assertions": [
+        "Token #18 tracker loaded with assigned chamber",
+        "Pre-Consultation Rx sheet prepared banner visible"
+      ]
+    },
+    {
+      "name": "Journey 6: Clinic Admin Revenue Split & Governance",
+      "url": "/admin",
+      "durationMs": 2599,
+      "consoleLogs": [
+        {
+          "type": "info",
+          "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+        }
+      ],
+      "pageErrors": [],
+      "networkFailures": [],
+      "screenshot": "debug-08-clinic-admin.png",
+      "status": "PASSED",
+      "assertions": [
+        "Navigated to /admin via Clinic Admin Quick Role",
+        "Nominal booking policy badge verified on main affiliations view",
+        "End-of-day cash drawer reconciliation verified"
+      ]
+    }
+  ]
+}
