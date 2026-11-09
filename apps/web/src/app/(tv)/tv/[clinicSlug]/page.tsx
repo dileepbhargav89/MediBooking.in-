@@ -66,6 +66,117 @@ const INITIAL_CHAMBERS: ChamberTVState[] = [
   },
 ];
 
+interface ClinicTVInfo {
+  name: string;
+  tagline: string;
+  location: string;
+  chambers: ChamberTVState[];
+}
+
+const CLINIC_DIRECTORY: Record<string, ClinicTVInfo> = {
+  'citycare-mpnagar-bhopal': {
+    name: 'Bhopal City Care Polyclinic',
+    tagline: 'Multi-Specialty Evening Consultation Chambers',
+    location: 'MP Nagar Zone II, Bhopal • Central Waiting Area Display',
+    chambers: INITIAL_CHAMBERS,
+  },
+  'bhopal-city-care': {
+    name: 'Bhopal City Care Polyclinic',
+    tagline: 'Multi-Specialty Evening Consultation Chambers',
+    location: 'MP Nagar Zone II, Bhopal • Central Waiting Area Display',
+    chambers: INITIAL_CHAMBERS,
+  },
+  'narmada-health-arera-bhopal': {
+    name: 'Narmada Health & Specialty Polyclinic',
+    tagline: 'Premium Multi-Specialty Consultation & Diagnostics',
+    location: 'Arera Colony E-3, Bhopal • Live Waiting Lounge TV',
+    chambers: [
+      {
+        chamberNumber: 'CH-1',
+        doctorName: 'Dr. Alok Verma',
+        specialty: 'Neurologist',
+        status: 'ACTIVE',
+        currentCallingToken: 6,
+        currentPatientMasked: 'P*** Sharma',
+        nextTokens: [
+          { tokenNumber: 7, patientMasked: 'M*** Verma' },
+          { tokenNumber: 8, patientMasked: 'K*** Dubey' },
+        ],
+      },
+      {
+        chamberNumber: 'CH-2',
+        doctorName: 'Dr. Ramesh Chhabra',
+        specialty: 'Endocrinologist',
+        status: 'ACTIVE',
+        currentCallingToken: 12,
+        currentPatientMasked: 'S*** Saxena',
+        nextTokens: [{ tokenNumber: 13, patientMasked: 'V*** Nair' }],
+      },
+      {
+        chamberNumber: 'CH-3',
+        doctorName: 'Dr. Nidhi Soni',
+        specialty: 'Ophthalmologist',
+        status: 'ACTIVE',
+        currentCallingToken: 4,
+        currentPatientMasked: 'A*** Joshi',
+        nextTokens: [{ tokenNumber: 5, patientMasked: 'R*** Tiwari' }],
+      },
+      {
+        chamberNumber: 'CH-4',
+        doctorName: 'Dr. Archana Jain',
+        specialty: 'Gynecologist',
+        status: 'ACTIVE',
+        currentCallingToken: 19,
+        currentPatientMasked: 'Mrs. D*** Chouhan',
+        nextTokens: [{ tokenNumber: 20, patientMasked: 'Mrs. G*** Patel' }],
+      },
+    ],
+  },
+  'kolar-prime-sarvadharam-bhopal': {
+    name: 'Kolar Prime MediChambers',
+    tagline: 'Neighborhood Family Healthcare & Specialists',
+    location: 'Kolar Road, Bhopal • Waiting Room TV Display',
+    chambers: [
+      {
+        chamberNumber: 'CH-1',
+        doctorName: 'Dr. Vivek Saxena',
+        specialty: 'Consultant Physician',
+        status: 'ACTIVE',
+        currentCallingToken: 8,
+        currentPatientMasked: 'H*** Malviya',
+        nextTokens: [{ tokenNumber: 9, patientMasked: 'S*** Yadav' }],
+      },
+      {
+        chamberNumber: 'CH-2',
+        doctorName: 'Dr. Sanjay Sen',
+        specialty: 'Pediatrician',
+        status: 'ACTIVE',
+        currentCallingToken: 14,
+        currentPatientMasked: 'Baby N***',
+        nextTokens: [{ tokenNumber: 15, patientMasked: 'Master Y***' }],
+      },
+      {
+        chamberNumber: 'CH-3',
+        doctorName: 'Dr. Richa Sharma',
+        specialty: 'ENT Specialist',
+        status: 'ACTIVE',
+        currentCallingToken: 5,
+        currentPatientMasked: 'D*** Thakur',
+        nextTokens: [{ tokenNumber: 6, patientMasked: 'P*** Mishra' }],
+      },
+      {
+        chamberNumber: 'CH-4',
+        doctorName: 'Dr. Gaurav Agrawal',
+        specialty: 'Dental Surgeon',
+        status: 'ACTIVE',
+        currentCallingToken: 11,
+        currentPatientMasked: 'V*** Bundela',
+        nextTokens: [{ tokenNumber: 12, patientMasked: 'A*** Rajput' }],
+      },
+    ],
+  },
+};
+
 export default function WaitingRoomTVPage({
   params,
 }: {
@@ -73,8 +184,9 @@ export default function WaitingRoomTVPage({
 }) {
   const unwrappedParams = use(params);
   const clinicSlug = unwrappedParams.clinicSlug;
+  const clinicInfo = CLINIC_DIRECTORY[clinicSlug] || CLINIC_DIRECTORY['citycare-mpnagar-bhopal']!;
 
-  const [chambers, setChambers] = useState<ChamberTVState[]>(INITIAL_CHAMBERS);
+  const [chambers, setChambers] = useState<ChamberTVState[]>(clinicInfo.chambers);
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
@@ -247,14 +359,14 @@ export default function WaitingRoomTVPage({
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-                  Bhopal City Care Polyclinic
+                  {clinicInfo.name}
                 </h1>
                 <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold uppercase tracking-wider">
                   Live Waiting Room TV
                 </span>
               </div>
               <p className="text-xs text-slate-400 font-medium">
-                MP Nagar Zone II, Bhopal • Central Waiting Area Display
+                {clinicInfo.location}
               </p>
             </div>
           </div>

@@ -11,7 +11,7 @@ import {
   AuthTokenPayload,
   UserContext,
 } from '@medibooking/types';
-import { SEED_DATA } from '@medibooking/database';
+import { SEED_DATA, BHOPAL_10_CLINICS } from '@medibooking/database';
 
 export interface OtpRecord {
   mobile: string;
@@ -221,20 +221,30 @@ export class AuthService {
   public resolveUserContext(mobile: string, preferredRole?: UserRole): UserContext {
     const cleanMobile = mobile.trim().replace(/^\+91/, '');
 
-    // 0. Check dynamically registered users
-    const dynamicUser = this.dynamicUsers.get(cleanMobile);
-    if (dynamicUser) {
-      if (preferredRole && dynamicUser.allowedRoles.includes(preferredRole)) {
-        return { ...dynamicUser, activeRole: preferredRole };
-      }
-      return dynamicUser;
+    // 1. If preferredRole is explicitly PATIENT, always return patient identity
+    if (preferredRole === UserRole.PATIENT) {
+      const patientNames: Record<string, string> = {
+        '9826098765': 'Vikramaditya Rao',
+        '9826077777': 'Anita Mehra',
+        '9826088888': 'Suresh Gupta',
+        '9826044444': 'Rahul Sharma',
+      };
+      const patientName = patientNames[cleanMobile] || 'Patient User';
+      return {
+        userId: `usr-pat-${cleanMobile}`,
+        mobile: cleanMobile,
+        fullName: patientName,
+        activeRole: UserRole.PATIENT,
+        allowedRoles: [UserRole.PATIENT],
+        availableClinics: [],
+      };
     }
 
-    // 1. Check if user is Platform Super Admin
-    if (preferredRole === UserRole.SUPER_ADMIN || mobile.endsWith('00000')) {
+    // 2. Check Platform Super Admin
+    if (preferredRole === UserRole.SUPER_ADMIN || cleanMobile.endsWith('00000')) {
       return {
         userId: 'usr-superadmin-01',
-        mobile,
+        mobile: cleanMobile,
         fullName: 'MediBooking Platform Super Admin',
         activeRole: UserRole.SUPER_ADMIN,
         allowedRoles: [UserRole.SUPER_ADMIN],
@@ -242,41 +252,38 @@ export class AuthService {
       };
     }
 
-    // 2. Check if user is Clinic Admin
-    if (
-      preferredRole === UserRole.CLINIC_ADMIN ||
-      mobile.endsWith('99999') ||
-      mobile.endsWith('11111')
-    ) {
-      return {
-        userId: 'usr-admin-bhopal-01',
-        mobile,
-        fullName: 'Clinic Administrator',
-        activeRole: UserRole.CLINIC_ADMIN,
-        activeClinicId: SEED_DATA.clinic.id,
-        activeClinicName: SEED_DATA.clinic.name,
-        allowedRoles: [UserRole.CLINIC_ADMIN],
-        availableClinics: [
-          {
-            clinicId: SEED_DATA.clinic.id,
-            clinicName: SEED_DATA.clinic.name,
-            role: UserRole.CLINIC_ADMIN,
-          },
-        ],
-      };
-    }
-
-    // 3. Check if user is one of the doctors
-    if (
-      preferredRole === UserRole.DOCTOR ||
-      mobile.endsWith('22222') ||
-      mobile.endsWith('12345') ||
-      SEED_DATA.doctors.some((d) => d.slug.includes(mobile))
-    ) {
+    // 3. If preferredRole is DOCTOR or mobile belongs to a doctor
+    if (preferredRole === UserRole.DOCTOR || cleanMobile.endsWith('22222') || cleanMobile.endsWith('12345')) {
+      for (const clinic of BHOPAL_10_CLINICS) {
+        const docMatch = clinic.doctors.find(
+          (d) => d.mobile.replace(/^\+91/, '') === cleanMobile
+        );
+        if (docMatch) {
+          return {
+            userId: docMatch.userId,
+            mobile: cleanMobile,
+            fullName: docMatch.fullName,
+            activeRole: UserRole.DOCTOR,
+            activeClinicId: clinic.id,
+            activeClinicName: clinic.name,
+            activeChamberNumber: docMatch.chamberNumber,
+            allowedRoles: [UserRole.DOCTOR],
+            availableClinics: [
+              {
+                clinicId: clinic.id,
+                clinicName: clinic.name,
+                role: UserRole.DOCTOR,
+                chamberNumber: docMatch.chamberNumber,
+              },
+            ],
+          };
+        }
+      }
+      // Fallback default doctor (Dr. Rajesh Sharma)
       const doctorMatch = SEED_DATA.doctors[0]!;
       return {
         userId: `usr-doc-${doctorMatch.doctorId.slice(0, 8)}`,
-        mobile,
+        mobile: cleanMobile,
         fullName: doctorMatch.fullName,
         activeRole: UserRole.DOCTOR,
         activeClinicId: SEED_DATA.clinic.id,
@@ -294,16 +301,38 @@ export class AuthService {
       };
     }
 
-    // 4. Check if user is staff (Receptionist)
-    if (
-      preferredRole === UserRole.RECEPTIONIST ||
-      mobile.endsWith('33333') ||
-      SEED_DATA.staff.some((s) => s.userId.includes(mobile))
-    ) {
+    // 4. If preferredRole is RECEPTIONIST or mobile belongs to staff
+    if (preferredRole === UserRole.RECEPTIONIST || cleanMobile.endsWith('33333')) {
+      for (const clinic of BHOPAL_10_CLINICS) {
+        const staffMatch = clinic.staff.find(
+          (s) => s.mobile.replace(/^\+91/, '') === cleanMobile
+        );
+        if (staffMatch) {
+          return {
+            userId: staffMatch.userId,
+            mobile: cleanMobile,
+            fullName: staffMatch.fullName,
+            activeRole: UserRole.RECEPTIONIST,
+            activeClinicId: clinic.id,
+            activeClinicName: clinic.name,
+            staffScope: staffMatch.staffScope,
+            dedicatedDoctorId: staffMatch.dedicatedDoctorId,
+            allowedRoles: [UserRole.RECEPTIONIST],
+            availableClinics: [
+              {
+                clinicId: clinic.id,
+                clinicName: clinic.name,
+                role: UserRole.RECEPTIONIST,
+              },
+            ],
+          };
+        }
+      }
+      // Fallback default receptionist (Sunita Sahu)
       const staffMatch = SEED_DATA.staff[0]!;
       return {
         userId: staffMatch.userId,
-        mobile,
+        mobile: cleanMobile,
         fullName: staffMatch.fullName,
         activeRole: UserRole.RECEPTIONIST,
         activeClinicId: SEED_DATA.clinic.id,
@@ -321,11 +350,108 @@ export class AuthService {
       };
     }
 
-    // 5. Default identity: Patient
+    // 5. If preferredRole is CLINIC_ADMIN or mobile belongs to admin
+    if (
+      preferredRole === UserRole.CLINIC_ADMIN ||
+      cleanMobile.endsWith('99999') ||
+      cleanMobile.endsWith('11111') ||
+      /^98260100\d{2}$/.test(cleanMobile)
+    ) {
+      let targetClinic = SEED_DATA.clinic;
+      if (/^98260100\d{2}$/.test(cleanMobile)) {
+        const clinicIdx = parseInt(cleanMobile.slice(-2), 10) - 1;
+        if (BHOPAL_10_CLINICS[clinicIdx]) {
+          targetClinic = BHOPAL_10_CLINICS[clinicIdx]!;
+        }
+      }
+
+      return {
+        userId: `usr-admin-${targetClinic.id.slice(0, 8)}`,
+        mobile: cleanMobile,
+        fullName: `${targetClinic.name} Administrator`,
+        activeRole: UserRole.CLINIC_ADMIN,
+        activeClinicId: targetClinic.id,
+        activeClinicName: targetClinic.name,
+        allowedRoles: [UserRole.CLINIC_ADMIN],
+        availableClinics: [
+          {
+            clinicId: targetClinic.id,
+            clinicName: targetClinic.name,
+            role: UserRole.CLINIC_ADMIN,
+          },
+        ],
+      };
+    }
+
+    // 6. Check dynamically registered users if not role-specified
+    const dynamicUser = this.dynamicUsers.get(cleanMobile);
+    if (dynamicUser) {
+      return dynamicUser;
+    }
+
+    // 7. Check if mobile matches doctor in BHOPAL_10_CLINICS
+    for (const clinic of BHOPAL_10_CLINICS) {
+      const docMatch = clinic.doctors.find((d) => d.mobile.replace(/^\+91/, '') === cleanMobile);
+      if (docMatch) {
+        return {
+          userId: docMatch.userId,
+          mobile: cleanMobile,
+          fullName: docMatch.fullName,
+          activeRole: UserRole.DOCTOR,
+          activeClinicId: clinic.id,
+          activeClinicName: clinic.name,
+          activeChamberNumber: docMatch.chamberNumber,
+          allowedRoles: [UserRole.DOCTOR],
+          availableClinics: [
+            {
+              clinicId: clinic.id,
+              clinicName: clinic.name,
+              role: UserRole.DOCTOR,
+              chamberNumber: docMatch.chamberNumber,
+            },
+          ],
+        };
+      }
+    }
+
+    // 8. Check if mobile matches staff in BHOPAL_10_CLINICS
+    for (const clinic of BHOPAL_10_CLINICS) {
+      const staffMatch = clinic.staff.find((s) => s.mobile.replace(/^\+91/, '') === cleanMobile);
+      if (staffMatch) {
+        return {
+          userId: staffMatch.userId,
+          mobile: cleanMobile,
+          fullName: staffMatch.fullName,
+          activeRole: UserRole.RECEPTIONIST,
+          activeClinicId: clinic.id,
+          activeClinicName: clinic.name,
+          staffScope: staffMatch.staffScope,
+          dedicatedDoctorId: staffMatch.dedicatedDoctorId,
+          allowedRoles: [UserRole.RECEPTIONIST],
+          availableClinics: [
+            {
+              clinicId: clinic.id,
+              clinicName: clinic.name,
+              role: UserRole.RECEPTIONIST,
+            },
+          ],
+        };
+      }
+    }
+
+    // 9. Default identity: Patient
+    const patientNames: Record<string, string> = {
+      '9826098765': 'Vikramaditya Rao',
+      '9826077777': 'Anita Mehra',
+      '9826088888': 'Suresh Gupta',
+      '9826044444': 'Rahul Sharma',
+    };
+    const patientName = patientNames[cleanMobile] || 'Patient User';
+
     return {
-      userId: `usr-pat-${mobile}`,
-      mobile,
-      fullName: 'Patient User',
+      userId: `usr-pat-${cleanMobile}`,
+      mobile: cleanMobile,
+      fullName: patientName,
       activeRole: UserRole.PATIENT,
       allowedRoles: [UserRole.PATIENT],
       availableClinics: [],

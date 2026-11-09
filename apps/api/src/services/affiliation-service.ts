@@ -6,7 +6,7 @@
 
 import crypto from 'crypto';
 import { ClinicDoctorAffiliation } from '@medibooking/types';
-import { SEED_DATA } from '@medibooking/database';
+import { SEED_DATA, BHOPAL_10_CLINICS } from '@medibooking/database';
 
 export interface CreateAffiliationDTO {
   clinicId: string;
@@ -38,13 +38,15 @@ export class AffiliationService {
   }
 
   private seedDefaultData() {
-    const clinicId = SEED_DATA.clinic.id;
+    const now = new Date().toISOString();
 
+    // 1. Seed legacy affiliations
+    const defaultClinicId = SEED_DATA.clinic.id;
     for (const doc of SEED_DATA.doctors) {
       const chamber = SEED_DATA.chambers.find((c) => c.chamberNumber === doc.chamberNumber);
       const affiliation: ClinicDoctorAffiliation = {
         id: crypto.randomUUID(),
-        clinicId,
+        clinicId: defaultClinicId,
         doctorId: doc.doctorId,
         chamberId: chamber?.id,
         chamberNumber: doc.chamberNumber,
@@ -53,11 +55,36 @@ export class AffiliationService {
         followUpValidityDays: 7,
         isPrimaryClinic: true,
         isActive: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: now,
+        updatedAt: now,
       };
 
-      this.affiliations.set(`${clinicId}:${doc.doctorId}`, affiliation);
+      this.affiliations.set(`${defaultClinicId}:${doc.doctorId}`, affiliation);
+    }
+
+    // 2. Seed all affiliations across 10 Bhopal clinics
+    for (const clinic of BHOPAL_10_CLINICS) {
+      for (const doc of clinic.doctors) {
+        const key = `${clinic.id}:${doc.doctorId}`;
+        if (!this.affiliations.has(key)) {
+          const matchingChamber = clinic.chambers.find((ch) => ch.chamberNumber === doc.chamberNumber);
+          const affiliation: ClinicDoctorAffiliation = {
+            id: crypto.randomUUID(),
+            clinicId: clinic.id,
+            doctorId: doc.doctorId,
+            chamberId: matchingChamber?.id,
+            chamberNumber: doc.chamberNumber,
+            consultationFeeRupees: doc.consultationFee,
+            followUpFeeRupees: doc.followUpFee,
+            followUpValidityDays: 14,
+            isPrimaryClinic: true,
+            isActive: true,
+            createdAt: now,
+            updatedAt: now,
+          };
+          this.affiliations.set(key, affiliation);
+        }
+      }
     }
   }
 

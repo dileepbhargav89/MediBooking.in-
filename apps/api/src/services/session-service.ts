@@ -6,7 +6,7 @@
 
 import crypto from 'crypto';
 import { ClinicSession, DayOfWeek, SessionType } from '@medibooking/types';
-import { SEED_DATA } from '@medibooking/database';
+import { SEED_DATA, BHOPAL_10_CLINICS } from '@medibooking/database';
 
 export interface CreateSessionDTO {
   clinicId: string;
@@ -68,15 +68,16 @@ export class SessionService {
   }
 
   private seedDefaultData() {
-    const clinicId = SEED_DATA.clinic.id;
+    const defaultClinicId = SEED_DATA.clinic.id;
 
+    // 1. Seed legacy sessions
     for (const doc of SEED_DATA.doctors) {
       if (doc.sessions && Array.isArray(doc.sessions)) {
         for (const s of doc.sessions) {
           const id = crypto.randomUUID();
           const session: ClinicSession = {
             id,
-            clinicId,
+            clinicId: defaultClinicId,
             doctorId: doc.doctorId,
             chamberNumber: doc.chamberNumber,
             dayOfWeek: s.dayOfWeek,
@@ -90,6 +91,33 @@ export class SessionService {
             isActive: true,
           };
           this.sessions.set(id, session);
+        }
+      }
+    }
+
+    // 2. Seed sessions across 10 Bhopal clinics
+    for (const clinic of BHOPAL_10_CLINICS) {
+      for (const doc of clinic.doctors) {
+        if (doc.sessions && Array.isArray(doc.sessions)) {
+          for (const s of doc.sessions) {
+            const id = crypto.randomUUID();
+            const session: ClinicSession = {
+              id,
+              clinicId: clinic.id,
+              doctorId: doc.doctorId,
+              chamberNumber: doc.chamberNumber,
+              dayOfWeek: s.dayOfWeek,
+              sessionType: s.sessionType,
+              startTime: s.startTime,
+              endTime: s.endTime,
+              slotDurationMinutes: s.slotDurationMinutes || 15,
+              maxWalkInTokens: Math.floor((s.maxTokens || 14) / 2),
+              maxOnlineSlots: Math.ceil((s.maxTokens || 14) / 2),
+              bufferMinutes: 0,
+              isActive: true,
+            };
+            this.sessions.set(id, session);
+          }
         }
       }
     }

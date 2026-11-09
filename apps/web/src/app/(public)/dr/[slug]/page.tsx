@@ -22,26 +22,210 @@ interface PracticeVenue {
   eveningTiming: string;
 }
 
-const DEFAULT_VENUES: PracticeVenue[] = [
-  {
-    clinicId: 'c1010000-0000-4000-8000-000000000001',
-    clinicName: 'Bhopal City Care Polyclinic',
-    address: 'Plot 42, MP Nagar Zone II, Bhopal',
-    chamberNumber: 'CH-1',
-    feeRupees: 600,
-    morningTiming: '10:00 AM – 01:00 PM',
-    eveningTiming: '05:30 PM – 08:30 PM',
+interface DoctorInfo {
+  fullName: string;
+  qualifications: string;
+  specialtyLabel: string;
+  nmcNumber: string;
+  experienceYears: number;
+  rating: string;
+  languages: string;
+  venues: PracticeVenue[];
+}
+
+const DOCTOR_DIRECTORY: Record<string, DoctorInfo> = {
+  'dr-rajesh-sharma-cardio': {
+    fullName: 'Dr. Rajesh Sharma',
+    qualifications: 'MBBS, MD, DM (Cardiology) • Senior Interventional Cardiologist',
+    specialtyLabel: 'Heart & Vascular Specialist',
+    nmcNumber: 'MP-38492',
+    experienceYears: 18,
+    rating: '⭐ 4.9 (420+ Bhopal Reviews)',
+    languages: 'Hindi, English',
+    venues: [
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000001',
+        clinicName: 'Bhopal City Care Polyclinic',
+        address: 'Plot 42, MP Nagar Zone II, Bhopal',
+        chamberNumber: 'CH-1',
+        feeRupees: 600,
+        morningTiming: '10:00 AM – 01:00 PM',
+        eveningTiming: '05:30 PM – 08:30 PM',
+      },
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000002',
+        clinicName: 'Arera Super Specialty Polyclinic',
+        address: 'E-3 Commercial Complex, Arera Colony, Bhopal',
+        chamberNumber: 'CH-3',
+        feeRupees: 800,
+        morningTiming: '08:30 AM – 10:00 AM',
+        eveningTiming: '04:00 PM – 05:30 PM',
+      },
+    ],
   },
-  {
-    clinicId: 'c1020000-0000-4000-8000-000000000002',
-    clinicName: 'Arera Super Specialty Polyclinic',
-    address: 'E-3 Commercial Complex, Arera Colony, Bhopal',
-    chamberNumber: 'CH-3',
-    feeRupees: 800,
-    morningTiming: '08:30 AM – 10:00 AM',
-    eveningTiming: '04:00 PM – 05:30 PM',
+  'dr-priya-patel-derma': {
+    fullName: 'Dr. Priya Patel',
+    qualifications: 'MBBS, MD (Dermatology, Venereology & Leprosy)',
+    specialtyLabel: 'Aesthetic Dermatologist & Trichologist',
+    nmcNumber: 'MPMC-51042',
+    experienceYears: 11,
+    rating: '⭐ 4.8 (310+ Bhopal Reviews)',
+    languages: 'Hindi, English',
+    venues: [
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000001',
+        clinicName: 'CityCare Polyclinic & Diagnostic Centre',
+        address: 'Plot 42, MP Nagar Zone II, Bhopal',
+        chamberNumber: 'CH-2',
+        feeRupees: 600,
+        morningTiming: '11:00 AM – 01:00 PM',
+        eveningTiming: '05:30 PM – 08:00 PM',
+      },
+    ],
   },
-];
+  'dr-alok-verma-neuro': {
+    fullName: 'Dr. Alok Verma',
+    qualifications: 'MBBS, MD (Medicine), DM (Neurology, PGIMER Chandigarh)',
+    specialtyLabel: 'Senior Neurologist & Stroke Specialist',
+    nmcNumber: 'MPMC-39182',
+    experienceYears: 18,
+    rating: '⭐ 4.9 (530+ Bhopal Reviews)',
+    languages: 'Hindi, English',
+    venues: [
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000002',
+        clinicName: 'Narmada Health & Specialty Polyclinic',
+        address: 'E-3/12, Near 10 No. Market, Arera Colony, Bhopal',
+        chamberNumber: 'CH-1',
+        feeRupees: 800,
+        morningTiming: '09:00 AM – 11:30 AM',
+        eveningTiming: '06:00 PM – 09:00 PM',
+      },
+    ],
+  },
+  'dr-vivek-saxena-genmed': {
+    fullName: 'Dr. Vivek Saxena',
+    qualifications: 'MBBS, MD (General Medicine, GMC Bhopal)',
+    specialtyLabel: 'Consultant Physician & Diabetologist',
+    nmcNumber: 'MPMC-42109',
+    experienceYears: 14,
+    rating: '⭐ 4.8 (290+ Bhopal Reviews)',
+    languages: 'Hindi, English',
+    venues: [
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000003',
+        clinicName: 'Kolar Prime MediChambers',
+        address: 'A-14, Sarvadharam C-Sector, Main Kolar Road, Bhopal',
+        chamberNumber: 'CH-1',
+        feeRupees: 500,
+        morningTiming: '10:00 AM – 01:00 PM',
+        eveningTiming: '06:30 PM – 09:00 PM',
+      },
+    ],
+  },
+  'dr-manish-dubey-gastro': {
+    fullName: 'Dr. Manish Dubey',
+    qualifications: 'MBBS, MD, DNB (Gastroenterology)',
+    specialtyLabel: 'Gastroenterology & Hepatology Consultant',
+    nmcNumber: 'MPMC-47120',
+    experienceYears: 13,
+    rating: '⭐ 4.9 (380+ Bhopal Reviews)',
+    languages: 'Hindi, English',
+    venues: [
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000004',
+        clinicName: 'Bhopal Care Polyclinic & Daycare',
+        address: 'Unit 204, Platinum Plaza, TT Nagar, Bhopal',
+        chamberNumber: 'CH-1',
+        feeRupees: 750,
+        morningTiming: '10:00 AM – 12:30 PM',
+        eveningTiming: '05:00 PM – 07:30 PM',
+      },
+    ],
+  },
+  'dr-neha-agrawal-psychiatry': {
+    fullName: 'Dr. Neha Agrawal',
+    qualifications: 'MBBS, MD (Psychiatry, AIIMS Bhopal)',
+    specialtyLabel: 'Mind Wellness & Behavioral Specialist',
+    nmcNumber: 'MPMC-53102',
+    experienceYears: 9,
+    rating: '⭐ 4.9 (190+ Bhopal Reviews)',
+    languages: 'Hindi, English',
+    venues: [
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000005',
+        clinicName: 'New Market Doctors Plaza',
+        address: 'Shop 18-20, Topkhana Market, New Market, Bhopal',
+        chamberNumber: 'CH-2',
+        feeRupees: 700,
+        morningTiming: '11:00 AM – 01:30 PM',
+        eveningTiming: '06:00 PM – 08:30 PM',
+      },
+    ],
+  },
+  'dr-sandeep-kothari-ortho': {
+    fullName: 'Dr. Sandeep Kothari',
+    qualifications: 'MBBS, MS (Ortho), Fellowship in Arthroplasty (Germany)',
+    specialtyLabel: 'Joint Replacement & Spine Specialist',
+    nmcNumber: 'MPMC-38019',
+    experienceYears: 20,
+    rating: '⭐ 4.9 (480+ Bhopal Reviews)',
+    languages: 'Hindi, English',
+    venues: [
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000006',
+        clinicName: 'Hoshangabad Road Medical Enclave',
+        address: 'Near C21 Mall, Misrod, Bhopal',
+        chamberNumber: 'CH-1',
+        feeRupees: 750,
+        morningTiming: '10:30 AM – 01:00 PM',
+        eveningTiming: '06:00 PM – 08:30 PM',
+      },
+    ],
+  },
+  'dr-kavita-deshmukh-genmed': {
+    fullName: 'Dr. Kavita Deshmukh',
+    qualifications: 'MBBS, MD (Medicine, GMC Bhopal)',
+    specialtyLabel: 'Consultant Physician & Geriatric Care',
+    nmcNumber: 'MPMC-44981',
+    experienceYears: 15,
+    rating: '⭐ 4.8 (260+ Bhopal Reviews)',
+    languages: 'Hindi, English',
+    venues: [
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000007',
+        clinicName: 'Shahpura Lakeshore Polyclinic',
+        address: 'B-28, Near Manisha Market Circle, Shahpura, Bhopal',
+        chamberNumber: 'CH-1',
+        feeRupees: 600,
+        morningTiming: '10:00 AM – 12:30 PM',
+        eveningTiming: '05:30 PM – 08:00 PM',
+      },
+    ],
+  },
+  'dr-rohit-chouhan-pedia': {
+    fullName: 'Dr. Rohit Chouhan',
+    qualifications: 'MBBS, MD (Pediatrics, GMC Bhopal)',
+    specialtyLabel: 'Pediatrician & Neonatologist',
+    nmcNumber: 'MPMC-50119',
+    experienceYears: 10,
+    rating: '⭐ 4.9 (340+ Bhopal Reviews)',
+    languages: 'Hindi, English',
+    venues: [
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000008',
+        clinicName: 'Ayodhya Bypass Health Hub',
+        address: 'Shop 5-8, Minal Shopping Mall, Bhopal',
+        chamberNumber: 'CH-1',
+        feeRupees: 500,
+        morningTiming: '10:00 AM – 01:00 PM',
+        eveningTiming: '06:00 PM – 08:30 PM',
+      },
+    ],
+  },
+};
+
+const DEFAULT_VENUES: PracticeVenue[] = DOCTOR_DIRECTORY['dr-rajesh-sharma-cardio']!.venues;
 
 const INITIAL_SLOTS: SlotItem[] = [
   // Morning
@@ -67,8 +251,17 @@ export default function DoctorPublicProfilePage({
 }) {
   const unwrappedParams = use(params);
   const slug = unwrappedParams.slug;
+  const doctorInfo = DOCTOR_DIRECTORY[slug] || DOCTOR_DIRECTORY['dr-rajesh-sharma-cardio']!;
 
-  const [selectedVenue, setSelectedVenue] = useState<PracticeVenue>(DEFAULT_VENUES[0]!);
+  const [selectedVenue, setSelectedVenue] = useState<PracticeVenue>(
+    doctorInfo.venues[0] || DEFAULT_VENUES[0]!
+  );
+
+  useEffect(() => {
+    if (doctorInfo.venues[0]) {
+      setSelectedVenue(doctorInfo.venues[0]);
+    }
+  }, [slug]);
   const [selectedDateIndex, setSelectedDateIndex] = useState(0);
   const [selectedSlot, setSelectedSlot] = useState<SlotItem | null>(null);
   const [lockCountdown, setLockCountdown] = useState<number>(300); // 5 minutes
@@ -195,27 +388,27 @@ export default function DoctorPublicProfilePage({
               <div>
                 <div className="flex flex-wrap items-center gap-2 mb-1">
                   <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                    Dr. Rajesh Sharma
+                    {doctorInfo.fullName}
                   </h1>
                   <Badge variant="mint" size="sm" dot>
                     Verified Practitioner
                   </Badge>
                 </div>
                 <p className="text-sm font-semibold text-emerald-800">
-                  MBBS, MD, DM (Cardiology) • Senior Interventional Cardiologist
+                  {doctorInfo.qualifications}
                 </p>
                 <div className="flex flex-wrap items-center gap-2.5 mt-2.5 text-xs text-slate-600 font-medium">
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-50 font-mono text-emerald-800 font-semibold border border-emerald-200">
-                    🛡️ NMC: MP-38492
+                    🛡️ NMC: {doctorInfo.nmcNumber}
                   </span>
                   <span>•</span>
-                  <span>18+ Years Experience</span>
+                  <span>{doctorInfo.experienceYears}+ Years Experience</span>
                   <span>•</span>
-                  <span>Heart & Vascular Specialist</span>
+                  <span>{doctorInfo.specialtyLabel}</span>
                   <span>•</span>
-                  <span>Hindi, English</span>
+                  <span>{doctorInfo.languages}</span>
                   <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-bold text-[11px]">
-                    ⭐ 4.9 (420+ Bhopal Reviews)
+                    {doctorInfo.rating}
                   </span>
                 </div>
               </div>
@@ -273,10 +466,10 @@ export default function DoctorPublicProfilePage({
               <span className="h-6 w-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">1</span>
               Select Practice Location in Bhopal
             </h2>
-            <span className="text-xs text-slate-500 font-medium">Bhopal City Care Polyclinic Affiliate</span>
+            <span className="text-xs text-slate-500 font-medium">{doctorInfo.venues[0]?.clinicName || 'Bhopal City Care'} Affiliate</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {DEFAULT_VENUES.map((venue) => {
+            {doctorInfo.venues.map((venue) => {
               const isSelected = venue.clinicId === selectedVenue.clinicId;
               return (
                 <div
@@ -429,7 +622,7 @@ export default function DoctorPublicProfilePage({
         title={bookingConfirmed ? 'Appointment Confirmed!' : 'Complete Your Booking'}
         subtitle={
           bookingConfirmed
-            ? `Dr. Rajesh Sharma • ${selectedVenue.clinicName} • ${selectedVenue.chamberNumber}`
+            ? `${doctorInfo.fullName} • ${selectedVenue.clinicName} • ${selectedVenue.chamberNumber}`
             : `Slot Locked for 5 Minutes • ${selectedSlot?.time} (${selectedVenue.chamberNumber})`
         }
       >
@@ -621,7 +814,7 @@ export default function DoctorPublicProfilePage({
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Doctor:</span>
-                <span className="font-bold text-slate-900">Dr. Rajesh Sharma</span>
+                <span className="font-bold text-slate-900">{doctorInfo.fullName}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Clinic Venue:</span>
@@ -657,7 +850,7 @@ export default function DoctorPublicProfilePage({
             </div>
 
             <div className="flex flex-col gap-2.5">
-              <Link href="/patient">
+              <Link href={`/patient?token=${allocatedToken}&chamber=${selectedVenue.chamberNumber}&doctor=${encodeURIComponent(doctorInfo.fullName)}&clinic=${encodeURIComponent(selectedVenue.clinicName)}`}>
                 <Button variant="primary" fullWidth size="md" className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md shadow-emerald-600/20">
                   Track Live Queue Position
                 </Button>
@@ -681,7 +874,7 @@ export default function DoctorPublicProfilePage({
       {/* Footer: Frosted Glass */}
       <footer className="bg-white/70 backdrop-blur-md border-t border-emerald-100/60 py-6 px-6 text-center text-xs text-slate-500">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Dr. Rajesh Sharma • MediBooking.in Verified Practice</span>
+          <span>{doctorInfo.fullName} • MediBooking.in Verified Practice</span>
           <span>Bhopal, MP, India</span>
         </div>
       </footer>

@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-11-09T11:51:48.790Z",
+  "timestamp": "2026-11-09T17:06:44.609Z",
   "journeys": [
     {
       "name": "Journey 1: Public Doctor Booking & Nominal Intake",
       "url": "/dr/dr-rajesh-sharma-cardio",
-      "durationMs": 5022,
+      "durationMs": 12755,
       "consoleLogs": [
         {
           "type": "info",
@@ -27,7 +27,7 @@
     {
       "name": "Journey 2: Receptionist Front Desk & Cashiering",
       "url": "/receptionist",
-      "durationMs": 4623,
+      "durationMs": 6919,
       "consoleLogs": [
         {
           "type": "info",
@@ -50,7 +50,7 @@
     {
       "name": "Journey 3: Doctor Chamber Consultation Desk",
       "url": "/doctor",
-      "durationMs": 2100,
+      "durationMs": 7426,
       "consoleLogs": [
         {
           "type": "info",
@@ -71,7 +71,7 @@
     {
       "name": "Journey 4: Waiting Room 4K TV Screen",
       "url": "/tv/citycare-mpnagar-bhopal",
-      "durationMs": 1668,
+      "durationMs": 4066,
       "consoleLogs": [
         {
           "type": "info",
@@ -91,7 +91,7 @@
     {
       "name": "Journey 5: Patient Live Queue Tracker & WhatsApp Assistant",
       "url": "/patient?token=18&chamber=CH-1",
-      "durationMs": 4903,
+      "durationMs": 10748,
       "consoleLogs": [
         {
           "type": "info",
@@ -114,7 +114,7 @@
     {
       "name": "Journey 6: Clinic Admin Revenue Split & Governance",
       "url": "/admin",
-      "durationMs": 7437,
+      "durationMs": 4597,
       "consoleLogs": [
         {
           "type": "info",

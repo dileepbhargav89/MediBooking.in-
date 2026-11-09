@@ -55,6 +55,59 @@ const QUICK_ROLES: QuickRole[] = [
   },
 ];
 
+interface DemoPersona {
+  label: string;
+  sublabel: string;
+  mobile: string;
+  role: UserRole;
+  portalRoute: string;
+}
+
+const ADDITIONAL_DEMO_PERSONAS: DemoPersona[] = [
+  {
+    label: 'Narmada Reception',
+    sublabel: 'Pooja (Arera Colony)',
+    mobile: '9826055555',
+    role: UserRole.RECEPTIONIST,
+    portalRoute: '/receptionist',
+  },
+  {
+    label: 'Dr. Alok Verma',
+    sublabel: 'Neurologist (Arera)',
+    mobile: '9826144444',
+    role: UserRole.DOCTOR,
+    portalRoute: '/doctor',
+  },
+  {
+    label: 'Kolar Prime Desk',
+    sublabel: 'Deepak (Kolar Rd)',
+    mobile: '9826066666',
+    role: UserRole.RECEPTIONIST,
+    portalRoute: '/receptionist',
+  },
+  {
+    label: 'Dr. Vivek Saxena',
+    sublabel: 'Physician (Kolar Rd)',
+    mobile: '9826155555',
+    role: UserRole.DOCTOR,
+    portalRoute: '/doctor',
+  },
+  {
+    label: 'Anita Mehra',
+    sublabel: 'Patient (Arera)',
+    mobile: '9826077777',
+    role: UserRole.PATIENT,
+    portalRoute: '/patient',
+  },
+  {
+    label: 'Vikramaditya Rao',
+    sublabel: 'Patient (CityCare)',
+    mobile: '9826098765',
+    role: UserRole.PATIENT,
+    portalRoute: '/patient',
+  },
+];
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
 
 export default function LoginPage() {
@@ -285,6 +338,34 @@ export default function LoginPage() {
                   </span>
                 </button>
               ))}
+            </div>
+
+            {/* Multi-Clinic Demo Personas */}
+            <div className="mt-3 pt-3 border-t border-slate-100">
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-emerald-800 mb-1.5 flex items-center gap-1">
+                <span>🏥</span> Multi-Clinic Demo Personas (Bhopal Pilot)
+              </span>
+              <div className="grid grid-cols-2 gap-1.5">
+                {ADDITIONAL_DEMO_PERSONAS.map((p) => (
+                  <button
+                    key={p.mobile}
+                    type="button"
+                    onClick={() =>
+                      handleQuickSelect({
+                        role: p.role,
+                        label: p.label,
+                        mobile: p.mobile,
+                        portalRoute: p.portalRoute,
+                        badgeVariant: p.role === UserRole.DOCTOR ? 'blue' : p.role === UserRole.RECEPTIONIST ? 'mint' : 'gray',
+                      })
+                    }
+                    className="p-1.5 rounded-lg border border-emerald-100 bg-emerald-50/50 hover:bg-emerald-100/70 text-left transition-colors text-[11px]"
+                  >
+                    <div className="font-bold text-slate-900 truncate">{p.label}</div>
+                    <div className="text-[10px] text-emerald-800 truncate">{p.sublabel}</div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

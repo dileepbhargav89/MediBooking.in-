@@ -154,7 +154,7 @@ export const BHOPAL_10_CLINICS: PilotClinic[] = [
     ],
     staff: [
       { userId: 'u-stf-01-01', fullName: 'Virendra Singh (Chief Receptionist)', mobile: '9826033333', email: 'reception@citycare.in', role: UserRole.RECEPTIONIST, staffScope: StaffScope.CLINIC_WIDE },
-      { userId: 'u-stf-01-02', fullName: 'Ramesh Lodhi (Chamber 1 Compounder)', mobile: '9826044444', email: 'compounder1@citycare.in', role: UserRole.COMPOUNDER, staffScope: StaffScope.DOCTOR_DEDICATED, dedicatedDoctorId: 'd3010000-0000-4000-8000-000000000001' },
+      { userId: 'u-stf-01-02', fullName: 'Ramesh Lodhi (Chamber 1 Compounder)', mobile: '9826044444', email: 'compounder1@citycare.in', role: UserRole.RECEPTIONIST, staffScope: StaffScope.DOCTOR_DEDICATED, dedicatedDoctorId: 'd3010000-0000-4000-8000-000000000001' },
     ],
   },
 

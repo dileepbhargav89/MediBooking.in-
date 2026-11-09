@@ -6,7 +6,7 @@
 
 import crypto from 'crypto';
 import { Clinic, Chamber, UserRole, StaffScope, UserContext } from '@medibooking/types';
-import { SEED_DATA } from '@medibooking/database';
+import { SEED_DATA, BHOPAL_10_CLINICS } from '@medibooking/database';
 import { authService } from './auth-service';
 
 export interface CreateClinicDTO {
@@ -63,37 +63,75 @@ export class ClinicService {
   }
 
   private seedDefaultData() {
-    // Seed default Bhopal polyclinic
-    const defaultClinic: Clinic = {
-      id: SEED_DATA.clinic.id,
-      name: SEED_DATA.clinic.name,
-      slug: SEED_DATA.clinic.slug,
-      tagline: SEED_DATA.clinic.tagline,
-      addressLine: SEED_DATA.clinic.addressLine,
-      locality: SEED_DATA.clinic.locality,
-      city: SEED_DATA.clinic.city,
-      state: SEED_DATA.clinic.state,
-      pincode: SEED_DATA.clinic.pincode,
-      contactPhone: SEED_DATA.clinic.contactPhone,
-      contactEmail: 'contact@citycarebhopal.com',
-      isActive: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    const now = new Date().toISOString();
 
-    this.clinics.set(defaultClinic.id, defaultClinic);
+    // 1. Seed all 10 Bhopal pilot clinics
+    for (const pilotClinic of BHOPAL_10_CLINICS) {
+      const clinic: Clinic = {
+        id: pilotClinic.id,
+        name: pilotClinic.name,
+        slug: pilotClinic.slug,
+        tagline: pilotClinic.tagline,
+        addressLine: pilotClinic.addressLine,
+        locality: pilotClinic.locality,
+        city: pilotClinic.city,
+        state: pilotClinic.state,
+        pincode: pilotClinic.pincode,
+        contactPhone: pilotClinic.contactPhone,
+        contactEmail: pilotClinic.contactEmail || `contact@${pilotClinic.slug}.in`,
+        isActive: pilotClinic.isActive,
+        createdAt: now,
+        updatedAt: now,
+        upiVpa: `${pilotClinic.slug}@icici`,
+        merchantName: pilotClinic.name,
+        openingCashFloat: 2500,
+        autoPrintReceipt: true,
+      };
 
-    // Seed default chambers (CH-1 to CH-4)
-    const defaultChambers: Chamber[] = SEED_DATA.chambers.map((ch) => ({
-      id: ch.id,
-      clinicId: defaultClinic.id,
-      chamberNumber: ch.chamberNumber,
-      chamberName: ch.chamberName,
-      floor: ch.floor,
-      isActive: true,
-    }));
+      this.clinics.set(clinic.id, clinic);
 
-    this.chambers.set(defaultClinic.id, defaultChambers);
+      const chambers: Chamber[] = pilotClinic.chambers.map((ch) => ({
+        id: ch.id,
+        clinicId: clinic.id,
+        chamberNumber: ch.chamberNumber,
+        chamberName: ch.chamberName,
+        floor: ch.floor || 'Ground Floor',
+        isActive: true,
+      }));
+
+      this.chambers.set(clinic.id, chambers);
+    }
+
+    // 2. Ensure default legacy clinic is present if different id
+    if (!this.clinics.has(SEED_DATA.clinic.id)) {
+      const defaultClinic: Clinic = {
+        id: SEED_DATA.clinic.id,
+        name: SEED_DATA.clinic.name,
+        slug: SEED_DATA.clinic.slug,
+        tagline: SEED_DATA.clinic.tagline,
+        addressLine: SEED_DATA.clinic.addressLine,
+        locality: SEED_DATA.clinic.locality,
+        city: SEED_DATA.clinic.city,
+        state: SEED_DATA.clinic.state,
+        pincode: SEED_DATA.clinic.pincode,
+        contactPhone: SEED_DATA.clinic.contactPhone,
+        contactEmail: 'contact@citycarebhopal.com',
+        isActive: true,
+        createdAt: now,
+        updatedAt: now,
+      };
+      this.clinics.set(defaultClinic.id, defaultClinic);
+
+      const defaultChambers: Chamber[] = SEED_DATA.chambers.map((ch) => ({
+        id: ch.id,
+        clinicId: defaultClinic.id,
+        chamberNumber: ch.chamberNumber,
+        chamberName: ch.chamberName,
+        floor: ch.floor,
+        isActive: true,
+      }));
+      this.chambers.set(defaultClinic.id, defaultChambers);
+    }
   }
 
   /**

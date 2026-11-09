@@ -211,6 +211,132 @@ export default function HomePage() {
             />
           </div>
         </div>
+
+        {/* Bhopal Polyclinic Network & Specialist Directory: Green & White Glassmorphism */}
+        <div className="bg-white/85 backdrop-blur-xl border border-white/80 rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-950/5 mt-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <h2 className="text-lg font-black text-slate-900 tracking-tight">
+                  Bhopal Polyclinic Network & Specialist Chambers
+                </h2>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Explore affiliated multi-chamber polyclinics and verified doctor consultation desks across Bhopal
+              </p>
+            </div>
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 self-start sm:self-auto">
+              10 Pilot Polyclinics Active
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* 1. CityCare MP Nagar */}
+            <div className="p-4 rounded-2xl bg-white/70 border border-emerald-100/80 shadow-xs hover:shadow-md transition-all space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="flex items-start justify-between gap-1 mb-1">
+                  <h3 className="font-bold text-slate-900 text-sm">CityCare Polyclinic</h3>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">MP Nagar</span>
+                </div>
+                <p className="text-[11px] text-slate-500 line-clamp-1">Near Sargam Cinema, Zone-II</p>
+                <div className="mt-2.5 pt-2 border-t border-slate-100 text-xs space-y-1">
+                  <div className="font-semibold text-slate-800 flex justify-between">
+                    <span>Dr. Rajesh Sharma</span>
+                    <span className="text-emerald-700 font-bold font-mono">₹600</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500">Interventional Cardiologist • CH-1</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                <Link href="/dr/dr-rajesh-sharma-cardio" className="flex-1 py-1.5 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] text-center shadow-xs">
+                  Book Token (₹49)
+                </Link>
+                <Link href="/tv/citycare-mpnagar-bhopal" className="py-1.5 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-[11px] text-center">
+                  Live TV
+                </Link>
+              </div>
+            </div>
+
+            {/* 2. Narmada Health Arera Colony */}
+            <div className="p-4 rounded-2xl bg-white/70 border border-emerald-100/80 shadow-xs hover:shadow-md transition-all space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="flex items-start justify-between gap-1 mb-1">
+                  <h3 className="font-bold text-slate-900 text-sm">Narmada Health & Specialty</h3>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-100 text-teal-800">Arera E-3</span>
+                </div>
+                <p className="text-[11px] text-slate-500 line-clamp-1">Near 10 No. Market Bus Stop</p>
+                <div className="mt-2.5 pt-2 border-t border-slate-100 text-xs space-y-1">
+                  <div className="font-semibold text-slate-800 flex justify-between">
+                    <span>Dr. Alok Verma</span>
+                    <span className="text-emerald-700 font-bold font-mono">₹800</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500">Senior Neurologist (PGIMER) • CH-1</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                <Link href="/dr/dr-alok-verma-neuro" className="flex-1 py-1.5 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] text-center shadow-xs">
+                  Book Token (₹49)
+                </Link>
+                <Link href="/tv/narmada-health-arera-bhopal" className="py-1.5 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-[11px] text-center">
+                  Live TV
+                </Link>
+              </div>
+            </div>
+
+            {/* 3. Kolar Prime */}
+            <div className="p-4 rounded-2xl bg-white/70 border border-emerald-100/80 shadow-xs hover:shadow-md transition-all space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="flex items-start justify-between gap-1 mb-1">
+                  <h3 className="font-bold text-slate-900 text-sm">Kolar Prime MediChambers</h3>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800">Kolar Rd</span>
+                </div>
+                <p className="text-[11px] text-slate-500 line-clamp-1">Sarvadharam C-Sector, Opp D-Mart</p>
+                <div className="mt-2.5 pt-2 border-t border-slate-100 text-xs space-y-1">
+                  <div className="font-semibold text-slate-800 flex justify-between">
+                    <span>Dr. Vivek Saxena</span>
+                    <span className="text-emerald-700 font-bold font-mono">₹500</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500">Consultant Physician • CH-1</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                <Link href="/dr/dr-vivek-saxena-genmed" className="flex-1 py-1.5 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] text-center shadow-xs">
+                  Book Token (₹49)
+                </Link>
+                <Link href="/tv/kolar-prime-sarvadharam-bhopal" className="py-1.5 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-[11px] text-center">
+                  Live TV
+                </Link>
+              </div>
+            </div>
+
+            {/* 4. Bhopal Care TT Nagar */}
+            <div className="p-4 rounded-2xl bg-white/70 border border-emerald-100/80 shadow-xs hover:shadow-md transition-all space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="flex items-start justify-between gap-1 mb-1">
+                  <h3 className="font-bold text-slate-900 text-sm">Bhopal Care Daycare</h3>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-800">TT Nagar</span>
+                </div>
+                <p className="text-[11px] text-slate-500 line-clamp-1">Platinum Plaza, Mata Mandir</p>
+                <div className="mt-2.5 pt-2 border-t border-slate-100 text-xs space-y-1">
+                  <div className="font-semibold text-slate-800 flex justify-between">
+                    <span>Dr. Manish Dubey</span>
+                    <span className="text-emerald-700 font-bold font-mono">₹750</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500">Gastroenterologist • CH-1</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                <Link href="/dr/dr-manish-dubey-gastro" className="flex-1 py-1.5 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] text-center shadow-xs">
+                  Book Token (₹49)
+                </Link>
+                <Link href="/tv/bhopal-care-ttnagar-bhopal" className="py-1.5 px-2.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-[11px] text-center">
+                  Live TV
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Footer: Frosted Glass */}

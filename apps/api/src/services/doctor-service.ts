@@ -6,7 +6,7 @@
 
 import crypto from 'crypto';
 import { DoctorProfile, MedicalSpecialty } from '@medibooking/types';
-import { SEED_DATA } from '@medibooking/database';
+import { SEED_DATA, BHOPAL_10_CLINICS } from '@medibooking/database';
 
 export interface CreateDoctorDTO {
   userId?: string;
@@ -40,9 +40,10 @@ export class DoctorService {
   }
 
   private seedDefaultData() {
-    // Seed initial 4 Bhopal specialist doctors
+    const now = new Date().toISOString();
+
+    // 1. Seed initial Bhopal specialist doctors from SEED_DATA
     for (const doc of SEED_DATA.doctors) {
-      const now = new Date().toISOString();
       const profile: DoctorProfile = {
         id: doc.doctorId,
         userId: `usr-doc-${doc.doctorId.slice(0, 8)}`,
@@ -55,13 +56,40 @@ export class DoctorService {
         experienceYears: doc.experienceYears,
         bio: doc.bio,
         profilePhotoUrl: undefined,
-        isVerified: true, // Seed doctors are pre-verified
+        isVerified: true,
         createdAt: now,
         updatedAt: now,
       };
 
       this.doctors.set(profile.id, profile);
       this.slugToId.set(profile.slug, profile.id);
+    }
+
+    // 2. Seed all specialist doctors across all 10 Bhopal pilot clinics
+    for (const clinic of BHOPAL_10_CLINICS) {
+      for (const doc of clinic.doctors) {
+        if (!this.doctors.has(doc.doctorId)) {
+          const profile: DoctorProfile = {
+            id: doc.doctorId,
+            userId: doc.userId,
+            fullName: doc.fullName,
+            slug: doc.slug,
+            registrationNumber: doc.registrationNumber,
+            stateMedicalCouncil: doc.stateMedicalCouncil,
+            specialties: doc.specialties,
+            qualifications: doc.qualifications,
+            experienceYears: doc.experienceYears,
+            bio: doc.bio,
+            profilePhotoUrl: undefined,
+            isVerified: true,
+            createdAt: now,
+            updatedAt: now,
+          };
+
+          this.doctors.set(profile.id, profile);
+          this.slugToId.set(profile.slug, profile.id);
+        }
+      }
     }
   }
 

@@ -46,6 +46,9 @@ export interface CreateWalkInIntakeDTO {
   patientAge?: number;
   patientGender?: 'MALE' | 'FEMALE' | 'OTHER' | 'UNSPECIFIED';
   locality?: string;
+  symptoms?: string;
+  notes?: string;
+  bookingFeeRupees?: number;
   triageSeverity?: TriageSeverity;
   paymentMethod: PaymentStatus;
   amountRupees?: number;
@@ -359,7 +362,7 @@ export class AppointmentService {
       patientGender: dto.patientGender || 'MALE',
       symptoms: dto.symptoms || dto.notes || '',
       bookingFeeRupees: dto.bookingFeeRupees ?? 49,
-      consultationFeeDue: amountRupees,
+      consultationFeeDue: resolvedFee,
       idempotencyKey: dto.idempotencyKey,
       receiptNumber,
       createdAt: now,
@@ -475,7 +478,7 @@ export class AppointmentService {
         id: appointment.clinicId,
         name: clinicDetails?.clinic.name || 'Bhopal CityCare Polyclinic',
         tagline: 'Multi-Specialty Consultation & Diagnostic Centre',
-        address: clinicDetails?.clinic.address || 'Plot 42, MP Nagar Zone-II',
+        address: clinicDetails?.clinic.addressLine || 'Plot 42, MP Nagar Zone-II',
         city: clinicDetails?.clinic.city || 'Bhopal',
         state: clinicDetails?.clinic.state || 'Madhya Pradesh',
         phone: clinicDetails?.clinic.contactPhone || '+91 755 492 8800',
@@ -512,7 +515,7 @@ export class AppointmentService {
       },
       vitalsTemplate: {
         bp: appointment.vitals?.bloodPressure || '____ / ____ mmHg',
-        pulse: appointment.vitals?.heartRate ? `${appointment.vitals.heartRate} bpm` : '____ bpm',
+        pulse: appointment.vitals?.pulseBpm ? `${appointment.vitals.pulseBpm} bpm` : '____ bpm',
         spo2: appointment.vitals?.spo2Percent ? `${appointment.vitals.spo2Percent}%` : '____ %',
         temp: appointment.vitals?.temperatureF ? `${appointment.vitals.temperatureF} °F` : '____ °F',
         weight: appointment.vitals?.weightKg ? `${appointment.vitals.weightKg} kg` : '____ kg',

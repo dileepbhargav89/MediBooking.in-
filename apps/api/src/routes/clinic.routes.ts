@@ -94,6 +94,28 @@ export async function clinicRoutes(fastify: FastifyInstance) {
   });
 
   /**
+   * Public Clinic Directory: GET /api/v1/clinics
+   */
+  fastify.get('/clinics', async (_req, reply) => {
+    const clinics = await clinicService.listClinics();
+    const enriched = await Promise.all(
+      clinics.map(async (c) => {
+        const details = await clinicService.getClinicById(c.id);
+        return {
+          ...c,
+          chambersCount: details?.chambers.length || 4,
+          chambers: details?.chambers || [],
+        };
+      })
+    );
+    return reply.status(200).send({
+      success: true,
+      count: enriched.length,
+      clinics: enriched,
+    });
+  });
+
+  /**
    * Public Clinic Lookup by Slug: GET /api/v1/clinics/slug/:slug
    */
   fastify.get('/clinics/slug/:slug', async (req, reply) => {

@@ -23,6 +23,7 @@ export function isPublicPath(pathname: string): boolean {
     pathname.startsWith('/onboarding') ||
     pathname.startsWith('/dr/') ||
     pathname.startsWith('/tv/') ||
+    pathname.startsWith('/patient') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api/') ||
     pathname === '/favicon.ico' ||

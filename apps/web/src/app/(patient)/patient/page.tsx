@@ -60,6 +60,10 @@ export default function PatientQueueTrackerPage() {
       const params = new URLSearchParams(window.location.search);
       const tokenParam = params.get('token');
       const chamberParam = params.get('chamber');
+      const doctorParam = params.get('doctor');
+      const clinicParam = params.get('clinic');
+      const patientParam = params.get('patient');
+
       if (tokenParam) {
         const parsedToken = parseInt(tokenParam, 10);
         if (!isNaN(parsedToken)) {
@@ -67,7 +71,9 @@ export default function PatientQueueTrackerPage() {
             ...prev,
             tokenNumber: parsedToken,
             chamberNumber: chamberParam || prev.chamberNumber,
-            patientName: 'WhatsApp 1-Tap Patient',
+            patientName: patientParam || (doctorParam ? 'Vikramaditya Rao' : 'WhatsApp 1-Tap Patient'),
+            doctorName: doctorParam || prev.doctorName,
+            clinicName: clinicParam || prev.clinicName,
             status: 'WAITING',
           }));
         }

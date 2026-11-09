@@ -68,6 +68,9 @@ export enum MedicalSpecialty {
   OPHTHALMOLOGY = 'OPHTHALMOLOGY',
   DENTAL = 'DENTAL',
   PULMONOLOGY = 'PULMONOLOGY',
+  NEUROLOGY = 'NEUROLOGY',
+  GASTROENTEROLOGY = 'GASTROENTEROLOGY',
+  PSYCHIATRY = 'PSYCHIATRY',
   OTHER = 'OTHER',
 }
 
@@ -529,11 +532,13 @@ export interface CashieringSummary {
   totalCollectedRupees: number;
   cashTotalRupees: number;
   upiTotalRupees: number;
+  upiQrTotalRupees?: number;
   waivedTotalRupees: number;
   totalTransactionsCount: number;
   cashTransactionsCount: number;
   upiTransactionsCount: number;
   waivedTransactionsCount: number;
+  waivedCount?: number;
   pendingCount: number;
   pendingAmountRupees: number;
   breakdownByDoctor: Array<{
