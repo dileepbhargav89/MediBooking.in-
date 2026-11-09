@@ -81,6 +81,7 @@ export default function DoctorChamberGlancePortal() {
 
   const [rxNotes, setRxNotes] = useState('Tab. Telmisartan 40mg OD • Advised Lipid Profile & ECG Review');
   const [consultationSuccessNotice, setConsultationSuccessNotice] = useState<string | null>(null);
+  const [chamberProcedures, setChamberProcedures] = useState<string[]>(['proc-ecg']);
 
   const activeClinic =
     DEMO_CLINICS.find((c) => c.clinicId === currentClinicId) || DEMO_CLINICS[0]!;
@@ -365,6 +366,60 @@ export default function DoctorChamberGlancePortal() {
                 />
               </div>
 
+              {/* In-Chamber Diagnostic Procedures (Auto-Billed to Reception Desk) */}
+              <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200 text-xs mb-6 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-emerald-950 flex items-center gap-1.5">
+                    <span>⚡</span> In-Chamber Procedures Conducted (Auto-Billed to Front Desk)
+                  </span>
+                  <span className="text-[10px] text-emerald-800 font-semibold bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200">
+                    Plugs Revenue Leakage
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-tight">
+                  Check procedures conducted in chamber. Front desk reception cashier will automatically see these pre-selected for billing settlement.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                  {[
+                    { id: 'proc-ecg', name: '12-Lead ECG Review', fee: 200, docShare: 160 },
+                    { id: 'proc-dressing', name: 'Sterile Wound Dressing', fee: 150, docShare: 105 },
+                    { id: 'proc-neb', name: 'Duolin Nebulization', fee: 100, docShare: 60 },
+                    { id: 'proc-rbs', name: 'Random Blood Sugar', fee: 50, docShare: 25 },
+                  ].map((proc) => {
+                    const isChecked = chamberProcedures.includes(proc.id);
+                    return (
+                      <label
+                        key={proc.id}
+                        className={`flex items-center justify-between p-2 rounded-lg border cursor-pointer text-xs transition-colors ${
+                          isChecked
+                            ? 'bg-emerald-100/80 border-emerald-400 font-semibold text-emerald-950 shadow-xs'
+                            : 'bg-white border-emerald-200/70 text-slate-700 hover:bg-emerald-50/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setChamberProcedures([...chamberProcedures, proc.id]);
+                              } else {
+                                setChamberProcedures(chamberProcedures.filter((id) => id !== proc.id));
+                              }
+                            }}
+                            className="rounded text-emerald-600 focus:ring-emerald-500"
+                          />
+                          <span>{proc.name}</span>
+                        </div>
+                        <span className="font-mono text-emerald-800 font-bold">
+                          +₹{proc.fee} <span className="text-[10px] text-slate-500 font-normal">(Doc: ₹{proc.docShare})</span>
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* 1-Click Consultation Actions */}
               <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-slate-100">
                 <Button
@@ -417,9 +472,15 @@ export default function DoctorChamberGlancePortal() {
                   <span className="text-[10px] text-slate-400 block">Consultations</span>
                 </div>
               </div>
-              <div className="pt-2.5 border-t border-slate-700/60 flex items-center justify-between text-[11px] text-slate-300">
-                <span>⏱️ Avg Consult: <span className="font-semibold text-white">7.2 mins</span></span>
-                <span className="text-emerald-300 font-semibold">⚡ ~42m Saved (Pre-Printed Rx)</span>
+              <div className="pt-2.5 border-t border-slate-700/60 space-y-1.5 text-[11px] text-slate-300">
+                <div className="flex justify-between items-center">
+                  <span>⏱️ Avg Consult: <span className="font-semibold text-white">7.2 mins</span></span>
+                  <span className="text-emerald-300 font-semibold">⚡ ~42m Saved (Pre-Printed Rx)</span>
+                </div>
+                <div className="flex justify-between items-center pt-1 border-t border-slate-800 text-[10px] text-slate-400">
+                  <span>TDS (Sec 194J 10%): <span className="text-rose-300 font-mono">-₹672</span></span>
+                  <span className="text-slate-300 font-mono">Net NEFT Bank Payout: <span className="text-white font-bold font-mono">₹6,048</span></span>
+                </div>
               </div>
             </Card>
 

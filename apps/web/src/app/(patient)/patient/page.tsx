@@ -297,20 +297,19 @@ export default function PatientQueueTrackerPage() {
           {/* Real-Time Queue Metrics */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-6">
             <StatCard
-              label="Currently Calling"
+              title="Currently Calling"
               value={`#${tokenState.currentCallingToken}`}
-              highlight={isMyTurn}
-              subtext="Inside Doctor's Chamber"
+              subtitle="Inside Doctor's Chamber"
             />
             <StatCard
-              label="Patients Ahead"
+              title="Patients Ahead"
               value={tokensAhead === 0 ? 'Next Up!' : tokensAhead.toString()}
-              subtext="In Waiting Lounge"
+              subtitle="In Waiting Lounge"
             />
             <StatCard
-              label="Estimated Wait"
+              title="Estimated Wait"
               value={isMyTurn ? '0 mins' : `~${estimatedWait} mins`}
-              subtext={tokenState.delayMinutes > 0 ? `Includes +${tokenState.delayMinutes}m delay` : 'Based on 8m avg pace'}
+              subtitle={tokenState.delayMinutes > 0 ? `Includes +${tokenState.delayMinutes}m delay` : 'Based on 8m avg pace'}
               className="col-span-2 sm:col-span-1"
             />
           </div>

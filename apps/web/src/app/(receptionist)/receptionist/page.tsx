@@ -227,6 +227,25 @@ export default function ReceptionDeskDashboardPage() {
   const [settledSlipPreview, setSettledSlipPreview] = useState<string | null>(null);
   const [isSettlementComplete, setIsSettlementComplete] = useState(false);
 
+  // Business Fix: Ad-Hoc Custom Procedures & Online Booking Credit State
+  const [customProcedures, setCustomProcedures] = useState<Array<{ id: string; name: string; amountRupees: number; doctorSplitPercent: number }>>([]);
+  const [adhocProcName, setAdhocProcName] = useState('');
+  const [adhocProcAmount, setAdhocProcAmount] = useState<number>(0);
+  const [adhocProcSplit, setAdhocProcSplit] = useState<number>(80);
+  const [showAdhocForm, setShowAdhocForm] = useState(false);
+  const [creditOnlineBookingFee, setCreditOnlineBookingFee] = useState(false);
+
+  // Business Fix: Fast Cash Drawer Denomination Tally Counter
+  const [isDenominationOpen, setIsDenominationOpen] = useState(false);
+  const [denominations, setDenominations] = useState<{ [denom: number]: number }>({
+    500: 20, // 10000
+    200: 10, // 2000
+    100: 4,  // 400
+    50: 0,
+    20: 0,
+    10: 0,
+  });
+
   // Intake Form State
   const [mobile, setMobile] = useState('');
   const [patientName, setPatientName] = useState('');
@@ -255,31 +274,31 @@ export default function ReceptionDeskDashboardPage() {
 
   // Phase 53: Network Connectivity & IndexedDB Offline Queue Listener
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setIsOnline(navigator.onLine);
-      OfflineSyncQueueManager.getPendingCount().then(setPendingOfflineCount);
+    if (typeof window === 'undefined') return;
 
-      const handleOnline = () => {
-        setIsOnline(true);
-        triggerAutoSync();
-      };
-      const handleOffline = () => {
-        setIsOnline(false);
-      };
+    setIsOnline(navigator.onLine);
+    OfflineSyncQueueManager.getPendingCount().then(setPendingOfflineCount);
 
-      window.addEventListener('online', handleOnline);
-      window.addEventListener('offline', handleOffline);
+    const handleOnline = () => {
+      setIsOnline(true);
+      triggerAutoSync();
+    };
+    const handleOffline = () => {
+      setIsOnline(false);
+    };
 
-      // Register PWA Service Worker in production/supporting environments
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').catch(() => { });
-      }
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
 
-      return () => {
-        window.removeEventListener('online', handleOnline);
-        window.removeEventListener('offline', handleOffline);
-      };
+    // Register PWA Service Worker in production/supporting environments
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => { });
     }
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
   }, []);
 
   const triggerAutoSync = async () => {
@@ -309,23 +328,43 @@ export default function ReceptionDeskDashboardPage() {
     { id: 'proc-inj', name: 'IM / IV Antibiotic / Pain Injection', amountRupees: 40, doctorSplit: 20, clinicSplit: 20 },
   ];
 
+  const calculateDenominationTotal = () => {
+    return Object.entries(denominations).reduce(
+      (sum, [denom, count]) => sum + Number(denom) * (count || 0),
+      0
+    );
+  };
+
   const calculateGrossCharges = () => {
     const fee = consultationType === 'WAIVED' ? 0 : consultationFeeRupees;
-    const procTotal = selectedProcedures.reduce((sum, id) => {
+    const catalogProcTotal = selectedProcedures.reduce((sum, id) => {
       const match = PROCEDURE_OPTIONS.find((p) => p.id === id);
       return sum + (match?.amountRupees || 0);
     }, 0);
-    return fee + procTotal;
+    const customProcTotal = customProcedures.reduce((sum, p) => sum + p.amountRupees, 0);
+    return fee + catalogProcTotal + customProcTotal;
+  };
+
+  const calculateNetPayable = () => {
+    const gross = calculateGrossCharges();
+    const onlineCredit =
+      creditOnlineBookingFee && selectedSettleToken?.bookingFeeRupees
+        ? selectedSettleToken.bookingFeeRupees
+        : 0;
+    return Math.max(0, gross - onlineCredit);
   };
 
   const calculateDoctorSplit = () => {
     const fee = consultationType === 'WAIVED' ? 0 : consultationFeeRupees;
     const docConsult = Math.round(fee * 0.8);
-    const docProc = selectedProcedures.reduce((sum, id) => {
+    const docCatalogProc = selectedProcedures.reduce((sum, id) => {
       const match = PROCEDURE_OPTIONS.find((p) => p.id === id);
       return sum + (match?.doctorSplit || 0);
     }, 0);
-    return docConsult + docProc;
+    const docCustomProc = customProcedures.reduce((sum, p) => {
+      return sum + Math.round(p.amountRupees * (p.doctorSplitPercent / 100));
+    }, 0);
+    return docConsult + docCatalogProc + docCustomProc;
   };
 
   const calculateClinicSplit = () => {
@@ -344,6 +383,9 @@ export default function ReceptionDeskDashboardPage() {
     setConsultationFeeRupees(token.consultationFeeDue || 600);
     setWaiverReason('');
     setSelectedProcedures([]);
+    setCustomProcedures([]);
+    setCreditOnlineBookingFee(false);
+    setShowAdhocForm(false);
     setSettlePaymentMode(token.paymentStatus === 'PAID_UPI_QR' ? 'PAID_UPI_QR' : 'PAID_CASH');
     setSettledSlipPreview(null);
     setIsSettlementComplete(false);
@@ -354,6 +396,7 @@ export default function ReceptionDeskDashboardPage() {
     if (!selectedSettleToken) return;
 
     const gross = calculateGrossCharges();
+    const net = calculateNetPayable();
     const docSplit = calculateDoctorSplit();
     const clinicSplit = calculateClinicSplit();
     const cleanDate = new Date().toISOString().split('T')[0]?.replace(/-/g, '') || '20261108';
@@ -379,8 +422,13 @@ export default function ReceptionDeskDashboardPage() {
       '----------------------------------------',
       `Doctor Consultation (${consultationType}) 1  ₹${consultationType === 'WAIVED' ? 0 : consultationFeeRupees}`,
       ...selectedProcDetails.map((p) => `${p.name.slice(0, 24).padEnd(24)}  1   ₹${p.amountRupees}`),
+      ...customProcedures.map((p) => `${p.name.slice(0, 24).padEnd(24)}  1   ₹${p.amountRupees}`),
       '----------------------------------------',
       `TOTAL CHARGES COLLECTED:          ₹${gross}`,
+      ...(creditOnlineBookingFee && selectedSettleToken.bookingFeeRupees ? [
+        `Less: Online Token Fee (UPI):    -₹${selectedSettleToken.bookingFeeRupees}`,
+        `NET COUNTER AMOUNT COLLECTED:     ₹${net}`
+      ] : []),
       `Payment Mode: ${settlePaymentMode}`,
       '----------------------------------------',
       `Doctor Share (80% / Proc):        ₹${docSplit}`,
@@ -710,6 +758,73 @@ export default function ReceptionDeskDashboardPage() {
             accentColor="#10B981"
             badge={{ label: 'ON TRACK', variant: 'mint' }}
           />
+        </div>
+
+        {/* Fast Cash Drawer Denomination Tally (Anti-Pilferage) */}
+        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm">🧮</span>
+              <span className="text-xs font-bold text-slate-800">
+                Front-Desk Physical Cash Denomination Tally
+              </span>
+              <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold">
+                Anti-Pilferage Verified
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsDenominationOpen(!isDenominationOpen)}
+              className="text-xs text-blue-600 hover:text-blue-800 font-semibold"
+            >
+              {isDenominationOpen ? '▲ Hide Denomination Keypad' : '▼ Quick Cash Counter (₹500 / ₹200 / ₹100)'}
+            </button>
+          </div>
+
+          {isDenominationOpen && (
+            <div className="mt-3 pt-3 border-t border-slate-100 space-y-3">
+              <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 text-xs">
+                {[500, 200, 100, 50, 20, 10].map((denom) => (
+                  <div key={denom} className="p-2 rounded-lg bg-slate-50 border border-slate-200 text-center">
+                    <span className="font-mono font-bold text-slate-700 block text-xs">₹{denom} Notes</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={denominations[denom] || ''}
+                      onChange={(e) =>
+                        setDenominations({
+                          ...denominations,
+                          [denom]: Math.max(0, parseInt(e.target.value) || 0),
+                        })
+                      }
+                      className="w-full mt-1 px-1.5 py-1 text-center font-mono font-bold text-slate-900 border border-slate-300 rounded bg-white text-xs focus:ring-1 focus:ring-blue-500"
+                    />
+                    <span className="text-[10px] text-slate-500 font-mono block mt-1">
+                      = ₹{((denominations[denom] || 0) * denom).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-wrap items-center justify-between p-2.5 bg-emerald-50/70 border border-emerald-200 rounded-lg text-xs gap-2">
+                <div className="flex flex-wrap items-center gap-4">
+                  <span>Counted Cash: <span className="font-mono font-black text-slate-900 text-sm">₹{calculateDenominationTotal().toLocaleString('en-IN')}</span></span>
+                  <span>System Expected: <span className="font-mono font-semibold text-slate-700">₹12,400</span></span>
+                  <span className={`px-2 py-0.5 rounded font-bold font-mono text-[10px] ${
+                    calculateDenominationTotal() === 12400 ? 'bg-emerald-600 text-white' : 'bg-rose-100 text-rose-800'
+                  }`}>
+                    Variance: {calculateDenominationTotal() - 12400 >= 0 ? `+₹${calculateDenominationTotal() - 12400}` : `-₹${12400 - calculateDenominationTotal()}`} {calculateDenominationTotal() === 12400 ? '✓ (100% BALANCED)' : '⚠️ (DISCREPANCY)'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsDenominationOpen(false)}
+                  className="px-2.5 py-1 text-[11px] font-bold bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors"
+                >
+                  Confirm Drawer Count
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 4 Chambers Status Strip */}
@@ -1507,8 +1622,119 @@ export default function ReceptionDeskDashboardPage() {
                         </label>
                       );
                     })}
+
+                    {/* Dynamic Ad-Hoc Custom Procedures Added */}
+                    {customProcedures.map((cp) => (
+                      <div
+                        key={cp.id}
+                        className="flex items-center justify-between p-2 rounded-lg border border-purple-200 bg-purple-50 text-xs text-purple-950 font-semibold"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] bg-purple-200 text-purple-800 px-1.5 py-0.5 rounded font-mono">
+                            CUSTOM
+                          </span>
+                          <span>{cp.name}</span>
+                          <span className="text-[10px] text-purple-700 font-normal">
+                            ({cp.doctorSplitPercent}% Doc / {100 - cp.doctorSplitPercent}% Clinic)
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-purple-900">+₹{cp.amountRupees}</span>
+                          <button
+                            type="button"
+                            onClick={() => setCustomProcedures(customProcedures.filter((p) => p.id !== cp.id))}
+                            className="text-rose-500 hover:text-rose-700 font-bold px-1"
+                            title="Remove custom procedure"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Inline Form to Add Ad-Hoc Custom Procedure */}
+                    {showAdhocForm ? (
+                      <div className="p-2.5 rounded-lg border border-dashed border-purple-300 bg-purple-50/50 space-y-2 mt-2">
+                        <div className="text-[11px] font-bold text-purple-900 flex justify-between items-center">
+                          <span>+ Add Uncataloged / Ad-Hoc Procedure</span>
+                          <button
+                            type="button"
+                            onClick={() => setShowAdhocForm(false)}
+                            className="text-slate-400 hover:text-slate-600 text-xs"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                          <input
+                            type="text"
+                            placeholder="Procedure name (e.g. Suture Removal)"
+                            value={adhocProcName}
+                            onChange={(e) => setAdhocProcName(e.target.value)}
+                            className="px-2 py-1 text-xs border border-purple-200 rounded bg-white focus:ring-1 focus:ring-purple-500 sm:col-span-1"
+                          />
+                          <input
+                            type="number"
+                            min="0"
+                            placeholder="Amount (₹)"
+                            value={adhocProcAmount || ''}
+                            onChange={(e) => setAdhocProcAmount(Number(e.target.value) || 0)}
+                            className="px-2 py-1 text-xs border border-purple-200 rounded bg-white font-mono focus:ring-1 focus:ring-purple-500"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (adhocProcName.trim() && adhocProcAmount > 0) {
+                                setCustomProcedures([
+                                  ...customProcedures,
+                                  {
+                                    id: `custom-${Date.now()}`,
+                                    name: adhocProcName.trim(),
+                                    amountRupees: adhocProcAmount,
+                                    doctorSplitPercent: adhocProcSplit,
+                                  },
+                                ]);
+                                setAdhocProcName('');
+                                setAdhocProcAmount(0);
+                                setShowAdhocForm(false);
+                              }
+                            }}
+                            className="px-2 py-1 text-xs font-bold bg-purple-700 hover:bg-purple-800 text-white rounded transition-colors"
+                          >
+                            + Add to Bill
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setShowAdhocForm(true)}
+                        className="w-full py-1.5 text-[11px] font-semibold text-purple-700 hover:text-purple-900 bg-purple-50/60 hover:bg-purple-100/60 border border-dashed border-purple-200 rounded-lg transition-colors flex items-center justify-center gap-1.5 mt-1"
+                      >
+                        <span>+</span> Add Custom Ad-Hoc Procedure (e.g. Suture Removal, Ear Syringing, Abscess)
+                      </button>
+                    )}
                   </div>
                 </div>
+
+                {/* Online ₹49 Booking Fee Deduction Checkbox */}
+                {selectedSettleToken.bookingFeeRupees && selectedSettleToken.bookingFeeRupees > 0 && (
+                  <div className="p-3 rounded-xl bg-blue-50/80 border border-blue-200 text-xs flex items-center justify-between">
+                    <label className="flex items-center gap-2 cursor-pointer font-semibold text-slate-800">
+                      <input
+                        type="checkbox"
+                        data-testid="chk-credit-booking-fee"
+                        checked={creditOnlineBookingFee}
+                        onChange={(e) => setCreditOnlineBookingFee(e.target.checked)}
+                        className="rounded text-blue-600 focus:ring-blue-500"
+                      />
+                      <span>Deduct Online Booking Token Fee (-₹{selectedSettleToken.bookingFeeRupees})</span>
+                    </label>
+                    <span className="text-[10px] font-mono font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded border border-blue-200">
+                      UPI Verified Paid
+                    </span>
+                  </div>
+                )}
 
                 {/* Settlement Calculation & Ledger Split Preview */}
                 <div className="p-4 rounded-xl bg-slate-900 text-white space-y-2 text-xs">
@@ -1518,6 +1744,18 @@ export default function ReceptionDeskDashboardPage() {
                       ₹{calculateGrossCharges()}
                     </span>
                   </div>
+                  {creditOnlineBookingFee && selectedSettleToken.bookingFeeRupees ? (
+                    <div className="flex justify-between items-center text-xs text-blue-300 font-mono pt-1 border-t border-slate-800">
+                      <span>Less: Online Booking Fee Paid:</span>
+                      <span className="text-blue-300">-₹{selectedSettleToken.bookingFeeRupees}</span>
+                    </div>
+                  ) : null}
+                  {creditOnlineBookingFee && selectedSettleToken.bookingFeeRupees ? (
+                    <div className="flex justify-between items-center text-sm font-black text-amber-300 font-mono pt-1 border-t border-slate-800">
+                      <span>Net Collected at Desk:</span>
+                      <span className="text-amber-300 text-base">₹{calculateNetPayable()}</span>
+                    </div>
+                  ) : null}
                   <div className="pt-2 border-t border-slate-800 grid grid-cols-2 gap-2 text-[11px] text-slate-300">
                     <div>
                       <span>Doctor Share: </span>

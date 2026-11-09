@@ -70,6 +70,7 @@ export const ProductTourGuide: React.FC<ProductTourGuideProps> = ({
   if (!isActive || steps.length === 0) return null;
 
   const currentStep = steps[currentStepIndex];
+  if (!currentStep) return null;
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === steps.length - 1;
 
