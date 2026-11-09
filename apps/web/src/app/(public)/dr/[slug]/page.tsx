@@ -152,21 +152,28 @@ export default function DoctorPublicProfilePage({
   const eveningSlots = INITIAL_SLOTS.filter((s) => s.session === 'EVENING');
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-between">
-      {/* Top Navbar */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-30">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50/40 via-white to-teal-50/30 flex flex-col justify-between relative overflow-hidden">
+      {/* Ambient Glassmorphic Glow Orbs */}
+      <div className="absolute top-0 right-0 -mr-32 -mt-32 w-96 h-96 rounded-full bg-emerald-400/10 blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 left-0 -ml-40 w-96 h-96 rounded-full bg-teal-400/10 blur-3xl pointer-events-none" />
+
+      {/* Top Navbar: Frosted Glass */}
+      <header className="bg-white/80 backdrop-blur-xl border-b border-emerald-100/70 px-6 py-3.5 sticky top-0 z-30 shadow-xs">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xl shadow-sm">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-xl shadow-md shadow-emerald-600/20">
               M
             </div>
             <span className="text-lg font-black tracking-tight text-slate-900">
-              MediBooking<span className="text-blue-600">.in</span>
+              MediBooking<span className="text-emerald-600">.in</span>
+            </span>
+            <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+              ✓ Verified Clinic Booking
             </span>
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/login">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-xs font-semibold text-slate-700 hover:text-emerald-700">
                 Staff Login
               </Button>
             </Link>
@@ -175,12 +182,14 @@ export default function DoctorPublicProfilePage({
       </header>
 
       {/* Main Profile & Booking Flow */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 w-full space-y-8">
-        {/* Doctor Master Profile Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 w-full space-y-8 relative z-10">
+        {/* Doctor Master Profile Card: Glassmorphic High-Conversion */}
+        <div className="bg-white/85 backdrop-blur-xl border border-white/80 rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-950/5 ring-1 ring-emerald-900/5 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-bl from-emerald-500/10 to-transparent rounded-bl-full pointer-events-none" />
+
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
             <div className="flex items-start gap-4 sm:gap-6">
-              <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black text-3xl sm:text-4xl shadow-md shrink-0">
+              <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-3xl sm:text-4xl shadow-lg shadow-emerald-600/25 shrink-0 ring-4 ring-white">
                 DR
               </div>
               <div>
@@ -192,38 +201,80 @@ export default function DoctorPublicProfilePage({
                     Verified Practitioner
                   </Badge>
                 </div>
-                <p className="text-sm font-semibold text-blue-700">
+                <p className="text-sm font-semibold text-emerald-800">
                   MBBS, MD, DM (Cardiology) • Senior Interventional Cardiologist
                 </p>
-                <div className="flex flex-wrap items-center gap-2.5 mt-2.5 text-xs text-slate-500 font-medium">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 font-mono text-slate-700 font-semibold">
+                <div className="flex flex-wrap items-center gap-2.5 mt-2.5 text-xs text-slate-600 font-medium">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-50 font-mono text-emerald-800 font-semibold border border-emerald-200">
                     🛡️ NMC: MP-38492
                   </span>
                   <span>•</span>
                   <span>18+ Years Experience</span>
                   <span>•</span>
+                  <span>Heart & Vascular Specialist</span>
+                  <span>•</span>
                   <span>Hindi, English</span>
+                  <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-bold text-[11px]">
+                    ⭐ 4.9 (420+ Bhopal Reviews)
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div className="sm:text-right shrink-0">
-              <span className="text-xs text-slate-400 font-medium block">Consultation Fee</span>
-              <span className="text-3xl font-black text-slate-900 font-mono tabular-nums">
+            {/* Transparent Commercial Fee Card */}
+            <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 sm:text-right backdrop-blur-sm shadow-xs shrink-0">
+              <span className="text-[11px] text-emerald-900 font-bold uppercase tracking-wider block">
+                Chamber Consultation Fee
+              </span>
+              <span className="text-3xl font-black text-slate-900 font-mono tabular-nums block my-0.5">
                 ₹{selectedVenue.feeRupees}
               </span>
-              <span className="text-xs text-emerald-600 font-semibold block mt-0.5">
-                Pay at Clinic Desk
+              <span className="text-xs text-emerald-700 font-bold flex items-center sm:justify-end gap-1">
+                <span>🏥</span> Pay at Clinic Desk
               </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Business Value Proposition: Why Book Online via ₹49 Token? */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 rounded-2xl bg-white/75 backdrop-blur-md border border-emerald-100 shadow-sm text-xs">
+          <div className="flex items-start gap-3">
+            <div className="h-8 w-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm shrink-0">
+              ⚡
+            </div>
+            <div>
+              <span className="font-bold text-slate-900 block text-sm">
+                Online ₹49 Token Advantage (Zero Counter Wait)
+              </span>
+              <p className="text-slate-600 leading-relaxed mt-0.5">
+                Guarantees your slot & prompts front-desk staff to pre-print your physical <span className="font-semibold text-emerald-800">Pre-Consultation Prescription Letterhead</span> with vitals recorded before chamber entry.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3 pt-3 md:pt-0 border-t md:border-t-0 md:border-l border-emerald-100 md:pl-4">
+            <div className="h-8 w-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-sm shrink-0">
+              📱
+            </div>
+            <div>
+              <span className="font-bold text-slate-900 block text-sm">
+                Two-Way WhatsApp Live Queue Tracking
+              </span>
+              <p className="text-slate-600 leading-relaxed mt-0.5">
+                Receive real-time token announcements, live chamber queue position, and doctor ETA updates on WhatsApp so you arrive just in time.
+              </p>
             </div>
           </div>
         </div>
 
         {/* Practice Venue / Polyclinic Selection */}
         <div className="space-y-3">
-          <h2 className="text-base font-bold text-slate-900 tracking-tight">
-            1. Select Practice Location in Bhopal
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+              <span className="h-6 w-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">1</span>
+              Select Practice Location in Bhopal
+            </h2>
+            <span className="text-xs text-slate-500 font-medium">Bhopal City Care Polyclinic Affiliate</span>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {DEFAULT_VENUES.map((venue) => {
               const isSelected = venue.clinicId === selectedVenue.clinicId;
@@ -231,24 +282,24 @@ export default function DoctorPublicProfilePage({
                 <div
                   key={venue.clinicId}
                   onClick={() => setSelectedVenue(venue)}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                  className={`p-4 rounded-2xl border transition-all cursor-pointer backdrop-blur-md ${
                     isSelected
-                      ? 'border-blue-600 bg-blue-50/40 ring-2 ring-blue-600/20 shadow-sm'
-                      : 'border-slate-200 bg-white hover:border-slate-300'
+                      ? 'border-emerald-600 bg-emerald-50/80 ring-2 ring-emerald-600/20 shadow-md shadow-emerald-600/10'
+                      : 'border-slate-200/80 bg-white/70 hover:border-emerald-300 hover:bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1.5">
                     <h3 className="font-bold text-slate-900 text-sm truncate">
                       {venue.clinicName}
                     </h3>
-                    <span className="px-2 py-0.5 rounded font-mono text-xs font-bold bg-blue-100 text-blue-800">
+                    <span className="px-2.5 py-0.5 rounded font-mono text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
                       {venue.chamberNumber}
                     </span>
                   </div>
                   <p className="text-xs text-slate-500 mb-2 truncate">{venue.address}</p>
                   <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span className="text-slate-600 font-medium">Fee: ₹{venue.feeRupees}</span>
-                    <span className="text-emerald-700 font-semibold">
+                    <span className="text-slate-700 font-semibold">Chamber Fee: ₹{venue.feeRupees}</span>
+                    <span className="text-emerald-700 font-bold">
                       {venue.morningTiming.split('–')[0]} Today
                     </span>
                   </div>
@@ -260,8 +311,9 @@ export default function DoctorPublicProfilePage({
 
         {/* Date Selector */}
         <div className="space-y-3">
-          <h2 className="text-base font-bold text-slate-900 tracking-tight">
-            2. Choose Consultation Date
+          <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <span className="h-6 w-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">2</span>
+            Choose Consultation Date
           </h2>
           <div className="flex items-center gap-2 overflow-x-auto pb-2">
             {dates.map((d) => {
@@ -271,10 +323,10 @@ export default function DoctorPublicProfilePage({
                   key={d.index}
                   type="button"
                   onClick={() => setSelectedDateIndex(d.index)}
-                  className={`min-w-24 p-3 rounded-xl border text-center transition-all ${
+                  className={`min-w-24 p-3 rounded-2xl border text-center transition-all backdrop-blur-md ${
                     isSelected
-                      ? 'border-blue-600 bg-blue-600 text-white shadow-sm'
-                      : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                      ? 'border-emerald-600 bg-emerald-600 text-white shadow-lg shadow-emerald-600/25 ring-2 ring-emerald-600/20'
+                      : 'border-slate-200 bg-white/80 text-slate-700 hover:border-emerald-300 hover:bg-emerald-50/40'
                   }`}
                 >
                   <span className="block text-[11px] font-semibold uppercase">{d.label}</span>
@@ -291,10 +343,11 @@ export default function DoctorPublicProfilePage({
         {/* Interactive Slots Grid */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-900 tracking-tight">
-              3. Available Time Slots ({selectedVenue.chamberNumber})
+            <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+              <span className="h-6 w-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">3</span>
+              Available Time Slots ({selectedVenue.chamberNumber})
             </h2>
-            <div className="flex items-center gap-3 text-xs text-slate-500">
+            <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" /> Available
               </span>
@@ -305,10 +358,10 @@ export default function DoctorPublicProfilePage({
           </div>
 
           {/* Morning Slots */}
-          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-3">
+          <div className="bg-white/80 backdrop-blur-md border border-emerald-100 rounded-2xl p-5 shadow-xs space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                Morning Session • {selectedVenue.morningTiming}
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                <span>🌅</span> Morning Session • {selectedVenue.morningTiming}
               </span>
               <Badge variant="mint" size="sm">
                 Slots Open
@@ -320,12 +373,12 @@ export default function DoctorPublicProfilePage({
                   key={slot.id}
                   disabled={!slot.isAvailable || slot.isLocked}
                   onClick={() => handleSelectSlot(slot)}
-                  className={`py-2.5 px-3 rounded-lg border text-xs font-bold font-mono tabular-nums transition-all ${
+                  className={`py-2.5 px-3 rounded-xl border text-xs font-bold font-mono tabular-nums transition-all ${
                     !slot.isAvailable
-                      ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
+                      ? 'border-slate-200 bg-slate-100/80 text-slate-400 cursor-not-allowed'
                       : slot.isLocked
                       ? 'border-amber-200 bg-amber-50 text-amber-600 cursor-not-allowed'
-                      : 'border-emerald-200 bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-800 cursor-pointer shadow-xs'
+                      : 'border-emerald-200/90 bg-emerald-50/70 hover:bg-emerald-600 hover:text-white text-emerald-900 cursor-pointer shadow-xs hover:shadow-md hover:shadow-emerald-600/20'
                   }`}
                 >
                   {slot.time}
@@ -335,12 +388,12 @@ export default function DoctorPublicProfilePage({
           </div>
 
           {/* Evening Slots */}
-          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-3">
+          <div className="bg-white/80 backdrop-blur-md border border-emerald-100 rounded-2xl p-5 shadow-xs space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                Evening Session • {selectedVenue.eveningTiming}
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                <span>🌆</span> Evening Session • {selectedVenue.eveningTiming}
               </span>
-              <Badge variant="blue" size="sm">
+              <Badge variant="mint" size="sm">
                 Slots Open
               </Badge>
             </div>
@@ -350,12 +403,12 @@ export default function DoctorPublicProfilePage({
                   key={slot.id}
                   disabled={!slot.isAvailable || slot.isLocked}
                   onClick={() => handleSelectSlot(slot)}
-                  className={`py-2.5 px-3 rounded-lg border text-xs font-bold font-mono tabular-nums transition-all ${
+                  className={`py-2.5 px-3 rounded-xl border text-xs font-bold font-mono tabular-nums transition-all ${
                     !slot.isAvailable
-                      ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
+                      ? 'border-slate-200 bg-slate-100/80 text-slate-400 cursor-not-allowed'
                       : slot.isLocked
                       ? 'border-amber-200 bg-amber-50 text-amber-600 cursor-not-allowed'
-                      : 'border-blue-200 bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-800 cursor-pointer shadow-xs'
+                      : 'border-emerald-200/90 bg-emerald-50/70 hover:bg-emerald-600 hover:text-white text-emerald-900 cursor-pointer shadow-xs hover:shadow-md hover:shadow-emerald-600/20'
                   }`}
                 >
                   {slot.time}
@@ -366,7 +419,7 @@ export default function DoctorPublicProfilePage({
         </div>
       </main>
 
-      {/* Booking Confirmation / Slot Lock Modal */}
+      {/* Booking Confirmation / Slot Lock Modal (Glassmorphic) */}
       <Modal
         isOpen={isBookingModalOpen}
         onClose={() => {
@@ -383,15 +436,17 @@ export default function DoctorPublicProfilePage({
         {!bookingConfirmed ? (
           <form onSubmit={handleConfirmBooking} className="space-y-4">
             {/* Lock Expiry Timer Banner */}
-            <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-between text-xs text-amber-800">
-              <span className="font-medium">Slot held exclusively for you</span>
-              <span className="font-mono tabular-nums font-bold">
+            <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200 flex items-center justify-between text-xs text-amber-800 backdrop-blur-sm">
+              <span className="font-semibold flex items-center gap-1.5">
+                <span>🔒</span> Slot held exclusively for you
+              </span>
+              <span className="font-mono tabular-nums font-bold bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
                 ⏱️ {formatSeconds(lockCountdown)} left
               </span>
             </div>
 
             {errorMessage && (
-              <div className="p-2.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 font-medium">
+              <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 font-medium">
                 {errorMessage}
               </div>
             )}
@@ -418,7 +473,7 @@ export default function DoctorPublicProfilePage({
                     value={patientAge}
                     data-testid="input-patient-age"
                     onChange={(e) => setPatientAge(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
                     required
                   />
                 </div>
@@ -431,7 +486,7 @@ export default function DoctorPublicProfilePage({
                     value={patientGender}
                     data-testid="select-patient-gender"
                     onChange={(e) => setPatientGender(e.target.value as any)}
-                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                   >
                     <option value="MALE">Male</option>
                     <option value="FEMALE">Female</option>
@@ -463,7 +518,7 @@ export default function DoctorPublicProfilePage({
                   value={symptoms}
                   data-testid="input-patient-symptoms"
                   onChange={(e) => setSymptoms(e.target.value)}
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
                 />
                 <div className="flex flex-wrap gap-1.5 mt-1.5">
                   {[
@@ -477,7 +532,7 @@ export default function DoctorPublicProfilePage({
                       key={chip}
                       type="button"
                       onClick={() => setSymptoms(chip)}
-                      className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 transition-colors"
+                      className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition-colors"
                     >
                       + {chip}
                     </button>
@@ -486,28 +541,28 @@ export default function DoctorPublicProfilePage({
               </div>
             </div>
 
-            {/* Nominal Booking Fee vs Counter Fee Breakdown */}
-            <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200 text-xs space-y-2">
+            {/* Nominal Booking Fee vs Counter Fee Breakdown: Green & White Glassmorphic */}
+            <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-xs space-y-2 backdrop-blur-sm shadow-xs">
               <div className="flex items-center justify-between font-bold text-slate-900">
                 <span className="flex items-center gap-1.5">
-                  <span className="text-blue-600">📱</span>
+                  <span className="text-emerald-600">📱</span>
                   Online Token Booking Fee:
                 </span>
-                <span className="font-mono text-blue-700 text-sm">₹49 (Payable Now)</span>
+                <span className="font-mono text-emerald-700 text-sm font-black">₹49 (Payable Now)</span>
               </div>
-              <div className="flex items-center justify-between text-slate-600 text-[11px] pt-1 border-t border-blue-100">
+              <div className="flex items-center justify-between text-slate-600 text-[11px] pt-1 border-t border-emerald-100">
                 <span>Doctor Consultation Fee:</span>
                 <span className="font-mono font-semibold text-slate-900">₹{selectedVenue.feeRupees} (Pay at Clinic Desk)</span>
               </div>
-              <p className="text-[11px] text-slate-500 leading-tight">
-                💡 <span className="font-semibold text-slate-700">Why ₹49?</span> Confirms your chamber token and prepares your physical <span className="font-semibold text-blue-700">Pre-Consultation Prescription Sheet</span> (with Doctor NMC registration & vitals checklist) at the counter before you arrive. Doctor fees and procedures are settled directly at the clinic.
+              <p className="text-[11px] text-slate-600 leading-tight">
+                💡 <span className="font-semibold text-emerald-900">Why ₹49?</span> Confirms your chamber token and prepares your physical <span className="font-semibold text-emerald-800">Pre-Consultation Prescription Sheet</span> (with Doctor NMC registration & vitals checklist) at the counter before you arrive. Doctor fees and procedures are settled directly at the clinic.
               </p>
             </div>
 
-            {/* Instant UPI QR Simulation Box */}
-            <div className="p-3 bg-slate-900 text-white rounded-xl flex items-center justify-between gap-3 shadow-sm">
+            {/* Instant UPI QR Simulation Box: Glassy Emerald Glow */}
+            <div className="p-3.5 bg-gradient-to-r from-slate-950 via-emerald-950 to-slate-900 text-white rounded-2xl flex items-center justify-between gap-3 shadow-xl shadow-emerald-950/20 border border-emerald-500/30">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-white p-1 flex items-center justify-center shrink-0">
+                <div className="h-10 w-10 rounded-xl bg-white p-1 flex items-center justify-center shrink-0 shadow-sm">
                   <span className="text-xl">📲</span>
                 </div>
                 <div>
@@ -521,16 +576,16 @@ export default function DoctorPublicProfilePage({
                 size="sm"
                 data-testid="btn-pay-booking-fee"
                 isLoading={isLoading}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shrink-0"
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shrink-0 shadow-lg shadow-emerald-600/30"
               >
                 Pay ₹49 & Confirm Appointment
               </Button>
             </div>
           </form>
         ) : (
-          /* Booking Confirmed State */
+          /* Booking Confirmed State: Green & White Glassy */
           <div className="text-center py-4 space-y-5">
-            <div className="h-16 w-16 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl font-black">
+            <div className="h-16 w-16 mx-auto rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center text-3xl font-black shadow-lg shadow-emerald-600/30 ring-4 ring-emerald-50">
               ✓
             </div>
 
@@ -540,7 +595,7 @@ export default function DoctorPublicProfilePage({
               </span>
               <div
                 data-testid="confirmed-token-number"
-                className="text-5xl font-black font-mono tabular-nums text-slate-900 mt-1"
+                className="text-5xl font-black font-mono tabular-nums text-emerald-900 mt-1"
               >
                 #{allocatedToken}
               </div>
@@ -557,7 +612,7 @@ export default function DoctorPublicProfilePage({
               </p>
             </div>
 
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-left text-xs space-y-2">
+            <div className="p-4 rounded-2xl bg-white/80 border border-emerald-100 text-left text-xs space-y-2 shadow-xs backdrop-blur-sm">
               <div className="flex justify-between">
                 <span className="text-slate-500">Patient:</span>
                 <span className="font-bold text-slate-900">
@@ -574,7 +629,7 @@ export default function DoctorPublicProfilePage({
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Chamber:</span>
-                <span className="font-bold text-blue-700">{selectedVenue.chamberNumber}</span>
+                <span className="font-bold text-emerald-800">{selectedVenue.chamberNumber}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Appointment Slot:</span>
@@ -582,7 +637,7 @@ export default function DoctorPublicProfilePage({
                   {selectedSlot?.time}
                 </span>
               </div>
-              <div className="flex justify-between pt-1 border-t border-slate-200">
+              <div className="flex justify-between pt-1 border-t border-emerald-100">
                 <span className="text-emerald-700 font-semibold">Online Booking Fee Paid:</span>
                 <span className="font-mono font-bold text-emerald-700">₹49 (UPI)</span>
               </div>
@@ -592,16 +647,18 @@ export default function DoctorPublicProfilePage({
               </div>
             </div>
 
-            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-left text-xs text-amber-900">
-              <p className="font-bold mb-0.5">📋 Pre-Consultation Prescription Sheet Ready</p>
-              <p className="text-[11px] text-amber-800">
+            <div className="p-3 bg-emerald-50/80 border border-emerald-200 rounded-xl text-left text-xs text-emerald-950 backdrop-blur-sm">
+              <p className="font-bold mb-0.5 flex items-center gap-1.5">
+                <span>📋</span> Pre-Consultation Prescription Sheet Ready
+              </p>
+              <p className="text-[11px] text-emerald-800 leading-relaxed">
                 Your pre-consultation prescription sheet is being printed at the counter. The compounder will record your blood pressure, pulse, and vitals before you enter Chamber {selectedVenue.chamberNumber}.
               </p>
             </div>
 
             <div className="flex flex-col gap-2.5">
               <Link href="/patient">
-                <Button variant="primary" fullWidth size="md">
+                <Button variant="primary" fullWidth size="md" className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md shadow-emerald-600/20">
                   Track Live Queue Position
                 </Button>
               </Link>
@@ -621,8 +678,8 @@ export default function DoctorPublicProfilePage({
         )}
       </Modal>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 px-6 text-center text-xs text-slate-500">
+      {/* Footer: Frosted Glass */}
+      <footer className="bg-white/70 backdrop-blur-md border-t border-emerald-100/60 py-6 px-6 text-center text-xs text-slate-500">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>Dr. Rajesh Sharma • MediBooking.in Verified Practice</span>
           <span>Bhopal, MP, India</span>
@@ -631,4 +688,3 @@ export default function DoctorPublicProfilePage({
     </div>
   );
 }
-

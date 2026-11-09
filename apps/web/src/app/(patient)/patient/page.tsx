@@ -179,19 +179,23 @@ export default function PatientQueueTrackerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-between">
-      {/* Top Navbar */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-30">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-teal-50/40 flex flex-col justify-between relative overflow-hidden">
+      {/* Ambient Glassmorphism Orbs */}
+      <div className="absolute top-0 right-0 -mr-32 -mt-32 w-80 h-80 rounded-full bg-emerald-400/10 blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-0 -ml-32 w-80 h-80 rounded-full bg-teal-400/10 blur-3xl pointer-events-none" />
+
+      {/* Top Navbar: Frosted Glass */}
+      <header className="bg-white/80 backdrop-blur-xl border-b border-emerald-100/70 px-6 py-3.5 sticky top-0 z-30 shadow-xs">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xl shadow-sm">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-xl shadow-md shadow-emerald-600/20">
               M
             </div>
             <div>
               <span className="text-base font-black tracking-tight text-slate-900 block leading-tight">
-                MediBooking<span className="text-blue-600">.in</span>
+                MediBooking<span className="text-emerald-600">.in</span>
               </span>
-              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">
+              <span className="text-[10px] text-emerald-800 font-bold uppercase tracking-wider">
                 Live Queue Tracker
               </span>
             </div>
@@ -215,7 +219,7 @@ export default function PatientQueueTrackerPage() {
       </header>
 
       {/* Main Tracker Container */}
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 w-full space-y-6">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 w-full space-y-6 relative z-10">
         {/* Token Calling Announcement Banner */}
         {isMyTurn ? (
           <div className="p-6 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-lg animate-pulse text-center space-y-2">
@@ -243,8 +247,8 @@ export default function PatientQueueTrackerPage() {
           </div>
         ) : null}
 
-        {/* Hero Token Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+        {/* Hero Token Card: Glassmorphic */}
+        <div className="bg-white/85 backdrop-blur-xl border border-white/80 rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-950/5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-slate-100">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
@@ -253,7 +257,7 @@ export default function PatientQueueTrackerPage() {
               <div className="mt-1 flex items-baseline gap-3">
                 <span
                   data-testid="assigned-token-number"
-                  className="text-5xl sm:text-6xl font-black font-mono tabular-nums text-slate-900 tracking-tight"
+                  className="text-5xl sm:text-6xl font-black font-mono tabular-nums text-emerald-900 tracking-tight"
                 >
                   #{tokenState.tokenNumber}
                 </span>
@@ -314,12 +318,12 @@ export default function PatientQueueTrackerPage() {
             />
           </div>
 
-          {/* Pre-Consultation Prescription Sheet Ready Notice */}
-          <div className="mt-6 p-4 rounded-xl bg-blue-50/70 border border-blue-200 text-xs flex items-center justify-between gap-3">
+          {/* Pre-Consultation Prescription Sheet Ready Notice: Glassy Mint */}
+          <div className="mt-6 p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200/90 text-xs flex items-center justify-between gap-3 backdrop-blur-md shadow-xs">
             <div className="flex items-center gap-2.5">
               <span className="text-xl">📋</span>
               <div>
-                <span className="font-bold text-blue-900 block">
+                <span className="font-bold text-emerald-950 block">
                   Pre-Consultation Prescription Sheet Prepared
                 </span>
                 <span className="text-slate-600 text-[11px]">
@@ -327,7 +331,7 @@ export default function PatientQueueTrackerPage() {
                 </span>
               </div>
             </div>
-            <span className="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 font-bold text-[10px] shrink-0 font-mono">
+            <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px] shrink-0 font-mono border border-emerald-200">
               ₹49 BOOKING PAID
             </span>
           </div>
