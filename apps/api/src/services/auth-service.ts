@@ -167,6 +167,53 @@ export class AuthService {
   }
 
   /**
+   * Register a new Patient with demographic and profile details
+   */
+  public async registerPatient(data: {
+    mobile: string;
+    fullName: string;
+    age: number;
+    gender: 'MALE' | 'FEMALE' | 'OTHER';
+    email?: string;
+    locality: string;
+    address?: string;
+    bloodGroup?: string;
+    emergencyContact?: string;
+  }): Promise<{
+    token: string;
+    userContext: UserContext;
+  }> {
+    const cleanMobile = data.mobile.trim().replace(/^\+91/, '');
+    const userContext: UserContext = {
+      userId: `usr-pat-${cleanMobile}`,
+      mobile: cleanMobile,
+      fullName: data.fullName.trim(),
+      activeRole: UserRole.PATIENT,
+      allowedRoles: [UserRole.PATIENT],
+      availableClinics: [],
+    };
+
+    // Store in dynamic users map
+    this.registerDynamicUser(userContext);
+
+    // Issue JWT token
+    const tokenPayload: AuthTokenPayload = {
+      sub: userContext.userId,
+      mobile: userContext.mobile,
+      role: userContext.activeRole,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 days
+    };
+
+    const token = this.signToken(tokenPayload);
+
+    return {
+      token,
+      userContext,
+    };
+  }
+
+  /**
    * Cryptographically sign JWT using HMAC-SHA256
    */
   public signToken(payload: AuthTokenPayload): string {
@@ -220,6 +267,15 @@ export class AuthService {
    */
   public resolveUserContext(mobile: string, preferredRole?: UserRole): UserContext {
     const cleanMobile = mobile.trim().replace(/^\+91/, '');
+
+    // 0. Check dynamically registered users first if no conflicting preferredRole is requested
+    const dynamicUser = this.dynamicUsers.get(cleanMobile);
+    if (dynamicUser && (!preferredRole || dynamicUser.allowedRoles.includes(preferredRole) || dynamicUser.activeRole === UserRole.PATIENT)) {
+      if (preferredRole && dynamicUser.allowedRoles.includes(preferredRole)) {
+        return { ...dynamicUser, activeRole: preferredRole };
+      }
+      return dynamicUser;
+    }
 
     // 1. If preferredRole is explicitly PATIENT, always return patient identity
     if (preferredRole === UserRole.PATIENT) {
@@ -381,12 +437,6 @@ export class AuthService {
           },
         ],
       };
-    }
-
-    // 6. Check dynamically registered users if not role-specified
-    const dynamicUser = this.dynamicUsers.get(cleanMobile);
-    if (dynamicUser) {
-      return dynamicUser;
     }
 
     // 7. Check if mobile matches doctor in BHOPAL_10_CLINICS

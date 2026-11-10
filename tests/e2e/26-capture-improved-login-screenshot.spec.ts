@@ -10,3 +10,4 @@ test('Capture Redesigned Login Page Screenshot', async ({ page }) => {
   await expect(page.locator('text=Quick Select Role (Pilot Mode)')).toBeVisible();
   await page.screenshot({ path: path.join(ARTIFACT_DIR, 'qa-14-improved-login-page.png'), fullPage: false });
 });
+

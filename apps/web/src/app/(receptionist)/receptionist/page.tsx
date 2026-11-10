@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { logout } from '../../../lib/auth';
 import {
   Button,
   Input,
@@ -189,6 +191,7 @@ const INITIAL_TOKENS: ReceptionTokenItem[] = [
 ];
 
 export default function ReceptionDeskDashboardPage() {
+  const router = useRouter();
   const [selectedChamberTab, setSelectedChamberTab] = useState<string>('ALL');
   const [tokens, setTokens] = useState<ReceptionTokenItem[]>(INITIAL_TOKENS);
   const [isIntakeModalOpen, setIsIntakeModalOpen] = useState(false);
@@ -700,11 +703,14 @@ export default function ReceptionDeskDashboardPage() {
               </Button>
             </Link>
 
-            <Link href="/login">
-              <Button variant="ghost" size="sm">
-                Sign Out
-              </Button>
-            </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              data-testid="btn-receptionist-logout"
+              onClick={() => logout(router)}
+            >
+              Sign Out
+            </Button>
           </div>
         </div>
       </header>

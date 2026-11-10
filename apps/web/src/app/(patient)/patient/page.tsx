@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button, Badge, StatCard, getChamberStyle } from '@medibooking/ui';
+import { logout } from '../../../lib/auth';
 
 interface PatientTokenState {
   tokenNumber: number;
@@ -35,6 +37,7 @@ const INITIAL_TOKEN_STATE: PatientTokenState = {
 };
 
 export default function PatientQueueTrackerPage() {
+  const router = useRouter();
   const [tokenState, setTokenState] = useState<PatientTokenState>(INITIAL_TOKEN_STATE);
   const [lastRefreshed, setLastRefreshed] = useState<string>('Just now');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -219,6 +222,15 @@ export default function PatientQueueTrackerPage() {
               isLoading={isRefreshing}
             >
               Refresh
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              data-testid="btn-patient-logout"
+              onClick={() => logout(router)}
+              className="text-xs font-bold text-slate-600 hover:text-rose-700"
+            >
+              Sign Out
             </Button>
           </div>
         </div>

@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { logout } from '../../../lib/auth';
 import {
   Button,
   Card,
@@ -56,6 +58,7 @@ interface ActivePatientData {
 }
 
 export default function DoctorChamberGlancePortal() {
+  const router = useRouter();
   const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
   const [currentClinicId, setCurrentClinicId] = useState(DEMO_CLINICS[0]!.clinicId);
   const [delayMinutes, setDelayMinutes] = useState(0);
@@ -166,11 +169,14 @@ export default function DoctorChamberGlancePortal() {
                 NMC: MP-38492 • Verified
               </p>
             </div>
-            <Link href="/login">
-              <Button variant="ghost" size="sm">
-                Sign Out
-              </Button>
-            </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              data-testid="btn-doctor-logout"
+              onClick={() => logout(router)}
+            >
+              Sign Out
+            </Button>
           </div>
         </div>
       </header>

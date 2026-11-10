@@ -17,6 +17,19 @@ const verifyOtpSchema = z.object({
   preferredRole: z.nativeEnum(UserRole).optional(),
 });
 
+const registerPatientSchema = z.object({
+  mobile: z.string().regex(/^[6-9]\d{9}$/, 'Must be a valid 10-digit Indian mobile number starting with 6-9'),
+  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
+  age: z.coerce.number().min(1, 'Age must be positive').max(125, 'Invalid age'),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
+  email: z.string().email().optional().or(z.literal('')),
+  locality: z.string().min(2, 'Locality is required'),
+  address: z.string().optional(),
+  bloodGroup: z.string().optional(),
+  emergencyContact: z.string().optional(),
+  dpdpConsent: z.boolean().default(true),
+});
+
 export async function authRoutes(fastify: FastifyInstance) {
   /**
    * Request 6-Digit Passwordless OTP: POST /api/v1/auth/request-otp
@@ -101,6 +114,44 @@ export async function authRoutes(fastify: FastifyInstance) {
       success: true,
       user: userContext,
       tokenPayload: payload,
+    });
+  });
+
+  /**
+   * User / Patient Registration with Demographics & Profile: POST /api/v1/auth/register
+   */
+  fastify.post('/auth/register', async (req, reply) => {
+    const parseResult = registerPatientSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return reply.status(400).send({
+        error: 'Validation Error',
+        details: parseResult.error.format(),
+      });
+    }
+
+    try {
+      const result = await authService.registerPatient(parseResult.data);
+      return reply.status(201).send({
+        success: true,
+        message: 'Patient profile registered successfully',
+        ...result,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Registration failed';
+      return reply.status(400).send({
+        error: 'Bad Request',
+        message,
+      });
+    }
+  });
+
+  /**
+   * Session Termination / Logout: POST /api/v1/auth/logout
+   */
+  fastify.post('/auth/logout', async (req, reply) => {
+    return reply.status(200).send({
+      success: true,
+      message: 'Logged out successfully',
     });
   });
 }

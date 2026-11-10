@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { logout } from '../../../lib/auth';
 import {
   Button,
   Input,
@@ -80,6 +82,7 @@ const INITIAL_AFFILIATIONS: AdminDoctorAffiliation[] = [
 ];
 
 export default function ClinicAdministratorPortal() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'AFFILIATIONS' | 'RECONCILIATION' | 'BILLING' | 'SETTLEMENTS'>('AFFILIATIONS');
   const [affiliations, setAffiliations] = useState<AdminDoctorAffiliation[]>(INITIAL_AFFILIATIONS);
   const [isAffiliationModalOpen, setIsAffiliationModalOpen] = useState(false);
@@ -269,11 +272,14 @@ export default function ClinicAdministratorPortal() {
             <Badge variant="blue" size="sm">
               CLINIC PRO (₹1,999/mo)
             </Badge>
-            <Link href="/login">
-              <Button variant="ghost" size="sm">
-                Sign Out
-              </Button>
-            </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              data-testid="btn-admin-logout"
+              onClick={() => logout(router)}
+            >
+              Sign Out
+            </Button>
           </div>
         </div>
       </header>

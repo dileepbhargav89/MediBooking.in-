@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { logout } from '../../../lib/auth';
 import {
   Button,
   Card,
@@ -97,6 +99,7 @@ const INITIAL_TENANTS: ClinicTenantItem[] = [
 ];
 
 export default function SuperAdminPortalPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'NMC_DESK' | 'TENANTS' | 'DPDP_AUDIT' | 'TELEMETRY'>('NMC_DESK');
   const [doctors, setDoctors] = useState<PendingDoctorReview[]>(INITIAL_PENDING_DOCTORS);
   const [tenants, setTenants] = useState<ClinicTenantItem[]>(INITIAL_TENANTS);
@@ -150,11 +153,15 @@ export default function SuperAdminPortalPage() {
             <span className="px-2.5 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800 text-xs font-semibold">
               SUPER_ADMIN
             </span>
-            <Link href="/login">
-              <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white">
-                Sign Out
-              </Button>
-            </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              data-testid="btn-superadmin-logout"
+              onClick={() => logout(router)}
+              className="text-slate-300 hover:text-white"
+            >
+              Sign Out
+            </Button>
           </div>
         </div>
       </header>

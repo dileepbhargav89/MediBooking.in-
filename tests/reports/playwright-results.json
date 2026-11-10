@@ -5,8 +5,11 @@
       "D:\\Projects\\Startup Project\\MediBooking.in\\node_modules\\@playwright\\test\\cli.js",
       "test",
       "tests/e2e/01-auth-and-rbac.spec.ts",
+      "tests/e2e/16-polyclinic-onboarding-wizard.spec.ts",
+      "tests/e2e/17-doctor-self-onboarding.spec.ts",
       "tests/e2e/22-multi-clinic-multi-doctor-qa.spec.ts",
-      "tests/e2e/23-four-agent-review-verification.spec.ts"
+      "tests/e2e/23-four-agent-review-verification.spec.ts",
+      "tests/e2e/27-user-registration-and-logout-flow.spec.ts"
     ],
     "configFile": "D:\\Projects\\Startup Project\\MediBooking.in\\playwright.config.ts",
     "rootDir": "D:/Projects/Startup Project/MediBooking.in/tests/e2e",
@@ -143,12 +146,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1033,
+                      "duration": 1081,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-10T13:28:17.982Z",
+                      "startTime": "2026-11-10T17:42:25.231Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -177,12 +180,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1366,
+                      "duration": 1217,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-10T13:28:19.153Z",
+                      "startTime": "2026-11-10T17:42:26.450Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -211,12 +214,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 8717,
+                      "duration": 6375,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-10T13:28:20.536Z",
+                      "startTime": "2026-11-10T17:42:27.684Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -227,6 +230,346 @@
               "id": "7c457c1c0c3053b0af83-172996de4330ac068167",
               "file": "01-auth-and-rbac.spec.ts",
               "line": 32,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "16-polyclinic-onboarding-wizard.spec.ts",
+      "file": "16-polyclinic-onboarding-wizard.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "E2E Workflow 16 (Phase 57): Self-Serve Polyclinic Setup Wizard (/onboarding/clinic)",
+          "file": "16-polyclinic-onboarding-wizard.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "16.1 Home Page displays prominent CTA linking to Polyclinic Onboarding Wizard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1404,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T17:42:34.092Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cd6096c7889e4eb328c8-b3f06fe2bfa21b748d53",
+              "file": "16-polyclinic-onboarding-wizard.spec.ts",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "16.2 Step 1 enforces Indian PIN code and 10-digit mobile number validation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1194,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T17:42:35.511Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cd6096c7889e4eb328c8-95f4fc28b49c0cbbf2ca",
+              "file": "16-polyclinic-onboarding-wizard.spec.ts",
+              "line": 18,
+              "column": 7
+            },
+            {
+              "title": "16.3 Step 2 Chamber Layout allows adding, customizing, and removing chambers",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1279,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T17:42:36.718Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cd6096c7889e4eb328c8-438e48a2e4af22228458",
+              "file": "16-polyclinic-onboarding-wizard.spec.ts",
+              "line": 46,
+              "column": 7
+            },
+            {
+              "title": "16.4 Complete 5-Step Polyclinic Setup Wizard creates tenant and launches live portals",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1646,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T17:42:38.015Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cd6096c7889e4eb328c8-c90fe9bf4b1ea124aa61",
+              "file": "16-polyclinic-onboarding-wizard.spec.ts",
+              "line": 77,
+              "column": 7
+            },
+            {
+              "title": "16.5 REST API POST /api/v1/clinics/onboard-wizard validates payload and issues 30-day trial",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 32,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T17:42:39.678Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cd6096c7889e4eb328c8-aaf5c381326d4363a9b0",
+              "file": "16-polyclinic-onboarding-wizard.spec.ts",
+              "line": 138,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "17-doctor-self-onboarding.spec.ts",
+      "file": "17-doctor-self-onboarding.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "E2E Workflow 17 (Phase 58): Doctor NMC Verification & Chamber Profile Claim (/onboarding/doctor)",
+          "file": "17-doctor-self-onboarding.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "17.1 Home page displays prominent CTA linking to Doctor Self-Registration Wizard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1372,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T17:42:39.728Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0f7824a4650f3d5d0402-a2c1f66f45d1d3482366",
+              "file": "17-doctor-self-onboarding.spec.ts",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "17.2 Step 1 enforces Indian mobile number and NMC registration validation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1179,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T17:42:41.112Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0f7824a4650f3d5d0402-1810b22e6f5dde9f1a6f",
+              "file": "17-doctor-self-onboarding.spec.ts",
+              "line": 19,
+              "column": 7
+            },
+            {
+              "title": "17.3 Complete Doctor Self-Onboarding provisions verified profile and generates Chamber QR Poster",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1748,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T17:42:42.305Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0f7824a4650f3d5d0402-fcc9d79c425c8d8ea146",
+              "file": "17-doctor-self-onboarding.spec.ts",
+              "line": 47,
+              "column": 7
+            },
+            {
+              "title": "17.4 REST API POST /api/v1/doctors/onboard-doctor creates profile, claims chamber, and signs JWT",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 25,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T17:42:44.070Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0f7824a4650f3d5d0402-6eed35ebcc8df4fef5ac",
+              "file": "17-doctor-self-onboarding.spec.ts",
+              "line": 92,
               "column": 7
             }
           ]
@@ -262,12 +605,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3624,
+                      "duration": 2309,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-10T13:28:29.309Z",
+                      "startTime": "2026-11-10T17:42:44.118Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -296,12 +639,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6324,
+                      "duration": 2673,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-10T13:28:33.000Z",
+                      "startTime": "2026-11-10T17:42:46.454Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -330,12 +673,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3431,
+                      "duration": 2585,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-10T13:28:39.342Z",
+                      "startTime": "2026-11-10T17:42:49.142Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -364,12 +707,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4365,
+                      "duration": 2385,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-10T13:28:42.790Z",
+                      "startTime": "2026-11-10T17:42:51.742Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -398,12 +741,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2649,
+                      "duration": 1785,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-10T13:28:47.175Z",
+                      "startTime": "2026-11-10T17:42:54.142Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -432,12 +775,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2289,
+                      "duration": 1672,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-10T13:28:49.847Z",
+                      "startTime": "2026-11-10T17:42:55.943Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -483,12 +826,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3733,
+                      "duration": 2674,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-10T13:28:52.186Z",
+                      "startTime": "2026-11-10T17:42:57.647Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -517,12 +860,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2143,
+                      "duration": 1571,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-10T13:28:55.945Z",
+                      "startTime": "2026-11-10T17:43:00.337Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -551,12 +894,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3130,
+                      "duration": 2239,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-10T13:28:58.109Z",
+                      "startTime": "2026-11-10T17:43:01.921Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -585,12 +928,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4586,
+                      "duration": 3636,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-10T13:29:01.259Z",
+                      "startTime": "2026-11-10T17:43:04.172Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -606,13 +949,166 @@
           ]
         }
       ]
+    },
+    {
+      "title": "27-user-registration-and-logout-flow.spec.ts",
+      "file": "27-user-registration-and-logout-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "E2E Workflow 27: User Registration, Profile Intake & Full Logout Flow Verification",
+          "file": "27-user-registration-and-logout-flow.spec.ts",
+          "line": 19,
+          "column": 6,
+          "specs": [
+            {
+              "title": "27.1 Home page and Login page link seamlessly to User Registration (/register)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3225,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T17:43:07.829Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cc55b7a1428b5b0be3df-24a628260e5e9dcdf0ec",
+              "file": "27-user-registration-and-logout-flow.spec.ts",
+              "line": 24,
+              "column": 7
+            },
+            {
+              "title": "27.2 Complete 3-Step Patient Registration creates profile, stores DPDP consent, and auto-logs into /patient",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2981,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T17:43:11.069Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cc55b7a1428b5b0be3df-b5e6b9a42d61080f1039",
+              "file": "27-user-registration-and-logout-flow.spec.ts",
+              "line": 53,
+              "column": 7
+            },
+            {
+              "title": "27.3 Patient Sign Out clears session and Edge Middleware blocks unauthenticated protected routes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4758,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T17:43:14.068Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cc55b7a1428b5b0be3df-5d4279257e66a6dc4fda",
+              "file": "27-user-registration-and-logout-flow.spec.ts",
+              "line": 105,
+              "column": 7
+            },
+            {
+              "title": "27.4 Doctor & Receptionist Sign Out successfully terminates session without getting trapped in loop",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5132,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T17:43:18.844Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cc55b7a1428b5b0be3df-d25c3a3c46cfd5153123",
+              "file": "27-user-registration-and-logout-flow.spec.ts",
+              "line": 136,
+              "column": 7
+            }
+          ]
+        }
+      ]
     }
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-10T13:28:17.223Z",
-    "duration": 48843.569,
-    "expected": 13,
+    "startTime": "2026-11-10T17:42:24.550Z",
+    "duration": 59605.292,
+    "expected": 26,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

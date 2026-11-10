@@ -199,6 +199,13 @@ export default function HomePage() {
 
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
+              href="/register"
+              data-testid="nav-btn-patient-register"
+              className="inline-flex items-center px-3 py-1.5 text-xs font-bold rounded-xl bg-white text-emerald-800 border border-emerald-200 hover:bg-emerald-50 transition-all shadow-xs"
+            >
+              Register
+            </Link>
+            <Link
               href="/onboarding/clinic"
               data-testid="nav-btn-onboard-clinic"
               className="inline-flex items-center px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition-all shadow-xs"
@@ -323,6 +330,13 @@ export default function HomePage() {
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 border border-transparent hover:border-emerald-200 transition-colors"
               >
                 <span>🩺 Doctor Self-Registration</span>
+              </Link>
+              <Link
+                href="/register"
+                data-testid="hero-btn-patient-register"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 border border-transparent hover:border-emerald-200 transition-colors"
+              >
+                <span>👤 Patient Registration</span>
               </Link>
               <Link
                 href="/login"

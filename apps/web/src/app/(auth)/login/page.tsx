@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button, Input, UserRole } from '@medibooking/ui';
+import { setAuthSession } from '../../../lib/auth';
 
 interface QuickRole {
   role: UserRole;
@@ -157,6 +158,14 @@ export default function LoginPage() {
   const [countdown, setCountdown] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [otpMessage, setOtpMessage] = useState<string | null>(null);
+  const [loggedOutMessage, setLoggedOutMessage] = useState(false);
+
+  // Check if redirected from logout
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('logged_out=1')) {
+      setLoggedOutMessage(true);
+    }
+  }, []);
 
   // Countdown timer for OTP resend
   useEffect(() => {
@@ -303,19 +312,12 @@ export default function LoginPage() {
       }
     }
 
-    // Store in cookie for Next.js Middleware inspection
-    document.cookie = `medibooking_session=${sessionToken}; path=/; max-age=604800; SameSite=Lax`;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('medibooking_session', sessionToken);
-      localStorage.setItem(
-        'medibooking_user',
-        JSON.stringify({
-          mobile: targetMobile,
-          role: targetRole,
-          clinicId: currentRole?.clinicId || 'c1010000-0000-4000-8000-000000000001',
-        })
-      );
-    }
+    // Store in cookie and localStorage using unified auth helper
+    setAuthSession(sessionToken, {
+      mobile: targetMobile,
+      role: targetRole,
+      clinicId: currentRole?.clinicId || 'c1010000-0000-4000-8000-000000000001',
+    });
 
     setIsLoading(false);
     router.push(targetPath);
@@ -481,6 +483,28 @@ export default function LoginPage() {
                 ))}
               </div>
             </div>
+          </div>
+
+          {loggedOutMessage && (
+            <div className="mb-4 p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 font-bold flex items-center gap-2">
+              <span className="text-base">✅</span>
+              <span>You have been successfully signed out of MediBooking.in.</span>
+            </div>
+          )}
+
+          {/* New Patient Registration Callout */}
+          <div className="mb-5 p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50/90 to-teal-50/90 border border-emerald-200/90 flex items-center justify-between gap-3 shadow-xs">
+            <div>
+              <span className="font-extrabold text-xs text-emerald-950 block">New Patient or Family Member?</span>
+              <span className="text-[11px] text-slate-600">Register in 60s for digital token tracking & saved history</span>
+            </div>
+            <Link
+              href="/register"
+              data-testid="btn-goto-register"
+              className="py-1.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs transition-colors shrink-0 whitespace-nowrap"
+            >
+              Register Now →
+            </Link>
           </div>
 
           {error && (
