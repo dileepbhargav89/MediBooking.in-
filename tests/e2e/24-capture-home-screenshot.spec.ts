@@ -17,3 +17,4 @@ test('Capture Improved Home Page UI Screenshot', async ({ page }) => {
   await page.screenshot({ path: SCREENSHOT_PATH, fullPage: false });
   console.log('Saved screenshot to:', SCREENSHOT_PATH);
 });
+

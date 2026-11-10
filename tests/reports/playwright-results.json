@@ -4,7 +4,9 @@
       "C:\\Program Files\\nodejs\\node.exe",
       "D:\\Projects\\Startup Project\\MediBooking.in\\node_modules\\@playwright\\test\\cli.js",
       "test",
-      "tests/e2e/24-capture-home-screenshot.spec.ts"
+      "tests/e2e/01-auth-and-rbac.spec.ts",
+      "tests/e2e/22-multi-clinic-multi-doctor-qa.spec.ts",
+      "tests/e2e/23-four-agent-review-verification.spec.ts"
     ],
     "configFile": "D:\\Projects\\Startup Project\\MediBooking.in\\playwright.config.ts",
     "rootDir": "D:/Projects/Startup Project/MediBooking.in/tests/e2e",
@@ -113,57 +115,504 @@
   },
   "suites": [
     {
-      "title": "24-capture-home-screenshot.spec.ts",
-      "file": "24-capture-home-screenshot.spec.ts",
+      "title": "01-auth-and-rbac.spec.ts",
+      "file": "01-auth-and-rbac.spec.ts",
       "column": 0,
       "line": 0,
-      "specs": [
+      "specs": [],
+      "suites": [
         {
-          "title": "Capture Improved Home Page UI Screenshot",
-          "ok": true,
-          "tags": [],
-          "tests": [
+          "title": "E2E Workflow 1: Authentication & RBAC Dynamic Routing",
+          "file": "01-auth-and-rbac.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
             {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "chromium",
-              "projectName": "chromium",
-              "results": [
+              "title": "1.1 Unauthenticated access to protected portal redirects to /login",
+              "ok": true,
+              "tags": [],
+              "tests": [
                 {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 4631,
-                  "errors": [],
-                  "stdout": [
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
                     {
-                      "text": "Saved screenshot to: C:\\Users\\DILEEP BHARGAV\\.gemini\\antigravity\\brain\\3156ef61-eedf-40f0-bde3-ad9cf6b39876\\qa-12-improved-home-page.png\n"
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1033,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T13:28:17.982Z",
+                      "annotations": [],
+                      "attachments": []
                     }
                   ],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-11-10T11:58:36.962Z",
-                  "annotations": [],
-                  "attachments": []
+                  "status": "expected"
                 }
               ],
-              "status": "expected"
+              "id": "7c457c1c0c3053b0af83-d493950a4079482bf700",
+              "file": "01-auth-and-rbac.spec.ts",
+              "line": 4,
+              "column": 7
+            },
+            {
+              "title": "1.2 Indian Mobile Number Input enforces 10-digit format and enables OTP button",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1366,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T13:28:19.153Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7c457c1c0c3053b0af83-ab0565f89a7906f85372",
+              "file": "01-auth-and-rbac.spec.ts",
+              "line": 11,
+              "column": 7
+            },
+            {
+              "title": "1.3 Role Quick-Select buttons instantly authenticate and route to role portal",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8717,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T13:28:20.536Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7c457c1c0c3053b0af83-172996de4330ac068167",
+              "file": "01-auth-and-rbac.spec.ts",
+              "line": 32,
+              "column": 7
             }
-          ],
-          "id": "df608f07b0faf4447b24-9ca4be33a6ea7ac3c452",
-          "file": "24-capture-home-screenshot.spec.ts",
-          "line": 8,
-          "column": 5
+          ]
+        }
+      ]
+    },
+    {
+      "title": "22-multi-clinic-multi-doctor-qa.spec.ts",
+      "file": "22-multi-clinic-multi-doctor-qa.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "E2E Workflow 22: Multi-Clinic, Multi-Doctor & Multi-User QA Verification",
+          "file": "22-multi-clinic-multi-doctor-qa.spec.ts",
+          "line": 13,
+          "column": 6,
+          "specs": [
+            {
+              "title": "22.1 Landing Page displays Bhopal Polyclinic Network and Specialist Directory",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3624,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T13:28:29.309Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "901d009f499ff0a1b668-aea9eba14574bda4655d",
+              "file": "22-multi-clinic-multi-doctor-qa.spec.ts",
+              "line": 14,
+              "column": 7
+            },
+            {
+              "title": "22.2 Patient books online token for Dr. Alok Verma (Neurologist at Narmada Health, Arera Colony)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6324,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T13:28:33.000Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "901d009f499ff0a1b668-c6c4953be528a0368edd",
+              "file": "22-multi-clinic-multi-doctor-qa.spec.ts",
+              "line": 35,
+              "column": 7
+            },
+            {
+              "title": "22.3 Patient books online token for Dr. Vivek Saxena (Physician at Kolar Prime, Kolar Road)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3431,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T13:28:39.342Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "901d009f499ff0a1b668-a2d9953e1b76523a054f",
+              "file": "22-multi-clinic-multi-doctor-qa.spec.ts",
+              "line": 74,
+              "column": 7
+            },
+            {
+              "title": "22.4 Waiting Room TV displays correct clinic branding and chamber roster across multiple clinics",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4365,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T13:28:42.790Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "901d009f499ff0a1b668-e698186ac0e9153ee61f",
+              "file": "22-multi-clinic-multi-doctor-qa.spec.ts",
+              "line": 109,
+              "column": 7
+            },
+            {
+              "title": "22.5 Staff Login with Multi-Clinic Personas routes seamlessly to respective portals",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2649,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T13:28:47.175Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "901d009f499ff0a1b668-c5502d01821f1e373e46",
+              "file": "22-multi-clinic-multi-doctor-qa.spec.ts",
+              "line": 130,
+              "column": 7
+            },
+            {
+              "title": "22.6 Patient Queue Tracker dynamically reflects clinic and doctor from deep link",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2289,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T13:28:49.847Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "901d009f499ff0a1b668-1738a7f5b4863477f122",
+              "file": "22-multi-clinic-multi-doctor-qa.spec.ts",
+              "line": 154,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "23-four-agent-review-verification.spec.ts",
+      "file": "23-four-agent-review-verification.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "E2E Workflow 23: 4-Agent Review, Debug & Retest Suite",
+          "file": "23-four-agent-review-verification.spec.ts",
+          "line": 19,
+          "column": 6,
+          "specs": [
+            {
+              "title": "23.1 Agent 1 (Business-Oriented): Nominal ₹49 Booking, Transparent Remainder & Dynamic Patient Attribution",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3733,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T13:28:52.186Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f3049e9b66751e695969-4334331b1e9bc9d380d7",
+              "file": "23-four-agent-review-verification.spec.ts",
+              "line": 20,
+              "column": 7
+            },
+            {
+              "title": "23.2 Agent 2 (Patient-Oriented): Live Tracker Displays Dynamic Patient & Doctor NMC Identity",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2143,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T13:28:55.945Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f3049e9b66751e695969-dfa37e351505ec8e0b3b",
+              "file": "23-four-agent-review-verification.spec.ts",
+              "line": 62,
+              "column": 7
+            },
+            {
+              "title": "23.3 Agent 3 (Doctor-Oriented): Chamber Desk Rx Sheet View & In-Chamber Procedures Reset",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3130,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T13:28:58.109Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f3049e9b66751e695969-ee06177771bc0c19a23e",
+              "file": "23-four-agent-review-verification.spec.ts",
+              "line": 93,
+              "column": 7
+            },
+            {
+              "title": "23.4 Agent 4 (Clinic Receptionist): 1-Click Rx Sheet from Receipt & Custom Procedure Cashiering",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4586,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-10T13:29:01.259Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f3049e9b66751e695969-ce06538dda2547daf47a",
+              "file": "23-four-agent-review-verification.spec.ts",
+              "line": 138,
+              "column": 7
+            }
+          ]
         }
       ]
     }
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-10T11:58:35.725Z",
-    "duration": 6406.317999999999,
-    "expected": 1,
+    "startTime": "2026-11-10T13:28:17.223Z",
+    "duration": 48843.569,
+    "expected": 13,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0
