@@ -4,7 +4,7 @@
       "C:\\Program Files\\nodejs\\node.exe",
       "D:\\Projects\\Startup Project\\MediBooking.in\\node_modules\\@playwright\\test\\cli.js",
       "test",
-      "tests/e2e/23-four-agent-review-verification.spec.ts"
+      "tests/e2e/24-capture-home-screenshot.spec.ts"
     ],
     "configFile": "D:\\Projects\\Startup Project\\MediBooking.in\\playwright.config.ts",
     "rootDir": "D:/Projects/Startup Project/MediBooking.in/tests/e2e",
@@ -113,164 +113,57 @@
   },
   "suites": [
     {
-      "title": "23-four-agent-review-verification.spec.ts",
-      "file": "23-four-agent-review-verification.spec.ts",
+      "title": "24-capture-home-screenshot.spec.ts",
+      "file": "24-capture-home-screenshot.spec.ts",
       "column": 0,
       "line": 0,
-      "specs": [],
-      "suites": [
+      "specs": [
         {
-          "title": "E2E Workflow 23: 4-Agent Review, Debug & Retest Suite",
-          "file": "23-four-agent-review-verification.spec.ts",
-          "line": 19,
-          "column": 6,
-          "specs": [
+          "title": "Capture Improved Home Page UI Screenshot",
+          "ok": true,
+          "tags": [],
+          "tests": [
             {
-              "title": "23.1 Agent 1 (Business-Oriented): Nominal ₹49 Booking, Transparent Remainder & Dynamic Patient Attribution",
-              "ok": true,
-              "tags": [],
-              "tests": [
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
                 {
-                  "timeout": 45000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4631,
+                  "errors": [],
+                  "stdout": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 6882,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-10T07:44:42.034Z",
-                      "annotations": [],
-                      "attachments": []
+                      "text": "Saved screenshot to: C:\\Users\\DILEEP BHARGAV\\.gemini\\antigravity\\brain\\3156ef61-eedf-40f0-bde3-ad9cf6b39876\\qa-12-improved-home-page.png\n"
                     }
                   ],
-                  "status": "expected"
-                }
-              ],
-              "id": "f3049e9b66751e695969-4334331b1e9bc9d380d7",
-              "file": "23-four-agent-review-verification.spec.ts",
-              "line": 20,
-              "column": 7
-            },
-            {
-              "title": "23.2 Agent 2 (Patient-Oriented): Live Tracker Displays Dynamic Patient & Doctor NMC Identity",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 45000,
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-10T11:58:36.962Z",
                   "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4890,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-10T07:44:49.979Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "attachments": []
                 }
               ],
-              "id": "f3049e9b66751e695969-dfa37e351505ec8e0b3b",
-              "file": "23-four-agent-review-verification.spec.ts",
-              "line": 62,
-              "column": 7
-            },
-            {
-              "title": "23.3 Agent 3 (Doctor-Oriented): Chamber Desk Rx Sheet View & In-Chamber Procedures Reset",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 45000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5657,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-10T07:44:54.929Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "f3049e9b66751e695969-ee06177771bc0c19a23e",
-              "file": "23-four-agent-review-verification.spec.ts",
-              "line": 93,
-              "column": 7
-            },
-            {
-              "title": "23.4 Agent 4 (Clinic Receptionist): 1-Click Rx Sheet from Receipt & Custom Procedure Cashiering",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 45000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 7893,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-10T07:45:00.661Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "f3049e9b66751e695969-ce06538dda2547daf47a",
-              "file": "23-four-agent-review-verification.spec.ts",
-              "line": 138,
-              "column": 7
+              "status": "expected"
             }
-          ]
+          ],
+          "id": "df608f07b0faf4447b24-9ca4be33a6ea7ac3c452",
+          "file": "24-capture-home-screenshot.spec.ts",
+          "line": 8,
+          "column": 5
         }
       ]
     }
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-10T07:44:40.320Z",
-    "duration": 28643.332000000002,
-    "expected": 4,
+    "startTime": "2026-11-10T11:58:35.725Z",
+    "duration": 6406.317999999999,
+    "expected": 1,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0
