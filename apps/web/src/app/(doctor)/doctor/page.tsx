@@ -82,6 +82,7 @@ export default function DoctorChamberGlancePortal() {
   const [rxNotes, setRxNotes] = useState('Tab. Telmisartan 40mg OD • Advised Lipid Profile & ECG Review');
   const [consultationSuccessNotice, setConsultationSuccessNotice] = useState<string | null>(null);
   const [chamberProcedures, setChamberProcedures] = useState<string[]>(['proc-ecg']);
+  const [isRxModalOpen, setIsRxModalOpen] = useState(false);
 
   const activeClinic =
     DEMO_CLINICS.find((c) => c.clinicId === currentClinicId) || DEMO_CLINICS[0]!;
@@ -120,6 +121,7 @@ export default function DoctorChamberGlancePortal() {
       isFollowUp: false,
     });
     setRxNotes('');
+    setChamberProcedures([]);
 
     setTimeout(() => {
       setConsultationSuccessNotice(null);
@@ -278,9 +280,18 @@ export default function DoctorChamberGlancePortal() {
                     </span>
                   </div>
                 </div>
-                <Badge variant="mint" size="sm">
-                  ✓ Vitals Recorded
-                </Badge>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsRxModalOpen(true)}
+                    className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white text-blue-700 border border-blue-300 hover:bg-blue-50 shadow-2xs transition-colors"
+                  >
+                    🖨️ View Rx Sheet
+                  </button>
+                  <Badge variant="mint" size="sm">
+                    ✓ Vitals Recorded
+                  </Badge>
+                </div>
               </div>
 
               {/* Patient Vitals Glance */}
@@ -631,6 +642,68 @@ export default function DoctorChamberGlancePortal() {
         clinics={DEMO_CLINICS}
         onSelectClinic={handleSelectClinic}
       />
+
+      {/* Pre-Consultation Prescription Sheet Modal */}
+      <Modal
+        isOpen={isRxModalOpen}
+        onClose={() => setIsRxModalOpen(false)}
+        maxWidth="lg"
+        title="📋 Pre-Consultation Prescription Sheet"
+        subtitle="Auto-formatted A4 Clinical Intake Slip • Pre-recorded at Reception Desk"
+      >
+        <div className="space-y-4">
+          <div className="p-6 bg-white border border-slate-300 rounded-xl font-sans text-xs text-slate-800 shadow-xs space-y-4">
+            <div className="flex justify-between items-start border-b border-slate-300 pb-3">
+              <div>
+                <p className="font-black text-sm text-slate-900">DR. RAJESH SHARMA, MD, DM</p>
+                <p className="text-[10px] text-slate-500 font-mono font-semibold">NMC Reg: MP-38492 • Senior Interventional Cardiologist</p>
+                <p className="text-[10px] text-slate-500">{activeClinic.clinicName} • {activeClinic.chamberNumber}</p>
+              </div>
+              <div className="text-right">
+                <span className="text-3xl font-black font-mono text-emerald-800">#{activePatient.tokenNumber}</span>
+                <span className="block text-[10px] font-bold text-slate-400 uppercase">Consultation Token</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-2.5 bg-slate-50 rounded-lg text-[11px]">
+              <div><span className="text-slate-400 block">Patient:</span><span className="font-bold text-slate-800">{activePatient.name}</span></div>
+              <div><span className="text-slate-400 block">Age / Gender:</span><span className="font-semibold text-slate-800">{activePatient.ageGender}</span></div>
+              <div><span className="text-slate-400 block">Contact:</span><span className="font-mono text-slate-800">{activePatient.mobile}</span></div>
+              <div><span className="text-slate-400 block">Booking Fee:</span><span className="font-bold text-emerald-700">₹49 PAID (ONLINE)</span></div>
+            </div>
+
+            <div className="border border-emerald-200 bg-emerald-50/50 rounded-lg p-3">
+              <span className="font-bold text-emerald-950 block text-[11px] mb-1.5">Recorded Vitals (By Reception Compounder):</span>
+              <div className="grid grid-cols-4 gap-2 text-center font-mono text-xs">
+                <div className="bg-white p-1.5 rounded border border-emerald-200"><span className="text-[9px] text-slate-500 block">BP</span><span className="font-bold text-slate-900">{activePatient.vitals.bloodPressure}</span></div>
+                <div className="bg-white p-1.5 rounded border border-emerald-200"><span className="text-[9px] text-slate-500 block">PULSE</span><span className="font-bold text-slate-900">{activePatient.vitals.pulse}</span></div>
+                <div className="bg-white p-1.5 rounded border border-emerald-200"><span className="text-[9px] text-slate-500 block">SPO2</span><span className="font-bold text-emerald-700">{activePatient.vitals.spo2}</span></div>
+                <div className="bg-white p-1.5 rounded border border-emerald-200"><span className="text-[9px] text-slate-500 block">WEIGHT</span><span className="font-bold text-slate-900">{activePatient.vitals.weight}</span></div>
+              </div>
+            </div>
+
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <span className="font-bold text-slate-700 block text-[11px] mb-1">Chief Complaints:</span>
+              <p className="text-slate-600 leading-relaxed text-[11px]">{activePatient.symptoms}</p>
+            </div>
+          </div>
+
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (typeof window !== 'undefined') window.print();
+              }}
+            >
+              🖨️ Print Prescription Sheet
+            </Button>
+            <Button variant="primary" size="sm" onClick={() => setIsRxModalOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

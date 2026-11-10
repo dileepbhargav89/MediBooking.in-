@@ -333,7 +333,7 @@ export default function PatientQueueTrackerPage() {
                   Pre-Consultation Prescription Sheet Prepared
                 </span>
                 <span className="text-slate-600 text-[11px]">
-                  Your prescription slip with Dr. Rajesh Sharma&apos;s NMC details is ready at the reception desk. Please have your BP and pulse checked by the compounder before chamber call.
+                  Your prescription slip with {tokenState.doctorName}&apos;s NMC details is ready at the reception desk. Please have your BP and pulse checked by the compounder before chamber call.
                 </span>
               </div>
             </div>

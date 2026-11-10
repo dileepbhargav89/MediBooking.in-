@@ -850,7 +850,7 @@ export default function DoctorPublicProfilePage({
             </div>
 
             <div className="flex flex-col gap-2.5">
-              <Link href={`/patient?token=${allocatedToken}&chamber=${selectedVenue.chamberNumber}&doctor=${encodeURIComponent(doctorInfo.fullName)}&clinic=${encodeURIComponent(selectedVenue.clinicName)}`}>
+              <Link href={`/patient?token=${allocatedToken}&chamber=${selectedVenue.chamberNumber}&doctor=${encodeURIComponent(doctorInfo.fullName)}&clinic=${encodeURIComponent(selectedVenue.clinicName)}&patient=${encodeURIComponent(patientName)}`}>
                 <Button variant="primary" fullWidth size="md" className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md shadow-emerald-600/20">
                   Track Live Queue Position
                 </Button>

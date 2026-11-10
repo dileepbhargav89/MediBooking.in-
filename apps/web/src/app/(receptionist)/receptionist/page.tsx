@@ -1172,6 +1172,18 @@ export default function ReceptionDeskDashboardPage() {
                 >
                   ⚡ Direct Hardware Print (ESC/POS)
                 </Button>
+                <Button
+                  variant="mint"
+                  fullWidth
+                  size="sm"
+                  onClick={() => {
+                    setIsReceiptModalOpen(false);
+                    handleOpenRxModal(latestIssuedToken);
+                  }}
+                  className="font-bold text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300"
+                >
+                  📋 Print Pre-Consultation Rx Sheet (A4)
+                </Button>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
