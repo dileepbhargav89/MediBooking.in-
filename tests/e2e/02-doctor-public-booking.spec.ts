@@ -6,8 +6,8 @@ test.describe('E2E Workflow 2: Doctor Public Profile & Chamber Booking', () => {
 
     await expect(page.locator('h1')).toContainText('Dr. Rajesh Sharma');
     await expect(page.locator('text=Verified Practitioner')).toBeVisible();
-    await expect(page.locator('text=NMC: MP-38492')).toBeVisible();
-    await expect(page.locator('text=Cardiology')).toBeVisible();
+    await expect(page.locator('text=NMC: MP-38492').first()).toBeVisible();
+    await expect(page.locator('text=Cardiology').first()).toBeVisible();
     await expect(page.locator('text=Bhopal City Care').first()).toBeVisible();
   });
 

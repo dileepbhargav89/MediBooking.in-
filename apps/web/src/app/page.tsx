@@ -3,6 +3,8 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Button, StatCard, ChamberBadge } from '@medibooking/ui';
+import { COMMON_SYMPTOMS_TAXONOMY, searchDoctorsAndSymptoms } from '@/lib/symptom-search';
+import { BHOPAL_LOCALITIES } from '@/lib/doctor-directory';
 
 interface ClinicDirectoryItem {
   id: string;
@@ -17,6 +19,7 @@ interface ClinicDirectoryItem {
   feeRupees: number;
   doctorSlug: string;
   tvSlug: string;
+  treatedSymptoms: string[];
 }
 
 const BHOPAL_CLINICS: ClinicDirectoryItem[] = [
@@ -33,11 +36,12 @@ const BHOPAL_CLINICS: ClinicDirectoryItem[] = [
     feeRupees: 600,
     doctorSlug: 'dr-rajesh-sharma-cardio',
     tvSlug: 'citycare-mpnagar-bhopal',
+    treatedSymptoms: ['chest pain', 'chest heaviness', 'high bp', 'blood pressure', 'palpitations', 'heart'],
   },
   {
     id: 'narmada-arera',
     name: 'Narmada Health & Specialty',
-    locality: 'Arera E-3',
+    locality: 'Arera Colony',
     address: 'Near 10 No. Market Bus Stop',
     badgeColor: 'bg-teal-100 text-teal-800',
     doctorName: 'Dr. Alok Verma',
@@ -47,11 +51,12 @@ const BHOPAL_CLINICS: ClinicDirectoryItem[] = [
     feeRupees: 800,
     doctorSlug: 'dr-alok-verma-neuro',
     tvSlug: 'narmada-health-arera-bhopal',
+    treatedSymptoms: ['migraine', 'headache', 'dizziness', 'vertigo', 'stroke', 'seizures', 'tremor'],
   },
   {
     id: 'kolar-prime',
     name: 'Kolar Prime MediChambers',
-    locality: 'Kolar Rd',
+    locality: 'Kolar Road',
     address: 'Sarvadharam C-Sector, Opp D-Mart',
     badgeColor: 'bg-blue-100 text-blue-800',
     doctorName: 'Dr. Vivek Saxena',
@@ -61,6 +66,7 @@ const BHOPAL_CLINICS: ClinicDirectoryItem[] = [
     feeRupees: 500,
     doctorSlug: 'dr-vivek-saxena-genmed',
     tvSlug: 'kolar-prime-sarvadharam-bhopal',
+    treatedSymptoms: ['diabetes', 'sugar', 'fever', 'cough', 'cold', 'weakness', 'fatigue', 'thyroid'],
   },
   {
     id: 'bhopal-care',
@@ -75,6 +81,7 @@ const BHOPAL_CLINICS: ClinicDirectoryItem[] = [
     feeRupees: 750,
     doctorSlug: 'dr-manish-dubey-gastro',
     tvSlug: 'bhopal-care-ttnagar-bhopal',
+    treatedSymptoms: ['acidity', 'gas', 'stomach pain', 'heartburn', 'indigestion', 'liver', 'constipation'],
   },
   {
     id: 'aura-skin',
@@ -89,6 +96,7 @@ const BHOPAL_CLINICS: ClinicDirectoryItem[] = [
     feeRupees: 700,
     doctorSlug: 'dr-priya-patel-derma',
     tvSlug: 'citycare-mpnagar-bhopal',
+    treatedSymptoms: ['acne', 'pimples', 'skin rash', 'hair fall', 'dandruff', 'itching', 'eczema', 'fungal'],
   },
   {
     id: 'little-angels',
@@ -96,13 +104,14 @@ const BHOPAL_CLINICS: ClinicDirectoryItem[] = [
     locality: 'Kolar Road',
     address: 'Chuna Bhatti Main Road, Bhopal',
     badgeColor: 'bg-amber-100 text-amber-800',
-    doctorName: 'Dr. Amit Verma',
+    doctorName: 'Dr. Rohit Chouhan',
     specialty: 'Pediatrics',
-    credentials: 'Senior Pediatrician & Neonatologist (NMC: MP-36201)',
+    credentials: 'Senior Pediatrician & Neonatologist (NMC: MP-50119)',
     chamberNumber: 'CH-3',
     feeRupees: 500,
-    doctorSlug: 'dr-amit-verma-pediatric',
+    doctorSlug: 'dr-rohit-chouhan-pedia',
     tvSlug: 'citycare-mpnagar-bhopal',
+    treatedSymptoms: ['child fever', 'baby', 'infant', 'pediatric', 'vaccination', 'child cough', 'vomiting'],
   },
   {
     id: 'bhopal-ortho',
@@ -110,18 +119,19 @@ const BHOPAL_CLINICS: ClinicDirectoryItem[] = [
     locality: 'MP Nagar',
     address: 'Zone-I, Above Apollo Pharmacy',
     badgeColor: 'bg-indigo-100 text-indigo-800',
-    doctorName: 'Dr. Sunita Rao',
+    doctorName: 'Dr. Sandeep Kothari',
     specialty: 'Orthopedics',
-    credentials: 'Joint Replacement & Arthroscopy Specialist (NMC: MP-37184)',
+    credentials: 'Joint Replacement & Spine Specialist (NMC: MP-38019)',
     chamberNumber: 'CH-4',
-    feeRupees: 650,
-    doctorSlug: 'dr-sunita-rao-ortho',
+    feeRupees: 750,
+    doctorSlug: 'dr-sandeep-kothari-ortho',
     tvSlug: 'citycare-mpnagar-bhopal',
+    treatedSymptoms: ['knee pain', 'joint pain', 'backache', 'back pain', 'sciatica', 'cervical', 'fracture', 'arthritis'],
   },
   {
     id: 'metro-heart',
     name: 'Metro Care Clinic',
-    locality: 'Malviya Nagar',
+    locality: 'TT Nagar',
     address: 'Near New Market, Malviya Nagar',
     badgeColor: 'bg-rose-100 text-rose-800',
     doctorName: 'Dr. Kavita Deshmukh',
@@ -131,6 +141,7 @@ const BHOPAL_CLINICS: ClinicDirectoryItem[] = [
     feeRupees: 600,
     doctorSlug: 'dr-kavita-deshmukh-gyn',
     tvSlug: 'citycare-mpnagar-bhopal',
+    treatedSymptoms: ['periods', 'pregnancy', 'pcos', 'pcod', 'fertility', 'pelvic pain', 'cramps'],
   },
 ];
 
@@ -143,30 +154,77 @@ const SPECIALTIES = [
   { label: 'Dermatology', value: 'Dermatology', icon: '✨' },
   { label: 'Gastroenterology', value: 'Gastroenterology', icon: '🔬' },
   { label: 'Orthopedics', value: 'Orthopedics', icon: '🦴' },
+  { label: 'Gynecology', value: 'Gynecology', icon: '🌸' },
 ];
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('ALL');
+  const [selectedLocality, setSelectedLocality] = useState('ALL');
+
+  // Semantic Symptom Search computation
+  const symptomAnalysis = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return { matchedSpecialty: null, emergencyNotice: null };
+
+    // Check against taxonomy
+    const matched = COMMON_SYMPTOMS_TAXONOMY.find((entry) =>
+      entry.keywords.some((kw) => q.includes(kw))
+    );
+
+    return {
+      matchedSpecialty: matched ? matched.specialty : null,
+      emergencyNotice: matched?.isEmergencyAlert ? matched.emergencyNotice : null,
+    };
+  }, [searchQuery]);
 
   const filteredClinics = useMemo(() => {
     return BHOPAL_CLINICS.filter((c) => {
-      const matchesSpecialty =
-        selectedSpecialty === 'ALL' ||
-        c.specialty.toLowerCase() === selectedSpecialty.toLowerCase();
+      // 1. Specialty matching
+      const targetSpecialty =
+        selectedSpecialty !== 'ALL'
+          ? selectedSpecialty
+          : symptomAnalysis.matchedSpecialty;
 
+      const matchesSpecialty =
+        !targetSpecialty ||
+        c.specialty.toLowerCase() === targetSpecialty.toLowerCase();
+
+      // 2. Locality matching
+      const matchesLocality =
+        selectedLocality === 'ALL' ||
+        (selectedLocality === 'MP_NAGAR' && c.locality.toLowerCase().includes('mp nagar')) ||
+        (selectedLocality === 'ARERA' && c.locality.toLowerCase().includes('arera')) ||
+        (selectedLocality === 'KOLAR' && c.locality.toLowerCase().includes('kolar')) ||
+        (selectedLocality === 'TT_NAGAR' && c.locality.toLowerCase().includes('tt nagar'));
+
+      // 3. Search query matching
       const q = searchQuery.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
+      if (!q) {
+        return matchesSpecialty && matchesLocality;
+      }
+
+      const matchesText =
         c.name.toLowerCase().includes(q) ||
         c.locality.toLowerCase().includes(q) ||
         c.doctorName.toLowerCase().includes(q) ||
         c.specialty.toLowerCase().includes(q) ||
-        c.address.toLowerCase().includes(q);
+        c.address.toLowerCase().includes(q) ||
+        c.treatedSymptoms.some((s) => s.includes(q));
 
-      return matchesSpecialty && matchesSearch;
+      const matchesSymptomSpecialty = Boolean(
+        symptomAnalysis.matchedSpecialty &&
+          c.specialty.toLowerCase() === symptomAnalysis.matchedSpecialty.toLowerCase()
+      );
+
+      return matchesLocality && (matchesText || matchesSymptomSpecialty);
     });
-  }, [searchQuery, selectedSpecialty]);
+  }, [searchQuery, selectedSpecialty, selectedLocality, symptomAnalysis]);
+
+  const handleSymptomChipClick = (label: string, specialty: string) => {
+    setSearchQuery(label);
+    setSelectedSpecialty(specialty);
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-emerald-50/60 via-white to-teal-50/50 flex flex-col justify-between relative overflow-hidden">
@@ -198,6 +256,12 @@ export default function HomePage() {
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              href="/doctors"
+              className="hidden lg:inline-flex items-center px-3 py-1.5 text-xs font-bold rounded-xl text-emerald-900 bg-emerald-50/80 border border-emerald-200 hover:bg-emerald-100 transition-all shadow-xs"
+            >
+              Explore Doctors
+            </Link>
             <Link
               href="/register"
               data-testid="nav-btn-patient-register"
@@ -269,10 +333,11 @@ export default function HomePage() {
               </div>
               <input
                 type="text"
+                data-testid="home-search-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search Bhopal doctors, specialties (Cardiology, Neuro, Derma) or area (MP Nagar, Arera)..."
-                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-emerald-200 text-sm font-medium text-slate-800 placeholder-slate-400 shadow-lg shadow-emerald-950/5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                placeholder="Search symptoms ('chest pain', 'knee pain', 'acne'), doctor name, or area..."
+                className="w-full pl-12 pr-16 py-3.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-emerald-200 text-sm font-medium text-slate-800 placeholder-slate-400 shadow-lg shadow-emerald-950/5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
               />
               {searchQuery && (
                 <button
@@ -282,6 +347,42 @@ export default function HomePage() {
                   Clear
                 </button>
               )}
+            </div>
+
+            {/* Emergency Notice Pill if detected */}
+            {symptomAnalysis.emergencyNotice && (
+              <div className="mt-2.5 p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900 text-left flex items-start gap-2 shadow-xs">
+                <span className="text-base shrink-0">🚨</span>
+                <div>
+                  <strong className="block">Emergency Alert:</strong>
+                  <span>{symptomAnalysis.emergencyNotice} Dial 108 Ambulance immediately for acute emergencies.</span>
+                </div>
+              </div>
+            )}
+
+            {/* Quick Symptom Chips Strip */}
+            <div className="mt-3 flex items-center justify-center gap-1.5 flex-wrap">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">
+                Common Symptoms:
+              </span>
+              {[
+                { label: 'Chest Heaviness', specialty: 'Cardiology', icon: '🫀' },
+                { label: 'Acne & Skin', specialty: 'Dermatology', icon: '✨' },
+                { label: 'Knee & Joint Pain', specialty: 'Orthopedics', icon: '🦴' },
+                { label: 'Fever & Diabetes', specialty: 'General Medicine', icon: '💊' },
+                { label: 'Child Fever', specialty: 'Pediatrics', icon: '👶' },
+                { label: 'Acidity & Gas', specialty: 'Gastroenterology', icon: '🔬' },
+              ].map((chip) => (
+                <button
+                  key={chip.label}
+                  type="button"
+                  onClick={() => handleSymptomChipClick(chip.label, chip.specialty)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/80 hover:bg-emerald-50 text-slate-700 hover:text-emerald-900 border border-slate-200/90 hover:border-emerald-300 transition-all cursor-pointer shadow-2xs"
+                >
+                  <span>{chip.icon}</span>
+                  <span>{chip.label}</span>
+                </button>
+              ))}
             </div>
 
             {/* Specialty Quick-Filter Pills */}
@@ -304,12 +405,41 @@ export default function HomePage() {
                 );
               })}
             </div>
+
+            {/* Locality Filter Strip */}
+            <div className="mt-2.5 flex items-center justify-center gap-1.5 flex-wrap">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">
+                Locality:
+              </span>
+              {[
+                { id: 'ALL', label: 'All Bhopal' },
+                { id: 'MP_NAGAR', label: 'MP Nagar' },
+                { id: 'ARERA', label: 'Arera Colony' },
+                { id: 'KOLAR', label: 'Kolar Road' },
+                { id: 'TT_NAGAR', label: 'TT Nagar' },
+              ].map((loc) => {
+                const isActive = selectedLocality === loc.id;
+                return (
+                  <button
+                    key={loc.id}
+                    onClick={() => setSelectedLocality(loc.id)}
+                    className={`px-2.5 py-0.5 rounded-md text-[11px] font-semibold transition-all ${
+                      isActive
+                        ? 'bg-slate-900 text-white'
+                        : 'bg-slate-100/90 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {loc.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Unified Action Layout: Primary Patient CTA + Frosted B2B Secondary Bar */}
           <div className="mt-8 flex flex-col items-center gap-4">
             <Link
-              href="/dr/dr-rajesh-sharma-cardio"
+              href="/doctors"
               className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 text-base font-black rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-xl shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
             >
               <span>📱 Find & Book Doctor (₹49 Nominal Token)</span>
@@ -413,7 +543,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Business Value Cards Strip (Glassmorphism) */}
+        {/* Business Value Cards Strip */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-10 mb-12">
           <div className="p-6 rounded-3xl bg-white/80 backdrop-blur-xl border border-white/90 shadow-lg shadow-emerald-950/5 space-y-3 hover:border-emerald-200 transition-all">
             <div className="h-11 w-11 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl font-bold shadow-xs">
@@ -478,7 +608,7 @@ export default function HomePage() {
           />
         </div>
 
-        {/* Multi-Chamber Live Glance Preview: Glassmorphic Container */}
+        {/* Multi-Chamber Live Glance Preview */}
         <div className="bg-white/85 backdrop-blur-xl border border-white/80 rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-950/5 mb-10">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
             <div>
@@ -511,7 +641,7 @@ export default function HomePage() {
             />
             <ChamberBadge
               chamberNumber="CH-3"
-              doctorName="Dr. Amit Verma"
+              doctorName="Dr. Rohit Chouhan"
               specialty="Pediatrician"
               status="DELAYED"
               delayMinutes={15}
@@ -519,14 +649,14 @@ export default function HomePage() {
             />
             <ChamberBadge
               chamberNumber="CH-4"
-              doctorName="Dr. Sunita Rao"
+              doctorName="Dr. Sandeep Kothari"
               specialty="Orthopedic"
               status="BREAK"
             />
           </div>
         </div>
 
-        {/* Bhopal Polyclinic Network & Specialist Directory: Green & White Glassmorphism */}
+        {/* Bhopal Polyclinic Network & Specialist Directory */}
         <div id="specialists" className="bg-white/85 backdrop-blur-xl border border-white/80 rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-950/5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
             <div>
@@ -540,14 +670,18 @@ export default function HomePage() {
                 Explore affiliated multi-chamber polyclinics and verified doctor consultation desks across Bhopal
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 self-start sm:self-auto">
-                10 Pilot Polyclinics Active
-              </span>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/doctors"
+                className="text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 hover:bg-emerald-100 transition-colors"
+              >
+                View Full Marketplace →
+              </Link>
               {filteredClinics.length !== BHOPAL_CLINICS.length && (
                 <button
                   onClick={() => {
                     setSelectedSpecialty('ALL');
+                    setSelectedLocality('ALL');
                     setSearchQuery('');
                   }}
                   className="text-xs font-semibold text-emerald-700 hover:underline"
@@ -564,6 +698,7 @@ export default function HomePage() {
               <button
                 onClick={() => {
                   setSelectedSpecialty('ALL');
+                  setSelectedLocality('ALL');
                   setSearchQuery('');
                 }}
                 className="mt-3 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold"

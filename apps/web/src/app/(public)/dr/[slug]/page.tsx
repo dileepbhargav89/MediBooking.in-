@@ -3,6 +3,11 @@
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { Button, Input, Card, Badge, Modal } from '@medibooking/ui';
+import {
+  DOCTORS_MASTER_DIRECTORY,
+  DoctorDirectoryItem,
+  PracticeVenue,
+} from '@/lib/doctor-directory';
 
 interface SlotItem {
   id: string;
@@ -11,221 +16,6 @@ interface SlotItem {
   isAvailable: boolean;
   isLocked?: boolean;
 }
-
-interface PracticeVenue {
-  clinicId: string;
-  clinicName: string;
-  address: string;
-  chamberNumber: string;
-  feeRupees: number;
-  morningTiming: string;
-  eveningTiming: string;
-}
-
-interface DoctorInfo {
-  fullName: string;
-  qualifications: string;
-  specialtyLabel: string;
-  nmcNumber: string;
-  experienceYears: number;
-  rating: string;
-  languages: string;
-  venues: PracticeVenue[];
-}
-
-const DOCTOR_DIRECTORY: Record<string, DoctorInfo> = {
-  'dr-rajesh-sharma-cardio': {
-    fullName: 'Dr. Rajesh Sharma',
-    qualifications: 'MBBS, MD, DM (Cardiology) • Senior Interventional Cardiologist',
-    specialtyLabel: 'Heart & Vascular Specialist',
-    nmcNumber: 'MP-38492',
-    experienceYears: 18,
-    rating: '⭐ 4.9 (420+ Bhopal Reviews)',
-    languages: 'Hindi, English',
-    venues: [
-      {
-        clinicId: 'c1010000-0000-4000-8000-000000000001',
-        clinicName: 'Bhopal City Care Polyclinic',
-        address: 'Plot 42, MP Nagar Zone II, Bhopal',
-        chamberNumber: 'CH-1',
-        feeRupees: 600,
-        morningTiming: '10:00 AM – 01:00 PM',
-        eveningTiming: '05:30 PM – 08:30 PM',
-      },
-      {
-        clinicId: 'c1010000-0000-4000-8000-000000000002',
-        clinicName: 'Arera Super Specialty Polyclinic',
-        address: 'E-3 Commercial Complex, Arera Colony, Bhopal',
-        chamberNumber: 'CH-3',
-        feeRupees: 800,
-        morningTiming: '08:30 AM – 10:00 AM',
-        eveningTiming: '04:00 PM – 05:30 PM',
-      },
-    ],
-  },
-  'dr-priya-patel-derma': {
-    fullName: 'Dr. Priya Patel',
-    qualifications: 'MBBS, MD (Dermatology, Venereology & Leprosy)',
-    specialtyLabel: 'Aesthetic Dermatologist & Trichologist',
-    nmcNumber: 'MPMC-51042',
-    experienceYears: 11,
-    rating: '⭐ 4.8 (310+ Bhopal Reviews)',
-    languages: 'Hindi, English',
-    venues: [
-      {
-        clinicId: 'c1010000-0000-4000-8000-000000000001',
-        clinicName: 'CityCare Polyclinic & Diagnostic Centre',
-        address: 'Plot 42, MP Nagar Zone II, Bhopal',
-        chamberNumber: 'CH-2',
-        feeRupees: 600,
-        morningTiming: '11:00 AM – 01:00 PM',
-        eveningTiming: '05:30 PM – 08:00 PM',
-      },
-    ],
-  },
-  'dr-alok-verma-neuro': {
-    fullName: 'Dr. Alok Verma',
-    qualifications: 'MBBS, MD (Medicine), DM (Neurology, PGIMER Chandigarh)',
-    specialtyLabel: 'Senior Neurologist & Stroke Specialist',
-    nmcNumber: 'MPMC-39182',
-    experienceYears: 18,
-    rating: '⭐ 4.9 (530+ Bhopal Reviews)',
-    languages: 'Hindi, English',
-    venues: [
-      {
-        clinicId: 'c1010000-0000-4000-8000-000000000002',
-        clinicName: 'Narmada Health & Specialty Polyclinic',
-        address: 'E-3/12, Near 10 No. Market, Arera Colony, Bhopal',
-        chamberNumber: 'CH-1',
-        feeRupees: 800,
-        morningTiming: '09:00 AM – 11:30 AM',
-        eveningTiming: '06:00 PM – 09:00 PM',
-      },
-    ],
-  },
-  'dr-vivek-saxena-genmed': {
-    fullName: 'Dr. Vivek Saxena',
-    qualifications: 'MBBS, MD (General Medicine, GMC Bhopal)',
-    specialtyLabel: 'Consultant Physician & Diabetologist',
-    nmcNumber: 'MPMC-42109',
-    experienceYears: 14,
-    rating: '⭐ 4.8 (290+ Bhopal Reviews)',
-    languages: 'Hindi, English',
-    venues: [
-      {
-        clinicId: 'c1010000-0000-4000-8000-000000000003',
-        clinicName: 'Kolar Prime MediChambers',
-        address: 'A-14, Sarvadharam C-Sector, Main Kolar Road, Bhopal',
-        chamberNumber: 'CH-1',
-        feeRupees: 500,
-        morningTiming: '10:00 AM – 01:00 PM',
-        eveningTiming: '06:30 PM – 09:00 PM',
-      },
-    ],
-  },
-  'dr-manish-dubey-gastro': {
-    fullName: 'Dr. Manish Dubey',
-    qualifications: 'MBBS, MD, DNB (Gastroenterology)',
-    specialtyLabel: 'Gastroenterology & Hepatology Consultant',
-    nmcNumber: 'MPMC-47120',
-    experienceYears: 13,
-    rating: '⭐ 4.9 (380+ Bhopal Reviews)',
-    languages: 'Hindi, English',
-    venues: [
-      {
-        clinicId: 'c1010000-0000-4000-8000-000000000004',
-        clinicName: 'Bhopal Care Polyclinic & Daycare',
-        address: 'Unit 204, Platinum Plaza, TT Nagar, Bhopal',
-        chamberNumber: 'CH-1',
-        feeRupees: 750,
-        morningTiming: '10:00 AM – 12:30 PM',
-        eveningTiming: '05:00 PM – 07:30 PM',
-      },
-    ],
-  },
-  'dr-neha-agrawal-psychiatry': {
-    fullName: 'Dr. Neha Agrawal',
-    qualifications: 'MBBS, MD (Psychiatry, AIIMS Bhopal)',
-    specialtyLabel: 'Mind Wellness & Behavioral Specialist',
-    nmcNumber: 'MPMC-53102',
-    experienceYears: 9,
-    rating: '⭐ 4.9 (190+ Bhopal Reviews)',
-    languages: 'Hindi, English',
-    venues: [
-      {
-        clinicId: 'c1010000-0000-4000-8000-000000000005',
-        clinicName: 'New Market Doctors Plaza',
-        address: 'Shop 18-20, Topkhana Market, New Market, Bhopal',
-        chamberNumber: 'CH-2',
-        feeRupees: 700,
-        morningTiming: '11:00 AM – 01:30 PM',
-        eveningTiming: '06:00 PM – 08:30 PM',
-      },
-    ],
-  },
-  'dr-sandeep-kothari-ortho': {
-    fullName: 'Dr. Sandeep Kothari',
-    qualifications: 'MBBS, MS (Ortho), Fellowship in Arthroplasty (Germany)',
-    specialtyLabel: 'Joint Replacement & Spine Specialist',
-    nmcNumber: 'MPMC-38019',
-    experienceYears: 20,
-    rating: '⭐ 4.9 (480+ Bhopal Reviews)',
-    languages: 'Hindi, English',
-    venues: [
-      {
-        clinicId: 'c1010000-0000-4000-8000-000000000006',
-        clinicName: 'Hoshangabad Road Medical Enclave',
-        address: 'Near C21 Mall, Misrod, Bhopal',
-        chamberNumber: 'CH-1',
-        feeRupees: 750,
-        morningTiming: '10:30 AM – 01:00 PM',
-        eveningTiming: '06:00 PM – 08:30 PM',
-      },
-    ],
-  },
-  'dr-kavita-deshmukh-genmed': {
-    fullName: 'Dr. Kavita Deshmukh',
-    qualifications: 'MBBS, MD (Medicine, GMC Bhopal)',
-    specialtyLabel: 'Consultant Physician & Geriatric Care',
-    nmcNumber: 'MPMC-44981',
-    experienceYears: 15,
-    rating: '⭐ 4.8 (260+ Bhopal Reviews)',
-    languages: 'Hindi, English',
-    venues: [
-      {
-        clinicId: 'c1010000-0000-4000-8000-000000000007',
-        clinicName: 'Shahpura Lakeshore Polyclinic',
-        address: 'B-28, Near Manisha Market Circle, Shahpura, Bhopal',
-        chamberNumber: 'CH-1',
-        feeRupees: 600,
-        morningTiming: '10:00 AM – 12:30 PM',
-        eveningTiming: '05:30 PM – 08:00 PM',
-      },
-    ],
-  },
-  'dr-rohit-chouhan-pedia': {
-    fullName: 'Dr. Rohit Chouhan',
-    qualifications: 'MBBS, MD (Pediatrics, GMC Bhopal)',
-    specialtyLabel: 'Pediatrician & Neonatologist',
-    nmcNumber: 'MPMC-50119',
-    experienceYears: 10,
-    rating: '⭐ 4.9 (340+ Bhopal Reviews)',
-    languages: 'Hindi, English',
-    venues: [
-      {
-        clinicId: 'c1010000-0000-4000-8000-000000000008',
-        clinicName: 'Ayodhya Bypass Health Hub',
-        address: 'Shop 5-8, Minal Shopping Mall, Bhopal',
-        chamberNumber: 'CH-1',
-        feeRupees: 500,
-        morningTiming: '10:00 AM – 01:00 PM',
-        eveningTiming: '06:00 PM – 08:30 PM',
-      },
-    ],
-  },
-};
-
-const DEFAULT_VENUES: PracticeVenue[] = DOCTOR_DIRECTORY['dr-rajesh-sharma-cardio']!.venues;
 
 const INITIAL_SLOTS: SlotItem[] = [
   // Morning
@@ -251,17 +41,31 @@ export default function DoctorPublicProfilePage({
 }) {
   const unwrappedParams = use(params);
   const slug = unwrappedParams.slug;
-  const doctorInfo = DOCTOR_DIRECTORY[slug] || DOCTOR_DIRECTORY['dr-rajesh-sharma-cardio']!;
+
+  const doctorInfo: DoctorDirectoryItem =
+    DOCTORS_MASTER_DIRECTORY.find((d) => d.slug === slug) ||
+    DOCTORS_MASTER_DIRECTORY[0]!;
 
   const [selectedVenue, setSelectedVenue] = useState<PracticeVenue>(
-    doctorInfo.venues[0] || DEFAULT_VENUES[0]!
+    doctorInfo.venues[0] || {
+      clinicId: 'c1010000-0000-4000-8000-000000000001',
+      clinicName: 'Bhopal City Care Polyclinic',
+      locality: 'MP Nagar Zone-II',
+      address: 'Plot 42, MP Nagar Zone II, Bhopal',
+      chamberNumber: 'CH-1',
+      feeRupees: 600,
+      morningTiming: '10:00 AM – 01:00 PM',
+      eveningTiming: '05:30 PM – 08:30 PM',
+      tvSlug: 'citycare-mpnagar-bhopal',
+    }
   );
 
   useEffect(() => {
     if (doctorInfo.venues[0]) {
       setSelectedVenue(doctorInfo.venues[0]);
     }
-  }, [slug]);
+  }, [slug, doctorInfo]);
+
   const [selectedDateIndex, setSelectedDateIndex] = useState(0);
   const [selectedSlot, setSelectedSlot] = useState<SlotItem | null>(null);
   const [lockCountdown, setLockCountdown] = useState<number>(300); // 5 minutes
@@ -271,6 +75,7 @@ export default function DoctorPublicProfilePage({
   const [patientAge, setPatientAge] = useState<string>('48');
   const [patientGender, setPatientGender] = useState<'MALE' | 'FEMALE' | 'OTHER'>('MALE');
   const [symptoms, setSymptoms] = useState('');
+  const [dpdpConsent, setDpdpConsent] = useState(true);
   const [bookingConfirmed, setBookingConfirmed] = useState<boolean>(false);
   const [allocatedToken, setAllocatedToken] = useState<number>(14);
   const [isLoading, setIsLoading] = useState(false);
@@ -323,6 +128,10 @@ export default function DoctorPublicProfilePage({
       setErrorMessage('Please enter a valid 10-digit Indian mobile number');
       return;
     }
+    if (!dpdpConsent) {
+      setErrorMessage('Please accept the DPDP Act 2023 consent to proceed with booking');
+      return;
+    }
 
     setIsLoading(true);
     setErrorMessage(null);
@@ -365,6 +174,11 @@ export default function DoctorPublicProfilePage({
             </span>
           </Link>
           <div className="flex items-center gap-3">
+            <Link href="/doctors">
+              <Button variant="ghost" size="sm" className="text-xs font-semibold text-emerald-800 hover:text-emerald-900">
+                ← All Doctors
+              </Button>
+            </Link>
             <Link href="/login">
               <Button variant="ghost" size="sm" className="text-xs font-semibold text-slate-700 hover:text-emerald-700">
                 Staff Login
@@ -374,8 +188,19 @@ export default function DoctorPublicProfilePage({
         </div>
       </header>
 
+      {/* Breadcrumb Navigation */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-4 w-full">
+        <nav className="text-xs text-slate-500 flex items-center gap-2 font-medium">
+          <Link href="/" className="hover:text-emerald-700 transition-colors">Home</Link>
+          <span>/</span>
+          <Link href="/doctors" className="hover:text-emerald-700 transition-colors">Bhopal Specialists</Link>
+          <span>/</span>
+          <span className="text-slate-900 font-bold">{doctorInfo.fullName}</span>
+        </nav>
+      </div>
+
       {/* Main Profile & Booking Flow */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 w-full space-y-8 relative z-10">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-4 w-full space-y-6 relative z-10">
         {/* Doctor Master Profile Card: Glassmorphic High-Conversion */}
         <div className="bg-white/85 backdrop-blur-xl border border-white/80 rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-950/5 ring-1 ring-emerald-900/5 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-bl from-emerald-500/10 to-transparent rounded-bl-full pointer-events-none" />
@@ -408,9 +233,12 @@ export default function DoctorPublicProfilePage({
                   <span>•</span>
                   <span>{doctorInfo.languages}</span>
                   <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-bold text-[11px]">
-                    {doctorInfo.rating}
+                    ⭐ {doctorInfo.rating} ({doctorInfo.reviewCount}+ Bhopal Reviews)
                   </span>
                 </div>
+                <p className="text-xs text-slate-600 mt-2 line-clamp-2 max-w-xl">
+                  {doctorInfo.bio}
+                </p>
               </div>
             </div>
 
@@ -427,6 +255,36 @@ export default function DoctorPublicProfilePage({
               </span>
             </div>
           </div>
+
+          {/* Conditions & Symptoms Treated Chips */}
+          <div className="mt-5 pt-4 border-t border-slate-100">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block mb-2">
+              Conditions & Symptoms Treated by {doctorInfo.fullName}:
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {doctorInfo.treatedSymptoms.map((sym) => (
+                <span
+                  key={sym}
+                  className="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-900 border border-emerald-200"
+                >
+                  ✓ {sym}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Emergency Notice Pill */}
+        <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-base">🚑</span>
+            <span>
+              <strong>Need Emergency Care?</strong> In case of acute cardiac arrest, stroke, severe breathlessness or trauma, please dial <strong>108 Ambulance</strong> immediately.
+            </span>
+          </div>
+          <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300 shrink-0 hidden sm:inline-block">
+            Emergency 108
+          </span>
         </div>
 
         {/* Business Value Proposition: Why Book Online via ₹49 Token? */}
@@ -732,9 +590,25 @@ export default function DoctorPublicProfilePage({
                   ))}
                 </div>
               </div>
+
+              {/* DPDP Act 2023 Explicit Consent Checkbox */}
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                <label className="flex items-start gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={dpdpConsent}
+                    data-testid="checkbox-dpdp-consent"
+                    onChange={(e) => setDpdpConsent(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                  <span className="text-slate-600 text-[11px] leading-relaxed">
+                    <strong>DPDP Act 2023 Consent:</strong> I agree to share my name, contact number, and symptoms with {doctorInfo.fullName}&apos;s clinic for appointment scheduling and queue management on WhatsApp.
+                  </span>
+                </label>
+              </div>
             </div>
 
-            {/* Nominal Booking Fee vs Counter Fee Breakdown: Green & White Glassmorphic */}
+            {/* Nominal Booking Fee vs Counter Fee Breakdown */}
             <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-xs space-y-2 backdrop-blur-sm shadow-xs">
               <div className="flex items-center justify-between font-bold text-slate-900">
                 <span className="flex items-center gap-1.5">
@@ -752,7 +626,7 @@ export default function DoctorPublicProfilePage({
               </p>
             </div>
 
-            {/* Instant UPI QR Simulation Box: Glassy Emerald Glow */}
+            {/* Instant UPI QR Simulation Box */}
             <div className="p-3.5 bg-gradient-to-r from-slate-950 via-emerald-950 to-slate-900 text-white rounded-2xl flex items-center justify-between gap-3 shadow-xl shadow-emerald-950/20 border border-emerald-500/30">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-white p-1 flex items-center justify-center shrink-0 shadow-sm">
@@ -776,7 +650,7 @@ export default function DoctorPublicProfilePage({
             </div>
           </form>
         ) : (
-          /* Booking Confirmed State: Green & White Glassy */
+          /* Booking Confirmed State */
           <div className="text-center py-4 space-y-5">
             <div className="h-16 w-16 mx-auto rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center text-3xl font-black shadow-lg shadow-emerald-600/30 ring-4 ring-emerald-50">
               ✓
@@ -875,7 +749,7 @@ export default function DoctorPublicProfilePage({
       <footer className="bg-white/70 backdrop-blur-md border-t border-emerald-100/60 py-6 px-6 text-center text-xs text-slate-500">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>{doctorInfo.fullName} • MediBooking.in Verified Practice</span>
-          <span>Bhopal, MP, India</span>
+          <span>Bhopal, MP, India • National Medical Commission (NMC: {doctorInfo.nmcNumber})</span>
         </div>
       </footer>
     </div>

@@ -22,6 +22,7 @@ export function isPublicPath(pathname: string): boolean {
     pathname === '/login' ||
     pathname.startsWith('/register') ||
     pathname.startsWith('/onboarding') ||
+    pathname.startsWith('/doctors') ||
     pathname.startsWith('/dr/') ||
     pathname.startsWith('/tv/') ||
     pathname.startsWith('/patient') ||
