@@ -9,3 +9,4 @@ test('Capture Register Page UI', async ({ page }) => {
   await expect(page.locator('h2')).toContainText('Patient & Family Registration');
   await page.screenshot({ path: path.join(ARTIFACT_DIR, 'qa-18-patient-register-screen.png'), fullPage: false });
 });
+

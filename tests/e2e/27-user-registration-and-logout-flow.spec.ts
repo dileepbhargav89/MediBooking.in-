@@ -171,3 +171,4 @@ test.describe('E2E Workflow 27: User Registration, Profile Intake & Full Logout 
     await page.screenshot({ path: screenshotPath, fullPage: false });
   });
 });
+
