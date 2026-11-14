@@ -258,37 +258,75 @@ export default function HomePage() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/doctors"
-              className="hidden lg:inline-flex items-center px-3 py-1.5 text-xs font-bold rounded-xl text-emerald-900 bg-emerald-50/80 border border-emerald-200 hover:bg-emerald-100 transition-all shadow-xs"
+              data-testid="nav-btn-explore-doctors"
+              className="inline-flex items-center px-3.5 py-2 text-xs font-bold rounded-xl text-emerald-950 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all shadow-xs"
             >
-              Explore Doctors
+              🩺 Explore Doctors
             </Link>
+
+            {/* Unified Patient Hub Button */}
             <Link
-              href="/register"
-              data-testid="nav-btn-patient-register"
-              className="inline-flex items-center px-3 py-1.5 text-xs font-bold rounded-xl bg-white text-emerald-800 border border-emerald-200 hover:bg-emerald-50 transition-all shadow-xs"
+              href="/patient/dashboard"
+              data-testid="nav-btn-patient-hub"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl bg-white text-slate-800 border border-slate-200 hover:bg-emerald-50 hover:border-emerald-200 transition-all shadow-xs"
             >
-              Register
+              <span>👤 Patient Portal</span>
             </Link>
-            <Link
-              href="/onboarding/clinic"
-              data-testid="nav-btn-onboard-clinic"
-              className="inline-flex items-center px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition-all shadow-xs"
-            >
-              Launch Clinic (3 Min)
-            </Link>
-            <Link
-              href="/onboarding/doctor"
-              data-testid="nav-btn-onboard-doctor"
-              className="inline-flex items-center px-3.5 py-2 text-xs font-bold rounded-xl bg-white/90 text-slate-700 border border-slate-300 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-200 transition-all shadow-xs"
-            >
-              Join as Doctor
-            </Link>
+
+            {/* Clinic & Doctor Partner Hub Dropdown */}
+            <div className="relative group">
+              <button
+                type="button"
+                data-testid="nav-btn-partners-menu"
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition-all shadow-xs"
+              >
+                <span>🏥 Partner Portals</span>
+                <span className="text-[10px] text-slate-400 group-hover:rotate-180 transition-transform">▾</span>
+              </button>
+              <div className="absolute right-0 mt-1 w-56 rounded-2xl bg-white/95 backdrop-blur-2xl border border-emerald-100 shadow-xl p-2 hidden group-hover:block hover:block z-50">
+                <Link
+                  href="/onboarding/clinic"
+                  data-testid="nav-btn-onboard-clinic"
+                  className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-50 text-slate-800 hover:text-emerald-950 transition-colors"
+                >
+                  <span className="text-base">🏥</span>
+                  <div>
+                    <span className="text-xs font-bold block">Launch Clinic (3 Min)</span>
+                    <span className="text-[10px] text-slate-500 block">Self-serve polyclinic setup</span>
+                  </div>
+                </Link>
+                <Link
+                  href="/onboarding/doctor"
+                  data-testid="nav-btn-onboard-doctor"
+                  className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-50 text-slate-800 hover:text-emerald-950 transition-colors mt-1"
+                >
+                  <span className="text-base">🩺</span>
+                  <div>
+                    <span className="text-xs font-bold block">Join as Doctor</span>
+                    <span className="text-[10px] text-slate-500 block">NMC credential claim</span>
+                  </div>
+                </Link>
+                <Link
+                  href="/register"
+                  data-testid="nav-btn-patient-register"
+                  className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-50 text-slate-800 hover:text-emerald-950 transition-colors mt-1 border-t border-slate-100 pt-2"
+                >
+                  <span className="text-base">👤</span>
+                  <div>
+                    <span className="text-xs font-bold block">Patient Registration</span>
+                    <span className="text-[10px] text-slate-500 block">ABHA & health profile</span>
+                  </div>
+                </Link>
+              </div>
+            </div>
+
             <Link href="/login">
               <Button variant="outline" size="sm" className="text-xs font-semibold rounded-xl">
                 Staff Login
               </Button>
             </Link>
-            <Link href="/tv/citycare-mpnagar-bhopal">
+
+            <Link href="/tv/citycare-mpnagar-bhopal" className="hidden md:inline-block">
               <Button
                 variant="primary"
                 size="sm"

@@ -90,6 +90,11 @@ export default function DoctorsMarketplacePage() {
             </div>
           </Link>
           <div className="flex items-center gap-3">
+            <Link href="/patient/dashboard">
+              <Button variant="outline" size="sm" className="text-xs font-semibold rounded-xl text-emerald-900 border-emerald-200 hover:bg-emerald-50">
+                👤 Patient Portal
+              </Button>
+            </Link>
             <Link href="/register">
               <Button variant="outline" size="sm" className="text-xs font-semibold rounded-xl">
                 Patient Register
