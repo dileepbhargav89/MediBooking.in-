@@ -204,6 +204,15 @@ export default function DoctorChamberGlancePortal() {
           </div>
 
           <div className="flex items-center gap-2">
+            <Link href="/doctor/chamber">
+              <Button
+                size="sm"
+                data-testid="btn-open-rx-composer"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm"
+              >
+                ⚡ 1-Minute Rx Composer
+              </Button>
+            </Link>
             <Button
               variant="outline"
               size="sm"

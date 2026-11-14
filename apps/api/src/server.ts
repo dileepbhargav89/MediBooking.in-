@@ -27,6 +27,7 @@ import { auditRoutes } from './routes/audit.routes';
 import { billingRoutes } from './routes/billing.routes';
 import { hardwareRoutes } from './routes/hardware.routes';
 import { patientRoutes } from './routes/patient.routes';
+import { emrRoutes } from './routes/emr.routes';
 import { SEED_DATA } from '@medibooking/database';
 
 export function createApiServer(): FastifyInstance {
@@ -71,6 +72,7 @@ export function createApiServer(): FastifyInstance {
       v1.register(billingRoutes);
       v1.register(hardwareRoutes);
       v1.register(patientRoutes);
+      v1.register(emrRoutes);
     },
     { prefix: '/api/v1' }
   );

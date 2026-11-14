@@ -1331,6 +1331,110 @@ export interface AbhaProfile {
   healthRewardsCredits: number;
 }
 
+// ==========================================
+// 12. PHASE 4: CLINICAL EMR & PRESCRIPTION COMPOSER
+// ==========================================
+
+export interface ClinicalVitals {
+  bpSystolic: number;
+  bpDiastolic: number;
+  pulseRate: number;
+  spo2: number;
+  temperatureF: number;
+  weightKg?: number;
+  randomBloodSugarMgDl?: number;
+  recordedBy: string;
+  recordedAt: string;
+}
+
+export type MedicationDosageForm = 'TAB' | 'CAP' | 'SYP' | 'INJ' | 'DROPS' | 'OINTMENT' | 'INHALER';
+export type MedicationFrequency = '1-0-0' | '1-0-1' | '0-0-1' | '1-1-1' | 'SOS' | 'CUSTOM';
+
+export interface PrescriptionMedication {
+  drugName: string;
+  genericName: string;
+  dosageForm: MedicationDosageForm;
+  strength: string; // e.g. "40mg"
+  frequency: MedicationFrequency;
+  durationDays: number;
+  instructions: string; // e.g. "After food with warm water"
+}
+
+export interface DrugFormulation {
+  id: string;
+  brandName: string;
+  genericName: string;
+  dosageForm: MedicationDosageForm;
+  commonStrengths: string[];
+  defaultFrequency: MedicationFrequency;
+  defaultInstructions: string;
+  scheduleDrugClass?: 'SCHEDULE_H' | 'SCHEDULE_H1' | 'SCHEDULE_X' | 'GENERAL';
+  allergyWarnings?: string[];
+}
+
+export interface ClinicalProtocolBundle {
+  id: string;
+  title: string;
+  shortCode: string;
+  category: string;
+  description: string;
+  defaultDiagnoses: string[];
+  medications: PrescriptionMedication[];
+  investigations: string[];
+  lifestyleAdvice: string;
+  followUpDays: number;
+}
+
+export interface DigitalPrescription {
+  id: string;
+  tokenNumber: number;
+  clinicId: string;
+  clinicName: string;
+  clinicAddress: string;
+  doctorId: string;
+  doctorName: string;
+  doctorQualifications: string;
+  doctorNmc: string;
+  chamberNumber: string;
+  patientId: string;
+  patientName: string;
+  patientAge: number;
+  patientGender: 'MALE' | 'FEMALE' | 'OTHER';
+  primaryMobile: string;
+  knownAllergies: string[];
+  chronicConditions: string[];
+  vitalsAtConsultation: ClinicalVitals;
+  symptoms: string[];
+  diagnoses: string[];
+  medications: PrescriptionMedication[];
+  investigationsOrdered: string[];
+  dietaryAdvice: string;
+  followUpDate: string;
+  doctorNotesPrivate?: string;
+  digitalSignatureHash: string;
+  pdfGeneratedUrl: string;
+  status: 'DRAFT' | 'SIGNED' | 'DISPATCHED';
+  dispatchedToWhatsApp: boolean;
+  printedAtReception: boolean;
+  createdAt: string;
+}
+
+export interface ChamberConsultationToken {
+  tokenNumber: number;
+  patientId: string;
+  patientName: string;
+  patientAge: number;
+  patientGender: 'MALE' | 'FEMALE' | 'OTHER';
+  primaryMobile: string;
+  relationship: string;
+  bookingType: 'ONLINE_PAID' | 'WALK_IN';
+  status: 'WAITING' | 'IN_CONSULTATION' | 'COMPLETED';
+  vitals: ClinicalVitals;
+  knownAllergies: string[];
+  chronicConditions: string[];
+  chiefComplaints: string[];
+}
+
 export * from './auth-edge';
 
 

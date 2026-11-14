@@ -167,3 +167,4 @@ export async function patientRoutes(fastify: FastifyInstance) {
     }
   });
 }
+
