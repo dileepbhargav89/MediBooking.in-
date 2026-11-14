@@ -289,6 +289,20 @@ export default function ReceptionDeskDashboardPage() {
     setIsHandoverModalOpen(false);
   };
 
+  // Phase 16: Live Inter-Chamber Referrals State
+  const [activeReferrals, setActiveReferrals] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:4000/api/v1/emr/referrals')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.referrals) {
+          setActiveReferrals(data.referrals);
+        }
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
   // Intake Form State
   const [mobile, setMobile] = useState('');
   const [patientName, setPatientName] = useState('');
@@ -805,6 +819,29 @@ export default function ReceptionDeskDashboardPage() {
             badge={{ label: 'ON TRACK', variant: 'mint' }}
           />
         </div>
+
+        {/* Phase 16: Inter-Chamber Specialist Referrals Intake Banner */}
+        {activeReferrals.length > 0 && (
+          <div
+            data-testid="banner-reception-referrals"
+            className="p-3.5 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs animate-fadeIn"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="h-7 w-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0">🔁</span>
+              <div>
+                <span className="text-xs font-bold block">
+                  Active Inter-Chamber Referrals ({activeReferrals.length} Patient{activeReferrals.length > 1 ? 's' : ''})
+                </span>
+                <span className="text-[11px] text-indigo-700">
+                  {activeReferrals[0]?.patientName} (Token #{activeReferrals[0]?.tokenNumber}) referred from {activeReferrals[0]?.sourceChamberNumber} ({activeReferrals[0]?.sourceDoctorName}) to {activeReferrals[0]?.targetChamberNumber} ({activeReferrals[0]?.targetDoctorName}).
+                </span>
+              </div>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-900 border border-indigo-300 text-[10px] font-bold font-mono shrink-0">
+              Transfer Intake Pending
+            </span>
+          </div>
+        )}
 
         {/* Fast Cash Drawer Denomination Tally (Anti-Pilferage) */}
         <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">

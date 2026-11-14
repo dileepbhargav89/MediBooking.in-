@@ -4,7 +4,7 @@
       "C:\\Program Files\\nodejs\\node.exe",
       "D:\\Projects\\Startup Project\\MediBooking.in\\node_modules\\@playwright\\test\\cli.js",
       "test",
-      "tests/e2e/47-phase13-phase14-fhir-lab-hold.spec.ts",
+      "tests/e2e/48-phase15-phase16-icd10-emergency-referral.spec.ts",
       "--project=webkit"
     ],
     "configFile": "D:\\Projects\\Startup Project\\MediBooking.in\\playwright.config.ts",
@@ -162,20 +162,20 @@
   },
   "suites": [
     {
-      "title": "47-phase13-phase14-fhir-lab-hold.spec.ts",
-      "file": "47-phase13-phase14-fhir-lab-hold.spec.ts",
+      "title": "48-phase15-phase16-icd10-emergency-referral.spec.ts",
+      "file": "48-phase15-phase16-icd10-emergency-referral.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Phase 13 & Phase 14: ABDM FHIR R4 Validation & Doctor Chamber Token Parking (Lab/STAT Hold)",
-          "file": "47-phase13-phase14-fhir-lab-hold.spec.ts",
+          "title": "Phase 15 & Phase 16: AI-Assisted Sub-15ms ICD-10 Search, Emergency Triage Alerts & Inter-Chamber Referrals",
+          "file": "48-phase15-phase16-icd10-emergency-referral.spec.ts",
           "line": 6,
           "column": 6,
           "specs": [
             {
-              "title": "47.1 Doctor Chamber: Place Token on STAT Diagnostic Lab Hold & Advance Queue",
+              "title": "48.1 Doctor Chamber: Sub-15ms ICD-10 Semantic Search & Diagnosis Addition",
               "ok": true,
               "tags": [],
               "tests": [
@@ -190,12 +190,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 8082,
+                      "duration": 23702,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T15:29:23.630Z",
+                      "startTime": "2026-11-14T15:42:52.673Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -203,13 +203,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "113e73b0f60206deaace-feedb5784bae06798851",
-              "file": "47-phase13-phase14-fhir-lab-hold.spec.ts",
+              "id": "f6d07254ce1cb68445fe-0d644d1434160c374cf7",
+              "file": "48-phase15-phase16-icd10-emergency-referral.spec.ts",
               "line": 9,
               "column": 7
             },
             {
-              "title": "47.2 Doctor Chamber: Resume Consultation for Parked Token & Restore Clinical Draft",
+              "title": "48.2 Doctor Chamber: Acute Cardiac Diagnosis Triggers Emergency 108 Dispatch Alert",
               "ok": true,
               "tags": [],
               "tests": [
@@ -224,12 +224,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 10627,
+                      "duration": 13174,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T15:29:32.001Z",
+                      "startTime": "2026-11-14T15:43:16.524Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -237,13 +237,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "113e73b0f60206deaace-3345e669adf88e169f38",
-              "file": "47-phase13-phase14-fhir-lab-hold.spec.ts",
-              "line": 75,
+              "id": "f6d07254ce1cb68445fe-ad0d687aeb5f366f4466",
+              "file": "48-phase15-phase16-icd10-emergency-referral.spec.ts",
+              "line": 55,
               "column": 7
             },
             {
-              "title": "47.3 Doctor Chamber: ABDM Milestone M2/M3 FHIR R4 Bundle Validation & Export",
+              "title": "48.3 Doctor Chamber: Dispatch Inter-Chamber Referral to CH-5 ENT Specialist",
               "ok": true,
               "tags": [],
               "tests": [
@@ -258,12 +258,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 13962,
+                      "duration": 14888,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T15:29:42.652Z",
+                      "startTime": "2026-11-14T15:43:29.726Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -271,13 +271,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "113e73b0f60206deaace-6cd68b59666ad8e79f04",
-              "file": "47-phase13-phase14-fhir-lab-hold.spec.ts",
-              "line": 122,
+              "id": "f6d07254ce1cb68445fe-42196ec8189e748f4737",
+              "file": "48-phase15-phase16-icd10-emergency-referral.spec.ts",
+              "line": 104,
               "column": 7
             },
             {
-              "title": "47.4 Patient Dashboard: Digital Health Vault ABDM FHIR R4 Document Export",
+              "title": "48.4 Reception Desk: Real-Time Live Sync of Inter-Chamber Referrals",
               "ok": true,
               "tags": [],
               "tests": [
@@ -292,12 +292,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 12922,
+                      "duration": 9806,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T15:29:56.644Z",
+                      "startTime": "2026-11-14T15:43:44.646Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -305,9 +305,9 @@
                   "status": "expected"
                 }
               ],
-              "id": "113e73b0f60206deaace-ee80c2f864b865c00f42",
-              "file": "47-phase13-phase14-fhir-lab-hold.spec.ts",
-              "line": 172,
+              "id": "f6d07254ce1cb68445fe-5cf11ff815939dd769d9",
+              "file": "48-phase15-phase16-icd10-emergency-referral.spec.ts",
+              "line": 168,
               "column": 7
             }
           ]
@@ -317,8 +317,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-14T15:29:22.835Z",
-    "duration": 46842.964,
+    "startTime": "2026-11-14T15:42:51.283Z",
+    "duration": 63309.483,
     "expected": 4,
     "skipped": 0,
     "unexpected": 0,

@@ -101,5 +101,38 @@ export const emrRoutes: FastifyPluginAsync = async (server: FastifyInstance) => 
     const queue = emrService.resetQueue();
     return reply.send({ success: true, message: 'Queue reset to initial state', queue });
   });
+
+  // 10. Phase 15: Sub-15ms ICD-10 Semantic Search
+  server.get<{ Querystring: { q?: string } }>('/emr/icd10/search', async (request, reply) => {
+    const { q } = request.query;
+    const results = emrService.searchIcd10(q);
+    return reply.send({
+      success: true,
+      query: q || '',
+      count: results.length,
+      results,
+    });
+  });
+
+  // 11. Phase 16: Inter-Chamber Referral Creation & Queue Intake
+  server.post<{ Body: any }>('/emr/referrals', async (request, reply) => {
+    const payload = request.body || {};
+    const referral = emrService.createReferral(payload);
+    return reply.status(201).send({
+      success: true,
+      message: 'Inter-chamber specialist referral successfully generated and routed to target queue.',
+      referral,
+    });
+  });
+
+  // 12. Phase 16: List Inter-Chamber Referrals
+  server.get('/emr/referrals', async (_request, reply) => {
+    const referrals = emrService.getReferrals();
+    return reply.send({
+      success: true,
+      count: referrals.length,
+      referrals,
+    });
+  });
 };
 

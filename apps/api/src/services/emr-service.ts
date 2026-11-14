@@ -4,11 +4,104 @@ import {
   ClinicalProtocolBundle,
   ChamberConsultationToken,
   PrescriptionMedication,
+  InterChamberReferral,
 } from '@medibooking/types';
 import crypto from 'crypto';
 
+export interface Icd10CatalogEntry {
+  code: string;
+  name: string;
+  synonyms: string[];
+  category: string;
+  isEmergencyAlert?: boolean;
+  emergencyActionText?: string;
+}
+
 export class EMRService {
   private static instance: EMRService;
+
+  // Phase 16: In-Memory Inter-Chamber Referrals
+  private referrals: InterChamberReferral[] = [];
+
+  // Phase 15: Sub-15ms ICD-10 Semantic Search Catalog
+  private icdCatalog: Icd10CatalogEntry[] = [
+    {
+      code: 'I10',
+      name: 'Essential (Primary) Hypertension',
+      synonyms: ['high bp', 'blood pressure', 'hypertension', 'elevated bp'],
+      category: 'Cardiovascular',
+    },
+    {
+      code: 'E11.9',
+      name: 'Type 2 Diabetes Mellitus, Without Complications',
+      synonyms: ['sugar', 'diabetes', 't2dm', 'high glucose', 'madhumeha'],
+      category: 'Endocrine & Metabolic',
+    },
+    {
+      code: 'I20.9',
+      name: 'Angina Pectoris, Unspecified',
+      synonyms: ['chest pain', 'angina', 'chest heaviness', 'ischemic heart'],
+      category: 'Cardiovascular',
+      isEmergencyAlert: true,
+      emergencyActionText: '🚨 STAT CARDIOLOGY ALERT: Sublingual Sorbitrate / STAT ECG required. Prepare 108 Emergency Cardiac Ambulance.',
+    },
+    {
+      code: 'I21.9',
+      name: 'Acute Myocardial Infarction, Unspecified',
+      synonyms: ['heart attack', 'mi', 'stemi', 'nstemi', 'acute coronary syndrome'],
+      category: 'Cardiovascular',
+      isEmergencyAlert: true,
+      emergencyActionText: '🚨 RED EMERGENCY: Acute MI Suspected. STAT Loading Dose: Aspirin 300mg + Clopidogrel 300mg + Atorvastatin 80mg. Call 108 immediately.',
+    },
+    {
+      code: 'J45.909',
+      name: 'Unspecified Asthma, Uncomplicated',
+      synonyms: ['asthma', 'breathlessness', 'wheezing', 'dama'],
+      category: 'Respiratory',
+    },
+    {
+      code: 'E03.9',
+      name: 'Hypothyroidism, Unspecified',
+      synonyms: ['thyroid', 'hypothyroid', 'high tsh', 'gland'],
+      category: 'Endocrine & Metabolic',
+    },
+    {
+      code: 'K21.9',
+      name: 'Gastro-Esophageal Reflux Disease (GERD)',
+      synonyms: ['acidity', 'gas', 'heartburn', 'acid reflux', 'gerd'],
+      category: 'Gastroenterology',
+    },
+    {
+      code: 'A90',
+      name: 'Dengue Fever [Classical Dengue]',
+      synonyms: ['dengue', 'platelet drop', 'breakbone fever', 'fever rash'],
+      category: 'Infectious Disease',
+    },
+    {
+      code: 'J06.9',
+      name: 'Acute Upper Respiratory Infection, Unspecified',
+      synonyms: ['cold', 'cough', 'runny nose', 'uri', 'throat pain'],
+      category: 'Respiratory',
+    },
+    {
+      code: 'N39.0',
+      name: 'Urinary Tract Infection, Site Not Specified',
+      synonyms: ['uti', 'burning urination', 'urine infection'],
+      category: 'Nephrology & Urology',
+    },
+    {
+      code: 'M54.5',
+      name: 'Low Back Pain',
+      synonyms: ['back pain', 'lumbar spondylosis', 'lumbago', 'kamar dard'],
+      category: 'Musculoskeletal',
+    },
+    {
+      code: 'R51',
+      name: 'Headache, Unspecified',
+      synonyms: ['headache', 'migraine', 'sir dard', 'cephalalgia'],
+      category: 'Neurology',
+    },
+  ];
 
   // In-Memory Top Prescribed Indian Formulations
   private drugs: DrugFormulation[] = [
@@ -712,6 +805,48 @@ export class EMRService {
       },
     ];
     return this.consultationQueue;
+  }
+
+  // Phase 15: Sub-15ms ICD-10 Search
+  public searchIcd10(query?: string): Icd10CatalogEntry[] {
+    if (!query || !query.trim()) return this.icdCatalog.slice(0, 10);
+    const q = query.toLowerCase().trim();
+    return this.icdCatalog.filter(
+      (entry) =>
+        entry.code.toLowerCase().includes(q) ||
+        entry.name.toLowerCase().includes(q) ||
+        entry.synonyms.some((s) => s.toLowerCase().includes(q))
+    );
+  }
+
+  // Phase 16: Create Inter-Chamber Referral
+  public createReferral(payload: Partial<InterChamberReferral>): InterChamberReferral {
+    const referral: InterChamberReferral = {
+      id: `ref-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      sourceClinicId: payload.sourceClinicId || 'clinic-bhopal-city-care',
+      sourceChamberNumber: payload.sourceChamberNumber || 'CH-3',
+      sourceDoctorId: payload.sourceDoctorId || 'doc-sharma-cardio',
+      sourceDoctorName: payload.sourceDoctorName || 'Dr. Rajesh Sharma',
+      targetChamberNumber: payload.targetChamberNumber || 'CH-5',
+      targetDoctorName: payload.targetDoctorName || 'Dr. Alok Mathur (ENT)',
+      tokenNumber: payload.tokenNumber || 12,
+      patientId: payload.patientId || 'pat-kailash-74',
+      patientName: payload.patientName || 'Kailash Prasad',
+      patientAge: payload.patientAge || 74,
+      patientGender: payload.patientGender || 'MALE',
+      clinicalReason: payload.clinicalReason || 'Specialist Evaluation & Cross-Consultation',
+      urgencyLevel: payload.urgencyLevel || 'ROUTINE',
+      transferredAt: new Date().toISOString(),
+      status: 'PENDING_INTAKE',
+    };
+
+    this.referrals.unshift(referral);
+    return referral;
+  }
+
+  // Phase 16: List Inter-Chamber Referrals
+  public getReferrals(): InterChamberReferral[] {
+    return this.referrals;
   }
 }
 

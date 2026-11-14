@@ -1543,6 +1543,26 @@ export interface Section194JQuarterlySummary {
   filingDueDate: string;
 }
 
+// Phase 16: Inter-Chamber Referral & Multi-Specialist Handover
+export interface InterChamberReferral {
+  id: string;
+  sourceClinicId: string;
+  sourceChamberNumber: string;
+  sourceDoctorId: string;
+  sourceDoctorName: string;
+  targetChamberNumber: string;
+  targetDoctorName: string;
+  tokenNumber: number;
+  patientId: string;
+  patientName: string;
+  patientAge: number;
+  patientGender: string;
+  clinicalReason: string;
+  urgencyLevel: 'ROUTINE' | 'STAT_EMERGENCY';
+  transferredAt: string;
+  status: 'PENDING_INTAKE' | 'ACCEPTED' | 'COMPLETED';
+}
+
 export * from './auth-edge';
 
 
