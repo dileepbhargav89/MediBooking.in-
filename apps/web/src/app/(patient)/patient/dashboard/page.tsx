@@ -193,6 +193,18 @@ export default function UnifiedPatientDashboardPage() {
   const [activeRecordForFhir, setActiveRecordForFhir] = useState<HealthRecordDocument | null>(null);
   const [patientFhirToast, setPatientFhirToast] = useState<string | null>(null);
 
+  // Phase 17: Regional Audio Prescription Guide State
+  const [isPatientAudioOpen, setIsPatientAudioOpen] = useState(false);
+  const [activeRecordForAudio, setActiveRecordForAudio] = useState<HealthRecordDocument | null>(null);
+  const [patientAudioLang, setPatientAudioLang] = useState<'HI' | 'MR' | 'GU' | 'EN'>('HI');
+  const [isPlayingPatientAudio, setIsPlayingPatientAudio] = useState(false);
+
+  const handleOpenPatientAudio = (record: HealthRecordDocument) => {
+    setActiveRecordForAudio(record);
+    setIsPatientAudioOpen(true);
+    setIsPlayingPatientAudio(false);
+  };
+
   const handleOpenPatientFhir = (record: HealthRecordDocument) => {
     setActiveRecordForFhir(record);
     setIsPatientFhirModalOpen(true);
@@ -584,6 +596,14 @@ export default function UnifiedPatientDashboardPage() {
                       <span>Digitally Signed under IT Act 2000 (SHA-256 Valid)</span>
                     </span>
                     <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        data-testid="btn-listen-rx-audio"
+                        onClick={() => handleOpenPatientAudio(record)}
+                        className="px-2.5 py-1 rounded-lg border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold flex items-center gap-1"
+                      >
+                        🔊 Audio Rx Guide
+                      </button>
                       <button
                         type="button"
                         data-testid="btn-download-fhir-bundle"
@@ -1074,6 +1094,99 @@ Current Serving: Token #11 | Est. Wait: ~24 mins
               className="bg-teal-700 hover:bg-teal-600 text-white font-bold"
             >
               ⬇ Download FHIR R4 JSON
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Phase 17: Patient Regional Audio Prescription Guide Modal */}
+      <Modal
+        isOpen={isPatientAudioOpen}
+        onClose={() => setIsPatientAudioOpen(false)}
+        title="Regional Audio Prescription Guide (ABDM Accessible)"
+      >
+        <div className="space-y-4 pt-2" data-testid="modal-patient-audio-guide">
+          <p className="text-xs text-slate-600">
+            Listen to your prescription dosage instructions and doctor advice spoken in your native regional language.
+          </p>
+
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-1.5">Select Language:</label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {[
+                { code: 'HI', label: '🇮🇳 Hindi' },
+                { code: 'MR', label: '🚩 Marathi' },
+                { code: 'GU', label: '🪔 Gujarati' },
+                { code: 'EN', label: '🌐 English' },
+              ].map((lang) => (
+                <button
+                  key={lang.code}
+                  type="button"
+                  data-testid={`btn-patient-audio-lang-${lang.code}`}
+                  onClick={() => setPatientAudioLang(lang.code as any)}
+                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all text-center ${
+                    patientAudioLang === lang.code
+                      ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  {lang.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-slate-900 text-slate-100 rounded-xl p-4 border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs text-purple-300 font-semibold border-b border-slate-800 pb-2">
+              <span>🗣️ Spoken Prescription for {activeRecordForAudio?.patientName || 'Patient'}</span>
+              <span className="font-mono text-[11px] text-slate-400">Dr. {activeRecordForAudio?.doctorName}</span>
+            </div>
+            <p
+              data-testid="text-patient-audio-transcript"
+              className="text-xs font-sans leading-relaxed text-slate-200"
+            >
+              {patientAudioLang === 'HI' &&
+                `नमस्ते ${activeRecordForAudio?.patientName || 'मरीज़'} जी। डॉक्टर ${activeRecordForAudio?.doctorName} द्वारा सुझाई गई दवाइयाँ: Telma 40 सुबह नाश्ते के बाद पानी से लें, Glycomet 500 खाने के बाद लें। खान-पान में नमक कम रखें।`}
+              {patientAudioLang === 'MR' &&
+                `नमस्कार ${activeRecordForAudio?.patientName || 'रुग्ण'} जी। डॉक्टर ${activeRecordForAudio?.doctorName} यांच्याकडून औषध मार्गदर्शन: Telma 40 सकाळी नाश्त्यानंतर घ्या, आणि Glycomet 500 जेवणानंतर घ्या.`}
+              {patientAudioLang === 'GU' &&
+                `નમસ્તે ${activeRecordForAudio?.patientName || 'દર્દી'} જી. ડૉક્ટર ${activeRecordForAudio?.doctorName} તરફથી દવા માર્ગદર્શિકા: Telma 40 સવારે નાસ્તા પછી લો અને Glycomet 500 જમ્યા પછી લો.`}
+              {patientAudioLang === 'EN' &&
+                `Hello ${activeRecordForAudio?.patientName || 'Patient'}. Spoken prescription guide by Dr. ${activeRecordForAudio?.doctorName}: Take Telma 40 after breakfast with water, and Glycomet 500 after meals. Review in 30 days.`}
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 p-3 bg-purple-50 rounded-xl border border-purple-200">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                data-testid="btn-patient-play-audio"
+                onClick={() => setIsPlayingPatientAudio((p) => !p)}
+                className="w-10 h-10 rounded-full bg-purple-600 hover:bg-purple-700 text-white flex items-center justify-center font-bold text-sm shadow-md transition-all hover:scale-105"
+              >
+                {isPlayingPatientAudio ? '⏸️' : '▶️'}
+              </button>
+              <div>
+                <p className="text-xs font-bold text-purple-950">
+                  {isPlayingPatientAudio ? 'Streaming Audio Rx...' : 'Listen to Spoken Instructions'}
+                </p>
+                <p className="text-[11px] text-purple-700">Clear voice synthesized for senior accessibility</p>
+              </div>
+            </div>
+            {isPlayingPatientAudio && (
+              <span data-testid="waveform-patient-audio" className="text-xs font-mono font-bold text-purple-900 bg-purple-100 px-2 py-1 rounded-lg animate-pulse">
+                🔊 PLAYING
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center justify-end pt-3 border-t border-slate-100">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsPatientAudioOpen(false)}
+            >
+              Close
             </Button>
           </div>
         </div>

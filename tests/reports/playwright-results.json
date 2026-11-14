@@ -4,7 +4,7 @@
       "C:\\Program Files\\nodejs\\node.exe",
       "D:\\Projects\\Startup Project\\MediBooking.in\\node_modules\\@playwright\\test\\cli.js",
       "test",
-      "tests/e2e/48-phase15-phase16-icd10-emergency-referral.spec.ts",
+      "tests/e2e/49-phase17-phase18-audio-priority-triage.spec.ts",
       "--project=webkit"
     ],
     "configFile": "D:\\Projects\\Startup Project\\MediBooking.in\\playwright.config.ts",
@@ -162,20 +162,20 @@
   },
   "suites": [
     {
-      "title": "48-phase15-phase16-icd10-emergency-referral.spec.ts",
-      "file": "48-phase15-phase16-icd10-emergency-referral.spec.ts",
+      "title": "49-phase17-phase18-audio-priority-triage.spec.ts",
+      "file": "49-phase17-phase18-audio-priority-triage.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Phase 15 & Phase 16: AI-Assisted Sub-15ms ICD-10 Search, Emergency Triage Alerts & Inter-Chamber Referrals",
-          "file": "48-phase15-phase16-icd10-emergency-referral.spec.ts",
+          "title": "Phase 17 & Phase 18: Multi-Language Regional Audio Rx & Smart Geriatric/Infant Priority Triage Escalation",
+          "file": "49-phase17-phase18-audio-priority-triage.spec.ts",
           "line": 6,
           "column": 6,
           "specs": [
             {
-              "title": "48.1 Doctor Chamber: Sub-15ms ICD-10 Semantic Search & Diagnosis Addition",
+              "title": "49.1 Doctor Chamber: Regional Multi-Language Audio Prescription Synthesis & WhatsApp Dispatch",
               "ok": true,
               "tags": [],
               "tests": [
@@ -190,12 +190,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 23702,
+                      "duration": 11444,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T15:42:52.673Z",
+                      "startTime": "2026-11-14T16:00:57.027Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -203,13 +203,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "f6d07254ce1cb68445fe-0d644d1434160c374cf7",
-              "file": "48-phase15-phase16-icd10-emergency-referral.spec.ts",
-              "line": 9,
+              "id": "72cfd222b71a2ccf6d38-fc8025610f5e75aa1c8f",
+              "file": "49-phase17-phase18-audio-priority-triage.spec.ts",
+              "line": 14,
               "column": 7
             },
             {
-              "title": "48.2 Doctor Chamber: Acute Cardiac Diagnosis Triggers Emergency 108 Dispatch Alert",
+              "title": "49.2 Doctor Chamber: Smart Geriatric & Infant Priority Queue Triage Escalation",
               "ok": true,
               "tags": [],
               "tests": [
@@ -224,12 +224,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 13174,
+                      "duration": 10265,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T15:43:16.524Z",
+                      "startTime": "2026-11-14T16:01:08.836Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -237,13 +237,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "f6d07254ce1cb68445fe-ad0d687aeb5f366f4466",
-              "file": "48-phase15-phase16-icd10-emergency-referral.spec.ts",
-              "line": 55,
+              "id": "72cfd222b71a2ccf6d38-f7e631dfcb50e18d2add",
+              "file": "49-phase17-phase18-audio-priority-triage.spec.ts",
+              "line": 90,
               "column": 7
             },
             {
-              "title": "48.3 Doctor Chamber: Dispatch Inter-Chamber Referral to CH-5 ENT Specialist",
+              "title": "49.3 Reception Desk: Smart Geriatric & Infant Triage Escalation Flagging",
               "ok": true,
               "tags": [],
               "tests": [
@@ -258,12 +258,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 14888,
+                      "duration": 11384,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T15:43:29.726Z",
+                      "startTime": "2026-11-14T16:01:19.126Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -271,13 +271,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "f6d07254ce1cb68445fe-42196ec8189e748f4737",
-              "file": "48-phase15-phase16-icd10-emergency-referral.spec.ts",
-              "line": 104,
+              "id": "72cfd222b71a2ccf6d38-9b7ad8f4d7ebbc774d4f",
+              "file": "49-phase17-phase18-audio-priority-triage.spec.ts",
+              "line": 143,
               "column": 7
             },
             {
-              "title": "48.4 Reception Desk: Real-Time Live Sync of Inter-Chamber Referrals",
+              "title": "49.4 Patient Unified Dashboard: Health Vault Regional Audio Prescription Guide",
               "ok": true,
               "tags": [],
               "tests": [
@@ -292,12 +292,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 9806,
+                      "duration": 29419,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T15:43:44.646Z",
+                      "startTime": "2026-11-14T16:01:30.567Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -305,9 +305,9 @@
                   "status": "expected"
                 }
               ],
-              "id": "f6d07254ce1cb68445fe-5cf11ff815939dd769d9",
-              "file": "48-phase15-phase16-icd10-emergency-referral.spec.ts",
-              "line": 168,
+              "id": "72cfd222b71a2ccf6d38-8263f9ebc5cd7ce79fe4",
+              "file": "49-phase17-phase18-audio-priority-triage.spec.ts",
+              "line": 175,
               "column": 7
             }
           ]
@@ -317,8 +317,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-14T15:42:51.283Z",
-    "duration": 63309.483,
+    "startTime": "2026-11-14T16:00:56.124Z",
+    "duration": 64038.201,
     "expected": 4,
     "skipped": 0,
     "unexpected": 0,

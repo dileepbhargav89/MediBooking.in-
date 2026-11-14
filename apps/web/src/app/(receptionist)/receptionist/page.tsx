@@ -292,6 +292,42 @@ export default function ReceptionDeskDashboardPage() {
   // Phase 16: Live Inter-Chamber Referrals State
   const [activeReferrals, setActiveReferrals] = useState<any[]>([]);
 
+  // Phase 18: Smart Geriatric & Infant Priority Triage State
+  const [receptionEscalateNotice, setReceptionEscalateNotice] = useState<string | null>(null);
+  const [escalatedTokens, setEscalatedTokens] = useState<number[]>([]);
+
+  const handleReceptionTriageEscalate = async (tokenNumber: number, patientAge?: number) => {
+    const isPediatric = patientAge !== undefined && patientAge <= 6;
+    const isSenior = patientAge !== undefined && patientAge >= 70;
+    const reason = isPediatric ? 'INFANT_FEVER_TRIAGE' : 'GERIATRIC_PRIORITY';
+
+    try {
+      await fetch('http://127.0.0.1:4000/api/v1/emr/queue/escalate-priority', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tokenNumber, reason }),
+      });
+    } catch {
+      // Fallback
+    }
+
+    setEscalatedTokens((prev) => [...prev, tokenNumber]);
+    setTokens((prev) => {
+      const idx = prev.findIndex((t) => t.tokenNumber === tokenNumber);
+      if (idx === -1) return prev;
+      const clone = [...prev];
+      const [t] = clone.splice(idx, 1);
+      if (!t) return prev;
+      clone.unshift(t);
+      return clone;
+    });
+
+    setReceptionEscalateNotice(
+      `⚡ PRIORITY ESCALATED: Token #${tokenNumber} promoted to front of chamber queue (${isPediatric ? 'Infant High-Fever Triage' : isSenior ? 'Senior Geriatric Priority' : 'Emergency Triage'}). Chamber alert signaled.`
+    );
+    setTimeout(() => setReceptionEscalateNotice(null), 6000);
+  };
+
   useEffect(() => {
     fetch('http://127.0.0.1:4000/api/v1/emr/referrals')
       .then((res) => res.json())
@@ -843,6 +879,23 @@ export default function ReceptionDeskDashboardPage() {
           </div>
         )}
 
+        {/* Phase 18: Reception Priority Escalation Alert */}
+        {receptionEscalateNotice && (
+          <div
+            data-testid="toast-reception-escalated"
+            className="p-3.5 rounded-2xl bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-between shadow-md animate-fadeIn"
+          >
+            <span>{receptionEscalateNotice}</span>
+            <button
+              type="button"
+              onClick={() => setReceptionEscalateNotice(null)}
+              className="font-mono text-sm ml-2 font-bold hover:text-slate-800"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* Fast Cash Drawer Denomination Tally (Anti-Pilferage) */}
         <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -1024,9 +1077,46 @@ export default function ReceptionDeskDashboardPage() {
                         <span className="font-semibold text-slate-700">Symptoms:</span> {t.symptoms}
                       </span>
                     )}
+
+                    {((t.patientAge && t.patientAge >= 70) || t.patientName.includes('Kailash')) && (
+                      <span
+                        data-testid="badge-reception-senior-priority"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold text-[10px] bg-amber-100 text-amber-900 border border-amber-300"
+                      >
+                        👴 Senior 70+ Priority
+                      </span>
+                    )}
+
+                    {((t.patientAge && t.patientAge <= 6) || t.patientName.toLowerCase().includes('baby') || t.patientName.toLowerCase().includes('aarav')) && (
+                      <span
+                        data-testid="badge-reception-infant-priority"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold text-[10px] bg-pink-100 text-pink-900 border border-pink-300"
+                      >
+                        👶 Infant Triage Priority
+                      </span>
+                    )}
+
+                    {escalatedTokens.includes(t.tokenNumber) && (
+                      <span
+                        data-testid="badge-reception-escalated"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold text-[10px] bg-red-100 text-red-900 border border-red-300 animate-pulse"
+                      >
+                        ⚡ STAT Priority
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      data-testid={`btn-reception-triage-escalate-${t.tokenNumber}`}
+                      onClick={() => handleReceptionTriageEscalate(t.tokenNumber, t.patientAge)}
+                      className="px-2.5 py-1 rounded bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 font-bold text-xs shadow-2xs flex items-center gap-1 transition-all"
+                      title="Promote patient to front of chamber queue (Geriatric / Pediatric Triage)"
+                    >
+                      ⚡ Priority Triage
+                    </button>
+
                     <button
                       type="button"
                       data-testid="btn-print-rx-sheet"

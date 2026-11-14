@@ -134,5 +134,27 @@ export const emrRoutes: FastifyPluginAsync = async (server: FastifyInstance) => 
       referrals,
     });
   });
+
+  // 13. Phase 17: Multi-Language Regional Audio Synthesis for Prescriptions
+  server.post<{ Body: any }>('/emr/prescriptions/synthesize-audio', async (request, reply) => {
+    const payload = request.body || {};
+    const audioResult = emrService.synthesizePrescriptionAudio(payload);
+    return reply.send({
+      success: true,
+      ...audioResult,
+    });
+  });
+
+  // 14. Phase 18: Smart Geriatric & Infant Priority Queue Escalation
+  server.post<{
+    Body: {
+      tokenNumber: number;
+      reason?: 'GERIATRIC_PRIORITY' | 'INFANT_FEVER_TRIAGE' | 'CHEST_PAIN_EMERGENCY';
+    };
+  }>('/emr/queue/escalate-priority', async (request, reply) => {
+    const { tokenNumber, reason } = request.body || { tokenNumber: 15 };
+    const result = emrService.escalatePriority(tokenNumber, reason);
+    return reply.send(result);
+  });
 };
 

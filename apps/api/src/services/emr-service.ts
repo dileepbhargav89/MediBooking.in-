@@ -848,5 +848,117 @@ export class EMRService {
   public getReferrals(): InterChamberReferral[] {
     return this.referrals;
   }
+
+  // Phase 17: Multi-Language Regional Audio Synthesis for Prescriptions
+  public synthesizePrescriptionAudio(params: {
+    language?: 'HI' | 'MR' | 'GU' | 'EN';
+    patientName?: string;
+    doctorName?: string;
+    medications?: Array<{ drugName: string; dosageForm?: string; frequency?: string; instructions?: string }>;
+    dietaryAdvice?: string;
+    followUpDate?: string;
+  }): {
+    language: string;
+    languageLabel: string;
+    scriptTitle: string;
+    audioTranscript: string;
+    estimatedDurationSeconds: number;
+    speechRate: number;
+  } {
+    const lang = params.language || 'HI';
+    const patName = params.patientName || 'Kailash Prasad';
+    const docName = params.doctorName || 'Dr. Rajesh Sharma';
+    const meds = params.medications && params.medications.length > 0
+      ? params.medications
+      : [
+          { drugName: 'Telma 40', dosageForm: 'TAB', frequency: '1-0-0', instructions: 'Morning after breakfast with water' },
+          { drugName: 'Glycomet 500 SR', dosageForm: 'TAB', frequency: '1-0-1', instructions: 'Immediately after meals' },
+        ];
+
+    let languageLabel = '🇮🇳 Hindi (हिन्दी)';
+    let scriptTitle = `आवाज में दवाई निर्देश: ${patName}`;
+    let audioTranscript = '';
+
+    if (lang === 'HI') {
+      languageLabel = '🇮🇳 Hindi (हिन्दी)';
+      scriptTitle = `डॉ. राजेश शर्मा द्वारा ऑडियो पर्चा निर्देश (${patName})`;
+      audioTranscript = `नमस्ते ${patName} जी। यह भोपाल सिटी केयर पॉलीक्लिनिक से आपकी दवाइयों का ऑडियो विवरण है। ` +
+        `डॉक्टर ${docName} द्वारा सुझाई गई दवाइयाँ: ` +
+        meds.map((m, idx) => `नंबर ${idx + 1}: ${m.drugName}, दिन में ${m.frequency || '1 बार'} लें, ${m.instructions || 'पानी के साथ'}.`).join(' ') +
+        ` खान-पान सलाह: नमक कम लें, तली हुई चीज़ों से बचें, और 30 मिनट रोजाना टहलें। ` +
+        `कोई भी परेशानी होने पर तुरंत क्लिनिक आएं। आपका स्वास्थ्य हमारी प्राथमिकता है।`;
+    } else if (lang === 'MR') {
+      languageLabel = '🚩 Marathi (मराठी)';
+      scriptTitle = `डॉ. राजेश शर्मा यांच्याकडून ऑडिओ औषध मार्गदर्शन (${patName})`;
+      audioTranscript = `नमस्कार ${patName} जी। हे भोपाळ सिटी केअर पॉलीक्लिनिककडून आपल्या औषधांचे ऑडिओ मार्गदर्शन आहे. ` +
+        `डॉक्टर ${docName} यांनी दिलेली औषधे: ` +
+        meds.map((m, idx) => `नंबर ${idx + 1}: ${m.drugName}, दिवसातून ${m.frequency || '1 वेळ'} घ्या, ${m.instructions || 'पाण्यासोबत'}.`).join(' ') +
+        ` आहारात मीठ कमी ठेवा, दररोज 30 मिनिटे फिरा. ` +
+        `काळजी घ्या आणि 30 दिवसांनी पुनर्तपासणी करा. धन्यवाद।`;
+    } else if (lang === 'GU') {
+      languageLabel = '🪔 Gujarati (ગુજરાતી)';
+      scriptTitle = `ડૉ. રાજેશ શર્મા તરફથી ઑડિયો દવા માર્ગદર્શિકા (${patName})`;
+      audioTranscript = `નમસ્તે ${patName} જી. આ ભોપાલ સિટી કેર પોલીક્લિનિક તરફથી તમારી દવાઓની ઑડિયો માર્ગદર્શિકા છે. ` +
+        `ડૉક્ટર ${docName} દ્વારા સૂચવેલ દવાઓ: ` +
+        meds.map((m, idx) => `નંબર ${idx + 1}: ${m.drugName}, દિવસમાં ${m.frequency || '1 વખત'} લો, ${m.instructions || 'પાણી સાથે'}.`).join(' ') +
+        ` ખોરાકમાં મીઠું ઓછું લો અને દરરોજ 30 મિનિટ ચાલો. ` +
+        `સ્વાસ્થ્યની કાળજી રાખો અને 30 દિવસ પછી ફરીથી બતાવો. આભાર.`;
+    } else {
+      languageLabel = '🌐 English';
+      scriptTitle = `Audio Prescription Guide by Dr. Rajesh Sharma (${patName})`;
+      audioTranscript = `Hello ${patName}. This is your personalized audio prescription guide from Bhopal City Care Polyclinic. ` +
+        `Dr. ${docName} has prescribed the following medications: ` +
+        meds.map((m, idx) => `Item ${idx + 1}: ${m.drugName}, frequency ${m.frequency || 'daily'}, instructions: ${m.instructions || 'with water'}.`).join(' ') +
+        ` Advice: restrict dietary sodium, walk 30 minutes daily. Please report for review in 30 days. Stay healthy.`;
+    }
+
+    const estimatedDurationSeconds = Math.max(12, Math.round(audioTranscript.split(' ').length / 2.5));
+
+    return {
+      language: lang,
+      languageLabel,
+      scriptTitle,
+      audioTranscript,
+      estimatedDurationSeconds,
+      speechRate: 0.95,
+    };
+  }
+
+  // Phase 18: Smart Geriatric & Infant Priority Queue Escalation
+  public escalatePriority(
+    tokenNumber: number,
+    reason: 'GERIATRIC_PRIORITY' | 'INFANT_FEVER_TRIAGE' | 'CHEST_PAIN_EMERGENCY' = 'GERIATRIC_PRIORITY'
+  ): {
+    success: boolean;
+    message: string;
+    escalatedToken: ChamberConsultationToken;
+    reason: string;
+    queue: ChamberConsultationToken[];
+  } {
+    const tokenIndex = this.consultationQueue.findIndex((t) => t.tokenNumber === tokenNumber);
+    if (tokenIndex === -1) {
+      throw new Error(`Token #${tokenNumber} not found in chamber queue.`);
+    }
+
+    const [token] = this.consultationQueue.splice(tokenIndex, 1);
+    if (!token) {
+      throw new Error(`Token #${tokenNumber} could not be extracted.`);
+    }
+    token.status = 'WAITING';
+
+    // Find the first waiting slot (or index after currently in consultation)
+    const inConsultationIndex = this.consultationQueue.findIndex((t) => t.status === 'IN_CONSULTATION');
+    const insertIndex = inConsultationIndex !== -1 ? inConsultationIndex + 1 : 0;
+
+    this.consultationQueue.splice(insertIndex, 0, token);
+
+    return {
+      success: true,
+      message: `Token #${tokenNumber} (${token.patientName}) escalated to Priority Position #1 under ${reason}.`,
+      escalatedToken: token,
+      reason,
+      queue: this.consultationQueue,
+    };
+  }
 }
 
