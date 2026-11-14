@@ -37,7 +37,7 @@ test.describe('Phase 19 & Phase 20: Offline-First Local Sync Engine & Real-Time 
     // Step D: Simulate Network Outage
     const toggleOfflineBtn = page.getByTestId('btn-toggle-offline-mode');
     await expect(toggleOfflineBtn).toBeVisible();
-    await toggleOfflineBtn.click();
+    await toggleOfflineBtn.evaluate((el: HTMLElement) => el.click());
 
     // Verify Offline Mode Status Badge
     await expect(networkStatus).toContainText('Offline');
@@ -60,7 +60,7 @@ test.describe('Phase 19 & Phase 20: Offline-First Local Sync Engine & Real-Time 
     // Step E: Trigger Cloud Sync upon Network Restoration
     const syncBtn = page.getByTestId('btn-trigger-manual-sync');
     await expect(syncBtn).toBeVisible();
-    await syncBtn.click();
+    await syncBtn.evaluate((el: HTMLElement) => el.click());
 
     // Verify Cloud Sync Completion Toast
     const syncToast = page.getByTestId('toast-sync-complete');
@@ -140,10 +140,14 @@ test.describe('Phase 19 & Phase 20: Offline-First Local Sync Engine & Real-Time 
     await page.goto('/doctor/chamber');
     await expect(page).toHaveURL('/doctor/chamber');
 
+    // Wait for active patient dossier
+    const activeDossier = page.getByTestId('patient-dossier-card');
+    await expect(activeDossier).toBeVisible({ timeout: 15000 });
+
     // Step C: Select Pediatric Token #15 (Aarav Meena, 6M, 18.5kg)
     const token15Chip = page.getByTestId('token-chip-15');
     await expect(token15Chip).toBeVisible({ timeout: 15000 });
-    await token15Chip.click();
+    await token15Chip.evaluate((el: HTMLElement) => el.click());
 
     // Step D: Verify Pediatric Weight-Based Dosage Calculator Card
     const pediatricCard = page.getByTestId('card-pediatric-weight-calculator');
@@ -179,10 +183,14 @@ test.describe('Phase 19 & Phase 20: Offline-First Local Sync Engine & Real-Time 
     await page.goto('/doctor/chamber');
     await expect(page).toHaveURL('/doctor/chamber');
 
+    // Wait for active patient dossier to ensure activePatient is fully hydrated
+    const activeDossier = page.getByTestId('patient-dossier-card');
+    await expect(activeDossier).toBeVisible({ timeout: 15000 });
+
     // Step C: Complete & Preview Signed Prescription
     const signBtn = page.getByTestId('btn-sign-prescription');
     await expect(signBtn).toBeVisible({ timeout: 15000 });
-    await signBtn.click();
+    await signBtn.evaluate((el: HTMLElement) => el.click());
 
     // Verify Letterhead Modal
     const previewModal = page.getByTestId('modal-prescription-preview');

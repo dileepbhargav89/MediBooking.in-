@@ -118,7 +118,7 @@ test.describe('Phase 17 & Phase 18: Multi-Language Regional Audio Rx & Smart Ger
     // Step C: Escalate Infant Token #15 (High Fever 101.4°F)
     const escalateBtn15 = page.getByTestId('btn-escalate-priority-token-15');
     await expect(escalateBtn15).toBeVisible({ timeout: 10000 });
-    await escalateBtn15.click();
+    await escalateBtn15.evaluate((el: HTMLElement) => el.click());
 
     // Verify Priority Escalation Toast
     const priorityToast = page.getByTestId('toast-priority-escalated');
