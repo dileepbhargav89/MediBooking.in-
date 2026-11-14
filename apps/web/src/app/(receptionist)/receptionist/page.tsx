@@ -249,6 +249,46 @@ export default function ReceptionDeskDashboardPage() {
     10: 0,
   });
 
+  // Phase 9: Two-Witness Digital Cashier Handover Sign-Off
+  const [isHandoverModalOpen, setIsHandoverModalOpen] = useState(false);
+  const [outgoingPin, setOutgoingPin] = useState('');
+  const [witnessPin, setWitnessPin] = useState('');
+  const [outgoingName] = useState('Sunita Verma (Reception Staff #REC-102)');
+  const [witnessName] = useState('Vikram Malhotra (Floor Supervisor #SUP-201)');
+  const [handoverReceipt, setHandoverReceipt] = useState<{
+    verifiedAt: string;
+    outgoingCashier: string;
+    witness: string;
+    countedCashRupees: number;
+    expectedCashRupees: number;
+    receiptHash: string;
+  } | null>(null);
+  const [handoverError, setHandoverError] = useState<string | null>(null);
+
+  const handleCompleteHandover = (e: React.FormEvent) => {
+    e.preventDefault();
+    setHandoverError(null);
+    if (outgoingPin.trim().length < 4) {
+      setHandoverError('Outgoing cashier must enter a valid 4-digit PIN.');
+      return;
+    }
+    if (witnessPin.trim().length < 4) {
+      setHandoverError('Incoming supervisor/witness must enter a valid 4-digit PIN.');
+      return;
+    }
+    const totalCounted = calculateDenominationTotal();
+    const hash = `HANDOVER-20261114-SUNITA-VIKRAM-SHA256`;
+    setHandoverReceipt({
+      verifiedAt: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+      outgoingCashier: 'Sunita Verma',
+      witness: 'Vikram Malhotra',
+      countedCashRupees: totalCounted,
+      expectedCashRupees: 12400,
+      receiptHash: hash,
+    });
+    setIsHandoverModalOpen(false);
+  };
+
   // Intake Form State
   const [mobile, setMobile] = useState('');
   const [patientName, setPatientName] = useState('');
@@ -768,7 +808,7 @@ export default function ReceptionDeskDashboardPage() {
 
         {/* Fast Cash Drawer Denomination Tally (Anti-Pilferage) */}
         <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <span className="text-sm">🧮</span>
               <span className="text-xs font-bold text-slate-800">
@@ -778,13 +818,33 @@ export default function ReceptionDeskDashboardPage() {
                 Anti-Pilferage Verified
               </span>
             </div>
-            <button
-              type="button"
-              onClick={() => setIsDenominationOpen(!isDenominationOpen)}
-              className="text-xs text-blue-600 hover:text-blue-800 font-semibold"
-            >
-              {isDenominationOpen ? '▲ Hide Denomination Keypad' : '▼ Quick Cash Counter (₹500 / ₹200 / ₹100)'}
-            </button>
+            <div className="flex items-center gap-2">
+              {handoverReceipt ? (
+                <div
+                  data-testid="badge-handover-verified"
+                  className="text-xs bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-xs"
+                >
+                  <span>✓ 2-Witness Handover Verified</span>
+                  <span className="font-mono text-[10px] opacity-90">({handoverReceipt.receiptHash})</span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="btn-open-cashier-handover"
+                  onClick={() => setIsHandoverModalOpen(true)}
+                  className="text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
+                >
+                  <span>🤝 2-Witness Shift Handover</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsDenominationOpen(!isDenominationOpen)}
+                className="text-xs text-blue-600 hover:text-blue-800 font-semibold"
+              >
+                {isDenominationOpen ? '▲ Hide Denomination Keypad' : '▼ Quick Cash Counter (₹500 / ₹200 / ₹100)'}
+              </button>
+            </div>
           </div>
 
           {isDenominationOpen && (
@@ -1868,6 +1928,131 @@ export default function ReceptionDeskDashboardPage() {
                 </div>
               </div>
             )}
+          </div>
+        </Modal>
+      )}
+
+      {/* Phase 9: Two-Witness Digital Cashier Handover Modal */}
+      {isHandoverModalOpen && (
+        <Modal
+          isOpen={isHandoverModalOpen}
+          onClose={() => setIsHandoverModalOpen(false)}
+          title="Dual-Witness Digital Cashier Handover Sign-Off"
+          subtitle="Morning Shift (08:30 - 14:30) ➔ Evening Shift (14:30 - 20:30)"
+        >
+          <div data-testid="modal-cashier-handover" className="space-y-4">
+            {/* Shift Summary Box */}
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-600 font-medium">System Expected Drawer Cash:</span>
+                <span className="font-mono font-bold text-slate-900 text-sm">₹12,400</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-600 font-medium">Physical Counted Cash:</span>
+                <span className="font-mono font-black text-emerald-700 text-sm">
+                  ₹{calculateDenominationTotal().toLocaleString('en-IN')}
+                </span>
+              </div>
+              <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
+                <span className="font-semibold text-slate-700">Cash Variance Status:</span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  {calculateDenominationTotal() === 12400 ? '✓ ZERO VARIANCE (100% BALANCED)' : '⚠️ DISCREPANCY DETECTED'}
+                </span>
+              </div>
+            </div>
+
+            {/* Checklist */}
+            <div className="p-3 bg-emerald-50/60 border border-emerald-200 rounded-xl text-xs space-y-1.5 text-slate-700">
+              <div className="font-bold text-slate-900 mb-1">Dual-Sign Off Verification Checklist:</div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-emerald-700 font-bold">✓</span>
+                <span>Physical drawer currency counted note-by-note in presence of supervisor.</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-emerald-700 font-bold">✓</span>
+                <span>All pending consultation tokens & custom procedure vouchers reconciled.</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-emerald-700 font-bold">✓</span>
+                <span>Blank thermal rolls, prescription letterheads, and OPD stamp handed over.</span>
+              </div>
+            </div>
+
+            <form onSubmit={handleCompleteHandover} className="space-y-3 pt-1">
+              {handoverError && (
+                <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">
+                  {handoverError}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3 rounded-xl border border-slate-200 bg-white space-y-2">
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">
+                      Outgoing Cashier
+                    </span>
+                    <span className="text-xs font-bold text-slate-800">{outgoingName}</span>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                      Cashier 4-Digit PIN
+                    </label>
+                    <input
+                      type="password"
+                      maxLength={4}
+                      data-testid="input-outgoing-pin"
+                      value={outgoingPin}
+                      onChange={(e) => setOutgoingPin(e.target.value)}
+                      placeholder="e.g. 1234"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-center tracking-widest text-base font-bold bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl border border-slate-200 bg-white space-y-2">
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">
+                      Witness / Incoming Cashier
+                    </span>
+                    <span className="text-xs font-bold text-slate-800">{witnessName}</span>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                      Supervisor / Witness PIN
+                    </label>
+                    <input
+                      type="password"
+                      maxLength={4}
+                      data-testid="input-witness-pin"
+                      value={witnessPin}
+                      onChange={(e) => setWitnessPin(e.target.value)}
+                      placeholder="e.g. 5678"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-center tracking-widest text-base font-bold bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsHandoverModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <button
+                  type="submit"
+                  data-testid="btn-confirm-handover"
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors flex items-center gap-1.5"
+                >
+                  <span>🔐 Cryptographically Sign & Transfer Drawer</span>
+                </button>
+              </div>
+            </form>
           </div>
         </Modal>
       )}

@@ -577,7 +577,7 @@ export default function PolyclinicOnboardingPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-slate-900">Section 194J TDS & Tax Compliance</span>
-                    <Badge variant="outline" className="text-[10px]">Statutory Compliance</Badge>
+                    <Badge variant="gray" className="text-[10px]">Statutory Compliance</Badge>
                   </div>
                   <span className="text-xs text-emerald-700 font-semibold">Annual Form 16A Ready</span>
                 </div>
@@ -973,7 +973,7 @@ export default function PolyclinicOnboardingPage() {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-2xl">👩‍💼</span>
-                    <Badge variant="emerald">Rapid Staff Training</Badge>
+                    <Badge variant="mint">Rapid Staff Training</Badge>
                   </div>
                   <h3 className="font-bold text-slate-900">Sunita&apos;s 90-Sec Front Desk Tour</h3>
                   <p className="text-xs text-slate-600 mt-1">
@@ -996,7 +996,7 @@ export default function PolyclinicOnboardingPage() {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-2xl">⚡</span>
-                    <Badge variant="outline">Instant Hardware Test</Badge>
+                    <Badge variant="blue">Instant Hardware Test</Badge>
                   </div>
                   <h3 className="font-bold text-slate-900">Live Hardware & TV Check</h3>
                   <p className="text-xs text-slate-500 mt-1">
@@ -1027,7 +1027,7 @@ export default function PolyclinicOnboardingPage() {
                         Sample Token #{sampleToken.tokenNumber.replace('#', '')} Successfully Dispatched!
                       </span>
                     </div>
-                    <Badge variant="emerald">Live Verified</Badge>
+                    <Badge variant="mint">Live Verified</Badge>
                   </div>
                   <div className="p-3 bg-white rounded-lg border border-emerald-200 text-xs flex flex-wrap items-center justify-between gap-3">
                     <div>

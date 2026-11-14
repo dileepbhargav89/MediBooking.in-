@@ -684,7 +684,7 @@ export default function DoctorOnboardingPage() {
                       <span>✓</span>
                       <span>Chamber {chamberNumber} Available! Zero scheduling conflict.</span>
                     </div>
-                    <Badge variant="emerald">Schedule Clear</Badge>
+                    <Badge variant="mint">Schedule Clear</Badge>
                   </div>
                 )}
               </div>

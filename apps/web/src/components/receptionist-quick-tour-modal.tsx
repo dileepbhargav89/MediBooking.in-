@@ -198,7 +198,7 @@ export function ReceptionistQuickTourModal({
                     #01 • {patientName} ({mobile})
                   </div>
                 </div>
-                <Badge variant="emerald">CH-1</Badge>
+                <Badge variant="mint">CH-1</Badge>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

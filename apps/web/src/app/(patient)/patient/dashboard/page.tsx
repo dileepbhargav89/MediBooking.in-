@@ -4,12 +4,50 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button, Badge, Modal, Input } from '@medibooking/ui';
-import {
-  PatientFamilyMember,
-  CaregiverProfile,
-  HealthRecordDocument,
-  WaitTimeRating,
-} from '@medibooking/types';
+import { WaitTimeRating } from '@medibooking/types';
+
+interface CaregiverProfile {
+  id: string;
+  primaryMobile: string;
+  fullName: string;
+  abhaId?: string;
+  abhaAddress?: string;
+  isAbhaVerified: boolean;
+  familyMembersCount: number;
+}
+
+interface PatientFamilyMember {
+  id: string;
+  caregiverId: string;
+  fullName: string;
+  relationship: 'SELF' | 'FATHER' | 'MOTHER' | 'PARENT' | 'SPOUSE' | 'CHILD' | 'OTHER';
+  ageYears: number;
+  gender: 'MALE' | 'FEMALE' | 'OTHER';
+  bloodGroup?: string;
+  knownAllergies: string[];
+  chronicConditions: string[];
+  isAbhaLinked: boolean;
+  abhaId?: string;
+  hasExplicitDpdpConsent: boolean;
+}
+
+interface HealthRecordDocument {
+  id: string;
+  patientId: string;
+  patientName: string;
+  caregiverId?: string;
+  documentType: 'PRESCRIPTION' | 'LAB_REPORT' | 'DISCHARGE_SUMMARY' | 'VACCINATION';
+  title: string;
+  doctorName?: string;
+  doctorSpecialty?: string;
+  clinicName?: string;
+  visitDate: string;
+  diagnoses: string[];
+  medicationsSummary?: string[];
+  fileUrl?: string;
+  fhirBundleJson?: string;
+  isSignedByDoctor: boolean;
+}
 
 // Pre-seeded Bhopal Caregiver & Family Data
 const INITIAL_CAREGIVER: CaregiverProfile = {
@@ -408,7 +446,7 @@ export default function UnifiedPatientDashboardPage() {
                     {member.chronicConditions && member.chronicConditions.length > 0 && (
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="text-[10px] font-bold text-slate-400">Conditions:</span>
-                        {member.chronicConditions.map((cond) => (
+                        {member.chronicConditions.map((cond: string) => (
                           <span key={cond} className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px] font-semibold border border-blue-200">
                             {cond}
                           </span>
@@ -419,7 +457,7 @@ export default function UnifiedPatientDashboardPage() {
                     {member.knownAllergies && member.knownAllergies.length > 0 && (
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="text-[10px] font-bold text-rose-500">Allergies:</span>
-                        {member.knownAllergies.map((allergy) => (
+                        {member.knownAllergies.map((allergy: string) => (
                           <span key={allergy} className="px-2 py-0.5 rounded bg-rose-50 text-rose-700 text-[10px] font-bold border border-rose-200">
                             ⚠️ {allergy}
                           </span>
@@ -498,7 +536,7 @@ export default function UnifiedPatientDashboardPage() {
                     <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1 font-mono">
                       <span className="text-[10px] text-slate-400 font-sans block font-bold">Prescribed Generic Formulations:</span>
                       <div className="flex flex-wrap gap-2">
-                        {record.medicationsSummary.map((med) => (
+                        {record.medicationsSummary.map((med: string) => (
                           <span key={med} className="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-800 font-medium">
                             {med}
                           </span>

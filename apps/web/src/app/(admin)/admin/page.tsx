@@ -305,6 +305,90 @@ export default function ClinicAdministratorPortal() {
     }
   };
 
+  // Phase 9: Self-Service B2B SaaS Plan & Chamber Licensing State
+  const [saasPlan, setSaasPlan] = useState({
+    tier: 'CLINIC_PRO' as 'STARTER' | 'CLINIC_PRO' | 'ENTERPRISE',
+    tierName: 'Clinic Pro Plan',
+    monthlyFeeRupees: 1999,
+    renewalDateStr: '28 Nov 2026',
+    daysRemaining: 14,
+    licensedChambers: 4,
+    activeChambers: 4,
+    status: 'ACTIVE' as 'ACTIVE' | 'EXPIRED' | 'TRIAL',
+  });
+  const [saasToast, setSaasToast] = useState<{ message: string; type: 'renew' | 'upgrade' | 'invoice' } | null>(null);
+  const [selectedBillingCycle, setSelectedBillingCycle] = useState<'MONTHLY' | 'ANNUAL'>('MONTHLY');
+
+  const handleRenewSaasPlan = () => {
+    setSaasPlan((prev) => ({
+      ...prev,
+      daysRemaining: prev.daysRemaining + 30,
+      renewalDateStr: '28 Dec 2026',
+    }));
+    setSaasToast({
+      message: '✓ SaaS Subscription Renewed: +30 Days Extended. Razorpay B2B Order #RZP-SUB-82910 processed.',
+      type: 'renew',
+    });
+    setTimeout(() => setSaasToast(null), 6000);
+  };
+
+  const handleUpgradeEnterprise = () => {
+    setSaasPlan((prev) => ({
+      ...prev,
+      tier: 'ENTERPRISE',
+      tierName: 'Polyclinic Enterprise',
+      monthlyFeeRupees: 4999,
+      licensedChambers: 8,
+      daysRemaining: 30,
+      renewalDateStr: '14 Dec 2026',
+    }));
+    setSaasToast({
+      message: '✓ Upgraded to Polyclinic Enterprise: 8 Chambers unlocked with Multi-Specialty Analytics.',
+      type: 'upgrade',
+    });
+    setTimeout(() => setSaasToast(null), 6000);
+  };
+
+  const handleSelectPlan = (tier: 'STARTER' | 'CLINIC_PRO' | 'ENTERPRISE') => {
+    if (tier === 'STARTER') {
+      setSaasPlan((prev) => ({
+        ...prev,
+        tier: 'STARTER',
+        tierName: 'Starter Clinic',
+        monthlyFeeRupees: 999,
+        licensedChambers: 2,
+      }));
+      setSaasToast({
+        message: '✓ Switched to Starter Clinic Plan (2 Chambers).',
+        type: 'upgrade',
+      });
+    } else if (tier === 'CLINIC_PRO') {
+      setSaasPlan((prev) => ({
+        ...prev,
+        tier: 'CLINIC_PRO',
+        tierName: 'Clinic Pro Plan',
+        monthlyFeeRupees: 1999,
+        licensedChambers: 4,
+      }));
+      setSaasToast({
+        message: '✓ Switched to Clinic Pro Plan (4 Chambers).',
+        type: 'upgrade',
+      });
+    } else {
+      handleUpgradeEnterprise();
+      return;
+    }
+    setTimeout(() => setSaasToast(null), 6000);
+  };
+
+  const handleDownloadInvoice = () => {
+    setSaasToast({
+      message: '✓ GST Tax Invoice #MB-INV-2026-11-042 downloaded successfully (PDF with IRN & QR Code).',
+      type: 'invoice',
+    });
+    setTimeout(() => setSaasToast(null), 6000);
+  };
+
   const expectedCash = 12400;
   const variance = countedCash - expectedCash;
   const varianceStatus = variance === 0 ? 'BALANCED' : variance > 0 ? 'SURPLUS' : 'SHORTAGE';
@@ -628,10 +712,10 @@ export default function ClinicAdministratorPortal() {
             />
             <StatCard
               title="Active Chambers"
-              value="4 / 4"
-              subtitle="CH-1 through CH-4"
+              value={`${saasPlan.activeChambers} / ${saasPlan.licensedChambers}`}
+              subtitle={saasPlan.tier === 'ENTERPRISE' ? '8 Chamber License' : 'CH-1 through CH-4'}
               accentColor="#10B981"
-              badge={{ label: '100% UTILIZED', variant: 'blue' }}
+              badge={{ label: saasPlan.tier === 'ENTERPRISE' ? 'ENTERPRISE 8 CH' : '100% UTILIZED', variant: 'blue' }}
             />
             <StatCard
               title="Today's Collections"
@@ -642,10 +726,10 @@ export default function ClinicAdministratorPortal() {
             />
             <StatCard
               title="SaaS Entitlement"
-              value="Active"
-              subtitle="Renews on 01 Dec 2026"
+              value={saasPlan.status === 'ACTIVE' ? 'Active' : 'Expired'}
+              subtitle={`Renews on ${saasPlan.renewalDateStr}`}
               accentColor="#0D9488"
-              badge={{ label: 'PRO TIER', variant: 'blue' }}
+              badge={{ label: saasPlan.tier === 'ENTERPRISE' ? 'ENTERPRISE' : saasPlan.tier === 'STARTER' ? 'STARTER' : 'PRO TIER', variant: 'blue' }}
             />
           </div>
 
@@ -675,6 +759,106 @@ export default function ClinicAdministratorPortal() {
                     ✓ Dual A4 / 80mm Print
                   </span>
                 </div>
+              </div>
+
+              {/* SaaS Plan & Chamber Licensing Status Card (Phase 9) */}
+              <div
+                data-testid="card-saas-plan-status"
+                className="p-5 rounded-2xl bg-gradient-to-br from-emerald-900 via-slate-900 to-teal-950 text-white shadow-xl border border-emerald-500/30 relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-white/10">
+                  <div>
+                    <div className="flex items-center gap-2.5 mb-1">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                        {saasPlan.tierName}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-400/20 text-teal-200">
+                        RBI Flow A Direct B2B
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-black tracking-tight text-white flex items-center gap-2">
+                      <span>B2B Polyclinic SaaS Subscription</span>
+                    </h3>
+                    <p
+                      data-testid="text-saas-expiry"
+                      className="text-xs text-emerald-200/80 mt-0.5"
+                    >
+                      ⏳ {saasPlan.daysRemaining} Days Remaining (Renews {saasPlan.renewalDateStr})
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <button
+                      type="button"
+                      data-testid="btn-renew-saas-plan"
+                      onClick={handleRenewSaasPlan}
+                      className="px-4 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 hover:from-emerald-400 hover:to-teal-400 shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 transition-all transform active:scale-95"
+                    >
+                      <span>⚡ 1-Click Instant Renewal</span>
+                      <span className="font-mono text-[10px] opacity-80">(₹{saasPlan.monthlyFeeRupees.toLocaleString('en-IN')})</span>
+                    </button>
+                    {saasPlan.tier !== 'ENTERPRISE' && (
+                      <button
+                        type="button"
+                        data-testid="btn-upgrade-enterprise"
+                        onClick={handleUpgradeEnterprise}
+                        className="px-4 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 flex items-center gap-1.5 transition-all"
+                      >
+                        <span>🚀 Upgrade to Enterprise (8 Chambers)</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 text-xs">
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">Active Licensing</span>
+                    <span data-testid="text-saas-chambers" className="text-sm font-black text-emerald-300 font-mono">
+                      {saasPlan.activeChambers} / {saasPlan.licensedChambers} Chambers Active
+                    </span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">Monthly License Fee</span>
+                    <span className="text-sm font-black text-white font-mono">
+                      ₹{saasPlan.monthlyFeeRupees.toLocaleString('en-IN')} / mo
+                    </span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">Doctor Rostering</span>
+                    <span className="text-sm font-black text-teal-300">
+                      Unlimited NMC Profiles
+                    </span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">Compliance</span>
+                    <span className="text-sm font-black text-emerald-300">
+                      DPDP 2023 Cryptographic
+                    </span>
+                  </div>
+                </div>
+
+                {saasToast && (
+                  <div
+                    data-testid={
+                      saasToast.type === 'renew'
+                        ? 'toast-saas-renewed'
+                        : saasToast.type === 'upgrade'
+                        ? 'toast-saas-upgraded'
+                        : 'toast-saas-notice'
+                    }
+                    className="mt-3 p-3 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs font-bold flex items-center justify-between animate-fadeIn"
+                  >
+                    <span>{saasToast.message}</span>
+                    <button
+                      type="button"
+                      onClick={() => setSaasToast(null)}
+                      className="text-emerald-300 hover:text-white text-sm font-mono ml-2"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Chambers Grid */}
@@ -1252,74 +1436,291 @@ export default function ClinicAdministratorPortal() {
             </div>
           )}
 
-          {/* VIEW 6: SaaS Subscription Billing */}
+          {/* VIEW 6: SaaS Subscription Billing & Self-Service Upgrades */}
           {activeTab === 'BILLING' && (
             <div className="space-y-6">
-              <Card className="p-6 border-emerald-100/80 shadow-xs">
+              {/* Active Subscription Summary Banner */}
+              <Card className="p-6 border-emerald-100/80 shadow-xs bg-white/90 backdrop-blur-xl">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="text-xl font-bold text-slate-900">
-                        B2B SaaS Subscription (Flow A)
+                        B2B SaaS Subscription (RBI Flow A Direct)
                       </h3>
                       <Badge variant="mint" size="sm">
-                        ACTIVE TIER
+                        {saasPlan.tierName.toUpperCase()}
                       </Badge>
                     </div>
                     <p className="text-xs text-slate-500">
-                      Compliant RBI Payment Aggregator Architecture • Platform SaaS Licensing
+                      Compliant RBI Payment Aggregator Architecture • Platform SaaS Licensing • Next Renewal: {saasPlan.renewalDateStr} ({saasPlan.daysRemaining} days left)
                     </p>
                   </div>
 
-                  <div className="text-right">
-                    <span className="text-xs text-slate-400 block font-medium">Monthly SaaS Fee</span>
-                    <span className="text-3xl font-black text-slate-900 font-mono tabular-nums">
-                      ₹1,999
-                    </span>
-                    <span className="text-[11px] text-slate-500 block">+ 18% GST (₹359.82)</span>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <span className="text-xs text-slate-400 block font-medium">Monthly SaaS Fee</span>
+                      <span className="text-2xl font-black text-slate-900 font-mono tabular-nums">
+                        ₹{saasPlan.monthlyFeeRupees.toLocaleString('en-IN')}
+                      </span>
+                      <span className="text-[10px] text-slate-500 block">+ 18% GST (₹{(saasPlan.monthlyFeeRupees * 0.18).toFixed(2)})</span>
+                    </div>
+                    <button
+                      type="button"
+                      data-testid="btn-renew-saas-plan"
+                      onClick={handleRenewSaasPlan}
+                      className="px-4 py-2.5 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 flex items-center gap-1.5 transition-all"
+                    >
+                      <span>⚡ Instant Renewal</span>
+                    </button>
                   </div>
                 </div>
 
-                {/* Entitlements Checklist */}
-                <div className="py-6 border-b border-slate-100">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-3">
-                    Clinic Pro Plan Entitlements:
-                  </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <span className="text-emerald-600 font-bold">✓</span>
-                      <span>Up to 4 Physical Chambers (CH-1..CH-4)</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <span className="text-emerald-600 font-bold">✓</span>
-                      <span>Unlimited Doctor Master Profiles</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <span className="text-emerald-600 font-bold">✓</span>
-                      <span>Waiting Room TV Live SSE Stream</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <span className="text-emerald-600 font-bold">✓</span>
-                      <span>WhatsApp Cloud API Outbound Alerts</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <span className="text-emerald-600 font-bold">✓</span>
-                      <span>DLT SMS Fallback for Feature Phones</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <span className="text-emerald-600 font-bold">✓</span>
-                      <span>DPDP Act 2023 Cryptographic Audit Trail</span>
-                    </div>
+                {saasToast && (
+                  <div
+                    data-testid={
+                      saasToast.type === 'renew'
+                        ? 'toast-saas-renewed'
+                        : saasToast.type === 'upgrade'
+                        ? 'toast-saas-upgraded'
+                        : 'toast-saas-notice'
+                    }
+                    className="mt-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center justify-between"
+                  >
+                    <span>{saasToast.message}</span>
+                    <button
+                      type="button"
+                      onClick={() => setSaasToast(null)}
+                      className="text-emerald-700 hover:text-emerald-950 font-mono ml-2 text-sm"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+
+                {/* Billing Cycle Selector */}
+                <div className="pt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900">Change Subscription Tier</h4>
+                    <p className="text-xs text-slate-500">Scale licensed chambers up or down instantly without data loss</p>
+                  </div>
+
+                  <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button
+                      type="button"
+                      data-testid="btn-cycle-monthly"
+                      onClick={() => setSelectedBillingCycle('MONTHLY')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        selectedBillingCycle === 'MONTHLY'
+                          ? 'bg-white text-slate-900 shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Monthly Billing
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="btn-cycle-annual"
+                      onClick={() => setSelectedBillingCycle('ANNUAL')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                        selectedBillingCycle === 'ANNUAL'
+                          ? 'bg-emerald-600 text-white shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      <span>Annual Billing</span>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-black px-1.5 py-0.2 rounded">Save 20%</span>
+                    </button>
                   </div>
                 </div>
 
-                <div className="pt-4 flex items-center justify-between">
-                  <span className="text-xs text-slate-500 font-mono">
-                    Billing Gateway: Razorpay B2B Flow A (Subscription ID: sub_bhopal_pro_01)
+                {/* 3 Tier Interactive Plan Switcher */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+                  {/* Tier 1: Starter */}
+                  <div className={`p-4 rounded-xl border transition-all ${
+                    saasPlan.tier === 'STARTER'
+                      ? 'border-emerald-500 bg-emerald-50/30 ring-2 ring-emerald-500/20'
+                      : 'border-slate-200 bg-slate-50/50 hover:border-slate-300'
+                  }`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-bold text-sm text-slate-900">Starter Clinic</span>
+                      {saasPlan.tier === 'STARTER' && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-600 text-white">Current</span>
+                      )}
+                    </div>
+                    <div className="mb-3">
+                      <span className="text-2xl font-black text-slate-900 font-mono">
+                        ₹{selectedBillingCycle === 'ANNUAL' ? '799' : '999'}
+                      </span>
+                      <span className="text-xs text-slate-500 font-medium"> / mo</span>
+                    </div>
+                    <ul className="space-y-1.5 text-xs text-slate-600 mb-4">
+                      <li className="flex items-center gap-1.5">✓ Up to 2 Chambers (CH-1..CH-2)</li>
+                      <li className="flex items-center gap-1.5">✓ 1 Front-Desk Receptionist</li>
+                      <li className="flex items-center gap-1.5">✓ Standard Token Slip Engine</li>
+                      <li className="flex items-center gap-1.5 text-slate-400">✗ Waiting Room TV Stream</li>
+                    </ul>
+                    <button
+                      type="button"
+                      data-testid="btn-select-starter"
+                      disabled={saasPlan.tier === 'STARTER'}
+                      onClick={() => handleSelectPlan('STARTER')}
+                      className={`w-full py-2 rounded-lg text-xs font-bold transition-colors ${
+                        saasPlan.tier === 'STARTER'
+                          ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                          : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-100'
+                      }`}
+                    >
+                      {saasPlan.tier === 'STARTER' ? 'Current Plan' : 'Downgrade to Starter'}
+                    </button>
+                  </div>
+
+                  {/* Tier 2: Clinic Pro (Current Default) */}
+                  <div className={`p-4 rounded-xl border relative transition-all ${
+                    saasPlan.tier === 'CLINIC_PRO'
+                      ? 'border-emerald-600 bg-emerald-50/40 ring-2 ring-emerald-600/30 shadow-md'
+                      : 'border-slate-200 bg-slate-50/50 hover:border-slate-300'
+                  }`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-bold text-sm text-slate-900">Clinic Pro</span>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-600 text-white">Most Popular</span>
+                    </div>
+                    <div className="mb-3">
+                      <span className="text-2xl font-black text-slate-900 font-mono">
+                        ₹{selectedBillingCycle === 'ANNUAL' ? '1,599' : '1,999'}
+                      </span>
+                      <span className="text-xs text-slate-500 font-medium"> / mo</span>
+                    </div>
+                    <ul className="space-y-1.5 text-xs text-slate-600 mb-4">
+                      <li className="flex items-center gap-1.5 font-semibold text-slate-800">✓ Up to 4 Chambers (CH-1..CH-4)</li>
+                      <li className="flex items-center gap-1.5">✓ Unlimited NMC Doctor Master</li>
+                      <li className="flex items-center gap-1.5">✓ Waiting Room TV Live SSE</li>
+                      <li className="flex items-center gap-1.5">✓ WhatsApp Cloud Alerts</li>
+                      <li className="flex items-center gap-1.5">✓ Doctor 80/20 NEFT CMS</li>
+                    </ul>
+                    <button
+                      type="button"
+                      data-testid="btn-select-pro"
+                      disabled={saasPlan.tier === 'CLINIC_PRO'}
+                      onClick={() => handleSelectPlan('CLINIC_PRO')}
+                      className={`w-full py-2 rounded-lg text-xs font-bold transition-colors ${
+                        saasPlan.tier === 'CLINIC_PRO'
+                          ? 'bg-emerald-600 text-white shadow-xs cursor-default'
+                          : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                      }`}
+                    >
+                      {saasPlan.tier === 'CLINIC_PRO' ? 'Active Plan' : 'Switch to Pro'}
+                    </button>
+                  </div>
+
+                  {/* Tier 3: Polyclinic Enterprise */}
+                  <div className={`p-4 rounded-xl border transition-all ${
+                    saasPlan.tier === 'ENTERPRISE'
+                      ? 'border-indigo-600 bg-indigo-50/30 ring-2 ring-indigo-600/30 shadow-md'
+                      : 'border-slate-200 bg-slate-50/50 hover:border-slate-300'
+                  }`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-bold text-sm text-slate-900">Polyclinic Enterprise</span>
+                      {saasPlan.tier === 'ENTERPRISE' ? (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-600 text-white">Current</span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-800">Scale</span>
+                      )}
+                    </div>
+                    <div className="mb-3">
+                      <span className="text-2xl font-black text-slate-900 font-mono">
+                        ₹{selectedBillingCycle === 'ANNUAL' ? '3,999' : '4,999'}
+                      </span>
+                      <span className="text-xs text-slate-500 font-medium"> / mo</span>
+                    </div>
+                    <ul className="space-y-1.5 text-xs text-slate-600 mb-4">
+                      <li className="flex items-center gap-1.5 font-bold text-indigo-900">✓ Up to 8 Chambers (CH-1..CH-8)</li>
+                      <li className="flex items-center gap-1.5 font-semibold text-slate-800">✓ Multi-Shift Two-Witness Cashier</li>
+                      <li className="flex items-center gap-1.5">✓ Cross-Specialty Utilization Heatmap</li>
+                      <li className="flex items-center gap-1.5">✓ Section 194J Automated TDS Filing</li>
+                      <li className="flex items-center gap-1.5">✓ Dedicated WhatsApp Priority SLA</li>
+                    </ul>
+                    <button
+                      type="button"
+                      data-testid="btn-select-enterprise"
+                      disabled={saasPlan.tier === 'ENTERPRISE'}
+                      onClick={() => handleSelectPlan('ENTERPRISE')}
+                      className={`w-full py-2 rounded-lg text-xs font-bold transition-colors ${
+                        saasPlan.tier === 'ENTERPRISE'
+                          ? 'bg-indigo-600 text-white shadow-xs cursor-default'
+                          : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs'
+                      }`}
+                    >
+                      {saasPlan.tier === 'ENTERPRISE' ? 'Active Enterprise Plan' : '🚀 Upgrade to Enterprise'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Gateway Metadata */}
+                <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                  <span className="text-slate-500 font-mono">
+                    Billing Gateway: Razorpay B2B Flow A • Mandate ID: mand_bhopal_pro_99182 • RBI Tokenized
                   </span>
-                  <Button variant="outline" size="sm" className="border-emerald-200 text-emerald-800">
-                    View Past GST Invoices
-                  </Button>
+                  <span className="text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                    ✓ Next Auto-Debit: {saasPlan.renewalDateStr}
+                  </span>
+                </div>
+              </Card>
+
+              {/* Past GST Invoices Ledger */}
+              <Card className="p-6 border-emerald-100/80 shadow-xs bg-white/90 backdrop-blur-xl">
+                <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">Past Tax Invoices & GST B2B Input Credit</h3>
+                    <p className="text-xs text-slate-500">Official GST compliant tax receipts with IRN and QR code</p>
+                  </div>
+                  <button
+                    type="button"
+                    data-testid="btn-download-gst-invoice"
+                    onClick={handleDownloadInvoice}
+                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-emerald-300 text-emerald-800 hover:bg-emerald-50 shadow-xs flex items-center gap-1.5 transition-colors"
+                  >
+                    <span>⬇ Download Latest GST Invoice</span>
+                  </button>
+                </div>
+
+                <div className="mt-4 overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                        <th className="py-2.5 px-3">Invoice Number</th>
+                        <th className="py-2.5 px-3">Billing Period</th>
+                        <th className="py-2.5 px-3">Plan Tier</th>
+                        <th className="py-2.5 px-3 text-right">Base Fee</th>
+                        <th className="py-2.5 px-3 text-right">GST (18%)</th>
+                        <th className="py-2.5 px-3 text-right font-bold text-slate-900">Total Paid</th>
+                        <th className="py-2.5 px-3 text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      <tr>
+                        <td className="py-2.5 px-3 font-mono font-bold text-emerald-800">MB-INV-2026-11-042</td>
+                        <td className="py-2.5 px-3 text-slate-600">28 Oct 2026 - 28 Nov 2026</td>
+                        <td className="py-2.5 px-3 font-medium text-slate-900">Clinic Pro Plan</td>
+                        <td className="py-2.5 px-3 text-right font-mono">₹1,999.00</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-500">₹359.82</td>
+                        <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900">₹2,358.82</td>
+                        <td className="py-2.5 px-3 text-center">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">PAID</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-2.5 px-3 font-mono font-bold text-slate-700">MB-INV-2026-10-038</td>
+                        <td className="py-2.5 px-3 text-slate-600">28 Sep 2026 - 28 Oct 2026</td>
+                        <td className="py-2.5 px-3 font-medium text-slate-900">Clinic Pro Plan</td>
+                        <td className="py-2.5 px-3 text-right font-mono">₹1,999.00</td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-500">₹359.82</td>
+                        <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900">₹2,358.82</td>
+                        <td className="py-2.5 px-3 text-center">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">PAID</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </Card>
             </div>
