@@ -478,5 +478,138 @@ export class EMRService {
       printerQueue: 'RECEPTION_DESK_EPSON_L3150_CHAMBER_3',
     };
   }
+
+  // 8. Advance Chamber Consultation Queue (1-Click Sign & Call Next Token)
+  public advanceQueue(
+    currentTokenNumber: number,
+    nextTokenNumber?: number,
+    autoSignPayload?: Partial<DigitalPrescription>
+  ): {
+    success: boolean;
+    message: string;
+    completedToken?: ChamberConsultationToken;
+    prescription?: DigitalPrescription;
+    activeToken?: ChamberConsultationToken;
+    remainingWaitingCount: number;
+    queue: ChamberConsultationToken[];
+  } {
+    let prescription: DigitalPrescription | undefined;
+    if (autoSignPayload) {
+      prescription = this.createPrescription(autoSignPayload);
+    } else {
+      const current = this.consultationQueue.find((t) => t.tokenNumber === currentTokenNumber);
+      if (current) {
+        current.status = 'COMPLETED';
+      }
+    }
+
+    const completedToken = this.consultationQueue.find((t) => t.tokenNumber === currentTokenNumber);
+
+    // Find next token
+    let nextToken: ChamberConsultationToken | undefined;
+    if (nextTokenNumber) {
+      nextToken = this.consultationQueue.find((t) => t.tokenNumber === nextTokenNumber);
+    } else {
+      nextToken = this.consultationQueue.find((t) => t.status === 'WAITING');
+    }
+
+    if (nextToken) {
+      nextToken.status = 'IN_CONSULTATION';
+    }
+
+    const remainingWaiting = this.consultationQueue.filter((t) => t.status === 'WAITING').length;
+
+    return {
+      success: true,
+      message: `Token #${currentTokenNumber} consultation completed. Token #${nextToken?.tokenNumber || 'None'} is now in chamber consultation.`,
+      completedToken,
+      prescription,
+      activeToken: nextToken,
+      remainingWaitingCount: remainingWaiting,
+      queue: this.consultationQueue,
+    };
+  }
+
+  // 9. Reset Queue to Initial State (for test reproducibility & session restarts)
+  public resetQueue(): ChamberConsultationToken[] {
+    this.consultationQueue = [
+      {
+        tokenNumber: 12,
+        patientId: 'pat-kailash-74',
+        patientName: 'Kailash Prasad',
+        patientAge: 74,
+        patientGender: 'MALE',
+        primaryMobile: '9826011111',
+        relationship: 'PARENT (Father of Ramesh Kumar)',
+        bookingType: 'ONLINE_PAID',
+        status: 'IN_CONSULTATION',
+        vitals: {
+          bpSystolic: 138,
+          bpDiastolic: 88,
+          pulseRate: 74,
+          spo2: 98,
+          temperatureF: 98.4,
+          weightKg: 68.5,
+          randomBloodSugarMgDl: 142,
+          recordedBy: 'Sunita (Front-Desk Staff)',
+          recordedAt: '2026-11-14T05:25:00Z',
+        },
+        knownAllergies: ['Penicillin', 'Sulfa drugs'],
+        chronicConditions: ['Type 2 Diabetes', 'Hypertension'],
+        chiefComplaints: ['Routine 3-month cardiovascular check', 'Mild morning ankle swelling'],
+      },
+      {
+        tokenNumber: 13,
+        patientId: 'pat-sunita-46',
+        patientName: 'Sunita Verma',
+        patientAge: 46,
+        patientGender: 'FEMALE',
+        primaryMobile: '9826022222',
+        relationship: 'SELF',
+        bookingType: 'ONLINE_PAID',
+        status: 'WAITING',
+        vitals: {
+          bpSystolic: 122,
+          bpDiastolic: 78,
+          pulseRate: 80,
+          spo2: 99,
+          temperatureF: 98.6,
+          weightKg: 58.0,
+          randomBloodSugarMgDl: 108,
+          recordedBy: 'Sunita (Front-Desk Staff)',
+          recordedAt: '2026-11-14T05:40:00Z',
+        },
+        knownAllergies: [],
+        chronicConditions: ['Hypothyroidism'],
+        chiefComplaints: ['Fatigue & lethargy', 'Palpitations on exertion'],
+      },
+      {
+        tokenNumber: 14,
+        patientId: 'pat-rajesh-58',
+        patientName: 'Rajesh Dubey',
+        patientAge: 58,
+        patientGender: 'MALE',
+        primaryMobile: '9826033333',
+        relationship: 'SELF',
+        bookingType: 'WALK_IN',
+        status: 'WAITING',
+        vitals: {
+          bpSystolic: 148,
+          bpDiastolic: 94,
+          pulseRate: 88,
+          spo2: 97,
+          temperatureF: 99.1,
+          weightKg: 82.0,
+          randomBloodSugarMgDl: 186,
+          recordedBy: 'Sunita (Front-Desk Staff)',
+          recordedAt: '2026-11-14T05:55:00Z',
+        },
+        knownAllergies: [],
+        chronicConditions: ['Hypertension', 'Dyslipidemia'],
+        chiefComplaints: ['Persistent occipital headache', 'Exertional chest tightness'],
+      },
+    ];
+    return this.consultationQueue;
+  }
 }
 

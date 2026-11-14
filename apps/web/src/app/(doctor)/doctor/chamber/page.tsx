@@ -77,6 +77,11 @@ export default function DoctorPrescriptionComposerPage() {
   const [dispatchStatus, setDispatchStatus] = useState<string | null>(null);
   const [printStatus, setPrintStatus] = useState<string | null>(null);
 
+  // Phase 8: High-Velocity 1-Click Chamber Advance & Buzzer State
+  const [queueAdvanceToast, setQueueAdvanceToast] = useState<string | null>(null);
+  const [buzzerActive, setBuzzerActive] = useState(false);
+  const [buzzerNotice, setBuzzerNotice] = useState<string | null>(null);
+
   // 1. Initial Load: Fetch Queue & Protocols from Fastify API
   useEffect(() => {
     // Fetch Queue
@@ -122,8 +127,11 @@ export default function DoctorPrescriptionComposerPage() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Current Active Patient
+  // Current Active Patient & Next Waiting Patient in Queue
   const activePatient = queue.find((t) => t.tokenNumber === selectedTokenNumber) || queue[0];
+  const nextQueuedToken = queue.find(
+    (t) => t.tokenNumber !== selectedTokenNumber && t.status === 'WAITING'
+  );
 
   // Handle Token Switch
   const handleSelectToken = (token: ChamberConsultationToken) => {
@@ -315,6 +323,97 @@ export default function DoctorPrescriptionComposerPage() {
     }
   };
 
+  // Phase 8: Chamber Repaging Buzzer Action
+  const triggerBuzzer = (tokenNum: number, name: string) => {
+    setBuzzerActive(true);
+    setBuzzerNotice(`🔔 Calling Token #${tokenNum} ${name} to Chamber CH-3...`);
+    setTimeout(() => {
+      setBuzzerActive(false);
+      setBuzzerNotice(null);
+    }, 4500);
+  };
+
+  // Phase 8: 1-Click Complete, Sign Prescription & Advance Queue to Next Token
+  const handleSignAndCallNext = async () => {
+    if (!activePatient) return;
+    setIsSigning(true);
+
+    const payload: Partial<DigitalPrescription> = {
+      tokenNumber: activePatient.tokenNumber,
+      clinicId: 'clinic-bhopal-city-care',
+      clinicName: 'Bhopal City Care Polyclinic',
+      clinicAddress: 'Plot 42, MP Nagar Zone II, Bhopal',
+      doctorId: 'doc-sharma-cardio',
+      doctorName: 'Dr. Rajesh Sharma',
+      doctorQualifications: 'MBBS, MD (Medicine), DM (Cardiology)',
+      doctorNmc: 'MP-38492',
+      chamberNumber: 'CH-3',
+      patientId: activePatient.patientId,
+      patientName: activePatient.patientName,
+      patientAge: activePatient.patientAge,
+      patientGender: activePatient.patientGender,
+      primaryMobile: activePatient.primaryMobile,
+      knownAllergies: activePatient.knownAllergies,
+      chronicConditions: activePatient.chronicConditions,
+      vitalsAtConsultation: activePatient.vitals,
+      symptoms: activePatient.chiefComplaints,
+      diagnoses,
+      medications,
+      investigationsOrdered: investigations,
+      dietaryAdvice,
+      followUpDate,
+      doctorNotesPrivate,
+    };
+
+    try {
+      const targetNext = nextQueuedToken;
+      const res = await fetch('http://127.0.0.1:4000/api/v1/emr/advance-queue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentTokenNumber: activePatient.tokenNumber,
+          nextTokenNumber: targetNext ? targetNext.tokenNumber : undefined,
+          autoSignPayload: payload,
+        }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        if (data.queue && data.queue.length > 0) {
+          setQueue(data.queue);
+        } else {
+          setQueue((prev) =>
+            prev.map((t) =>
+              t.tokenNumber === activePatient.tokenNumber
+                ? { ...t, status: 'COMPLETED' }
+                : targetNext && t.tokenNumber === targetNext.tokenNumber
+                ? { ...t, status: 'IN_CONSULTATION' }
+                : t
+            )
+          );
+        }
+
+        if (targetNext) {
+          handleSelectToken(targetNext);
+          setQueueAdvanceToast(
+            `✓ Token #${activePatient.tokenNumber} (${activePatient.patientName}) signed & dispatched. Now In Chamber: Token #${targetNext.tokenNumber} (${targetNext.patientName}).`
+          );
+          triggerBuzzer(targetNext.tokenNumber, targetNext.patientName);
+        } else {
+          setQueueAdvanceToast(
+            `✓ Token #${activePatient.tokenNumber} (${activePatient.patientName}) signed & completed. All waiting consultations finished for this session!`
+          );
+        }
+
+        setIsPreviewModalOpen(false);
+      }
+    } catch (err) {
+      console.error('Failed to advance queue:', err);
+    } finally {
+      setIsSigning(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-between text-slate-800">
       {/* Top Header & Chamber Identity */}
@@ -359,7 +458,7 @@ export default function DoctorPrescriptionComposerPage() {
       </header>
 
       {/* Top Queue Bar: Chamber Tokens */}
-      <section className="bg-white/90 backdrop-blur-md border-b border-slate-200 px-6 py-2.5 sticky top-14 z-20">
+      <section className="bg-white/90 backdrop-blur-md border-b border-slate-200 px-6 py-2.5 sticky top-14 z-20" data-testid="chamber-queue-strip">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 overflow-x-auto">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0">
             <span>Today's Queue</span>
@@ -410,11 +509,57 @@ export default function DoctorPrescriptionComposerPage() {
               );
             })}
           </div>
+
+          {/* Next Patient Peek Badge */}
+          {nextQueuedToken && (
+            <div
+              data-testid="banner-next-patient-peek"
+              className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-50 border border-teal-200 text-xs text-teal-900 shrink-0 font-semibold"
+            >
+              <span className="text-teal-700 font-bold">⏭️ Next:</span>
+              <span className="font-mono font-bold text-teal-950">#{nextQueuedToken.tokenNumber}</span>
+              <span>{nextQueuedToken.patientName}</span>
+              <span className="text-[10px] text-teal-600">
+                (BP {nextQueuedToken.vitals.bpSystolic}/{nextQueuedToken.vitals.bpDiastolic})
+              </span>
+            </div>
+          )}
         </div>
       </section>
 
       {/* Main Workspace Layout: 2 Columns */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full flex-1">
+        {/* Phase 8: High-Velocity Queue Advance Toast Banner */}
+        {queueAdvanceToast && (
+          <div
+            data-testid="toast-queue-advanced"
+            className="mb-5 p-4 rounded-2xl bg-emerald-700 text-white shadow-xl flex items-center justify-between border border-emerald-500 text-xs font-bold"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="h-6 w-6 rounded-lg bg-emerald-500 flex items-center justify-center text-sm">⚡</span>
+              <span>{queueAdvanceToast}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setQueueAdvanceToast(null)}
+              className="text-white/80 hover:text-white font-mono text-sm px-2 py-0.5 rounded hover:bg-white/10"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {/* Phase 8: Buzzer Notice */}
+        {buzzerNotice && (
+          <div
+            data-testid="toast-buzzer-alert"
+            className="mb-5 p-3 rounded-2xl bg-amber-500 text-slate-950 shadow-lg flex items-center gap-2 text-xs font-extrabold border border-amber-400 animate-pulse"
+          >
+            <span>🔔</span>
+            <span>{buzzerNotice}</span>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column (4 cols): Patient Dossier & Pre-Recorded Vitals */}
           <div className="lg:col-span-4 space-y-4">
@@ -439,9 +584,24 @@ export default function DoctorPrescriptionComposerPage() {
                       {activePatient.relationship}
                     </p>
                   </div>
-                  <Badge variant="mint" size="sm">
-                    {activePatient.bookingType === 'ONLINE_PAID' ? '₹49 Token Paid' : 'Walk-In'}
-                  </Badge>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <Badge variant="mint" size="sm">
+                      {activePatient.bookingType === 'ONLINE_PAID' ? '₹49 Token Paid' : 'Walk-In'}
+                    </Badge>
+                    <button
+                      type="button"
+                      data-testid="btn-chamber-buzzer"
+                      onClick={() => activePatient && triggerBuzzer(activePatient.tokenNumber, activePatient.patientName)}
+                      className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all flex items-center gap-1 border shadow-xs ${
+                        buzzerActive
+                          ? 'bg-amber-500 text-slate-950 border-amber-600 animate-pulse'
+                          : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                      }`}
+                    >
+                      <span>🔔</span>
+                      <span>{buzzerActive ? 'Ringing...' : 'Chamber Buzzer'}</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Known Allergies Critical Alert */}
@@ -864,15 +1024,35 @@ export default function DoctorPrescriptionComposerPage() {
                 </span>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <Button
                   data-testid="btn-sign-prescription"
                   disabled={isSigning}
                   onClick={handleCompleteAndSign}
-                  className="bg-white text-emerald-900 hover:bg-emerald-50 font-bold px-6 py-2.5 shadow-md text-xs"
+                  className="bg-white/10 hover:bg-white/20 text-white border border-white/30 font-bold px-4 py-2.5 shadow-md text-xs"
                 >
-                  {isSigning ? 'Signing & Hashing...' : '✓ Complete & Sign Rx (MP-38492)'}
+                  {isSigning ? 'Signing & Hashing...' : '📄 Preview Letterhead'}
                 </Button>
+
+                {nextQueuedToken ? (
+                  <Button
+                    data-testid="btn-sign-and-call-next"
+                    disabled={isSigning}
+                    onClick={handleSignAndCallNext}
+                    className="bg-emerald-400 hover:bg-emerald-300 text-emerald-950 font-black px-6 py-2.5 shadow-lg text-xs flex items-center gap-1.5 transition-all hover:scale-105"
+                  >
+                    <span>⚡ Sign & Call Next: Token #{nextQueuedToken.tokenNumber} ({nextQueuedToken.patientName.split(' ')[0]})</span>
+                  </Button>
+                ) : (
+                  <Button
+                    data-testid="btn-sign-and-call-next"
+                    disabled={isSigning}
+                    onClick={handleCompleteAndSign}
+                    className="bg-emerald-400 hover:bg-emerald-300 text-emerald-950 font-black px-6 py-2.5 shadow-lg text-xs"
+                  >
+                    <span>✓ Sign & Finish Session</span>
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -1076,24 +1256,37 @@ export default function DoctorPrescriptionComposerPage() {
             )}
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-slate-100">
-              <Button
-                variant="outline"
-                size="sm"
-                data-testid="btn-print-reception"
-                onClick={handlePrintReception}
-                className="text-xs font-bold text-slate-700"
-              >
-                🖨️ Silent Print at Reception
-              </Button>
-              <Button
-                size="sm"
-                data-testid="btn-dispatch-whatsapp"
-                onClick={handleDispatchWhatsApp}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md"
-              >
-                📱 Send PDF to Patient WhatsApp
-              </Button>
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  data-testid="btn-print-reception"
+                  onClick={handlePrintReception}
+                  className="text-xs font-bold text-slate-700"
+                >
+                  🖨️ Silent Print at Reception
+                </Button>
+                <Button
+                  size="sm"
+                  data-testid="btn-dispatch-whatsapp"
+                  onClick={handleDispatchWhatsApp}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md"
+                >
+                  📱 Send PDF to Patient WhatsApp
+                </Button>
+              </div>
+
+              {nextQueuedToken && (
+                <Button
+                  size="sm"
+                  data-testid="btn-modal-sign-and-call-next"
+                  onClick={handleSignAndCallNext}
+                  className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs shadow-md flex items-center gap-1.5"
+                >
+                  <span>⚡ Call Next Patient: Token #{nextQueuedToken.tokenNumber} ({nextQueuedToken.patientName.split(' ')[0]})</span>
+                </Button>
+              )}
             </div>
           </div>
         )}

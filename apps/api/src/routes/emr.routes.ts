@@ -82,5 +82,24 @@ export const emrRoutes: FastifyPluginAsync = async (server: FastifyInstance) => 
       return reply.send(result);
     }
   );
+
+  // 8. 1-Click Complete, Sign & Advance Chamber Queue
+  server.post<{
+    Body: {
+      currentTokenNumber: number;
+      nextTokenNumber?: number;
+      autoSignPayload?: any;
+    };
+  }>('/emr/advance-queue', async (request, reply) => {
+    const { currentTokenNumber, nextTokenNumber, autoSignPayload } = request.body || { currentTokenNumber: 12 };
+    const result = emrService.advanceQueue(currentTokenNumber, nextTokenNumber, autoSignPayload);
+    return reply.send(result);
+  });
+
+  // 9. Reset Queue to Initial State
+  server.post('/emr/reset-queue', async (_request, reply) => {
+    const queue = emrService.resetQueue();
+    return reply.send({ success: true, message: 'Queue reset to initial state', queue });
+  });
 };
 
