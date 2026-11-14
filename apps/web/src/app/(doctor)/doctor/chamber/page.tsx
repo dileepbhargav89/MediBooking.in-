@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import {
   Button,
@@ -17,6 +17,46 @@ import {
   PrescriptionMedication,
   DigitalPrescription,
 } from '@medibooking/types';
+
+interface DrugInteractionRule {
+  id: string;
+  drugA: string;
+  drugB: string;
+  severity: 'HIGH_RISK' | 'MODERATE_RISK';
+  title: string;
+  mechanism: string;
+  clinicalGuidance: string;
+}
+
+const DDI_RULES: DrugInteractionRule[] = [
+  {
+    id: 'ddi-telmi-spiro',
+    drugA: 'telmisartan',
+    drugB: 'spironolactone',
+    severity: 'HIGH_RISK',
+    title: 'Severe Hyperkalemia Risk: Telmisartan (ARB) + Spironolactone',
+    mechanism: 'Concomitant ARB and potassium-sparing aldosterone antagonist therapy severely impairs renal potassium excretion, posing critical risk of cardiac arrhythmia or conduction arrest.',
+    clinicalGuidance: 'Avoid combination unless under specialist nephrology protocol. Closely monitor serum potassium (target < 5.0 mEq/L) and eGFR, or substitute with Chlorthalidone.',
+  },
+  {
+    id: 'ddi-ace-nsaid',
+    drugA: 'enalapril',
+    drugB: 'ibuprofen',
+    severity: 'HIGH_RISK',
+    title: 'Acute Kidney Injury (Triple Whammy): ACE Inhibitor + NSAID',
+    mechanism: 'NSAIDs cause afferent arteriolar vasoconstriction while ACE inhibitors blunt efferent resistance, sharply decreasing glomerular filtration pressure and blunting antihypertensive efficacy.',
+    clinicalGuidance: 'Avoid regular NSAID co-prescription. Use Paracetamol 650mg as first-line analgesic or topical NSAIDs.',
+  },
+  {
+    id: 'ddi-clopidogrel-aspirin',
+    drugA: 'clopidogrel',
+    drugB: 'aspirin',
+    severity: 'MODERATE_RISK',
+    title: 'Major Bleeding Risk: Dual Antiplatelet Therapy (DAPT)',
+    mechanism: 'Synergistic platelet inhibition increases risk of major gastrointestinal and intracranial hemorrhage.',
+    clinicalGuidance: 'Ensure appropriate proton pump inhibitor (e.g. Pantoprazole) gastro-protection is co-prescribed.',
+  },
+];
 
 export default function DoctorPrescriptionComposerPage() {
   // Queue & Active Patient State
@@ -81,6 +121,18 @@ export default function DoctorPrescriptionComposerPage() {
   const [queueAdvanceToast, setQueueAdvanceToast] = useState<string | null>(null);
   const [buzzerActive, setBuzzerActive] = useState(false);
   const [buzzerNotice, setBuzzerNotice] = useState<string | null>(null);
+
+  // Phase 10: Clinical Decision Support 2.0 (DDI Shield & Pediatric Doser)
+  const [overriddenDdiIds, setOverriddenDdiIds] = useState<string[]>([]);
+  const [overrideReasons, setOverrideReasons] = useState<{ [id: string]: string }>({});
+  const [overrideInputText, setOverrideInputText] = useState('');
+  const [activeOverridePromptId, setActiveOverridePromptId] = useState<string | null>(null);
+
+  // Pediatric Weight-Based Dosage State
+  const [isPediatricDoserOpen, setIsPediatricDoserOpen] = useState(false);
+  const [childWeightKg, setChildWeightKg] = useState<number>(18.5);
+  const [selectedPediatricDrug, setSelectedPediatricDrug] = useState<'AMOXICILLIN' | 'PARACETAMOL' | 'AZITHROMYCIN'>('AMOXICILLIN');
+  const [pediatricToast, setPediatricToast] = useState<string | null>(null);
 
   // 1. Initial Load: Fetch Queue & Protocols from Fastify API
   useEffect(() => {
@@ -176,7 +228,21 @@ export default function DoctorPrescriptionComposerPage() {
         },
       ]);
       setInvestigations(['12-Lead ECG', 'Lipid Profile', 'Serum Creatinine']);
+    } else if (token.tokenNumber === 15) {
+      setDiagnoses(['Acute Upper Respiratory Infection (J06.9)', 'Pyrexia of Unknown Origin']);
+      setMedications([]);
+      setInvestigations(['Complete Blood Count (CBC)']);
+      setDietaryAdvice('Plenty of warm fluids, soft diet, steam inhalation, sponging if fever > 101°F.');
+      setFollowUpDate('In 3 days if fever persists');
+      setIsPediatricDoserOpen(true);
+      if (token.vitals?.weightKg) {
+        setChildWeightKg(token.vitals.weightKg);
+      }
     }
+    setOverriddenDdiIds([]);
+    setOverrideReasons({});
+    setActiveOverridePromptId(null);
+    setOverrideInputText('');
   };
 
   // 1-Click Protocol Application
@@ -237,6 +303,94 @@ export default function DoctorPrescriptionComposerPage() {
 
   const handleRemoveMedication = (index: number) => {
     setMedications((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Phase 10: Real-Time Drug-Drug Interaction Detection Memo
+  const detectedInteractions = useMemo(() => {
+    if (medications.length < 2) return [];
+
+    return DDI_RULES.filter((rule) => {
+      if (overriddenDdiIds.includes(rule.id)) return false;
+      const hasDrugA = medications.some((m) =>
+        `${m.drugName} ${m.genericName}`.toLowerCase().includes(rule.drugA)
+      );
+      const hasDrugB = medications.some((m) =>
+        `${m.drugName} ${m.genericName}`.toLowerCase().includes(rule.drugB)
+      );
+      return hasDrugA && hasDrugB;
+    }).map((rule) => {
+      const medA = medications.find((m) =>
+        `${m.drugName} ${m.genericName}`.toLowerCase().includes(rule.drugA)
+      )!;
+      const medB = medications.find((m) =>
+        `${m.drugName} ${m.genericName}`.toLowerCase().includes(rule.drugB)
+      )!;
+      return {
+        ...rule,
+        drugAName: medA.drugName,
+        drugBName: medB.drugName,
+      };
+    });
+  }, [medications, overriddenDdiIds]);
+
+  const handleRemoveInteractingDrug = (drugName: string) => {
+    setMedications((prev) => prev.filter((m) => m.drugName !== drugName));
+  };
+
+  const handleConfirmDdiOverride = (ruleId: string) => {
+    if (!overrideInputText.trim()) return;
+    setOverriddenDdiIds((prev) => [...prev, ruleId]);
+    setOverrideReasons((prev) => ({ ...prev, [ruleId]: overrideInputText.trim() }));
+    setActiveOverridePromptId(null);
+    setOverrideInputText('');
+  };
+
+  const handleInsertPediatricDose = () => {
+    const wt = Number(childWeightKg) || 14;
+    let newMed: PrescriptionMedication;
+
+    if (selectedPediatricDrug === 'AMOXICILLIN') {
+      const dailyDoseMg = wt * 40;
+      const tidDoseMg = Math.round(dailyDoseMg / 3);
+      const mlPerDose = Number(((tidDoseMg / 250) * 5).toFixed(1));
+      newMed = {
+        drugName: 'Novamox 250 Susp',
+        genericName: 'Amoxicillin Oral Suspension (250mg/5ml)',
+        dosageForm: 'SYP',
+        strength: '250mg/5ml',
+        frequency: '1-1-1',
+        durationDays: 5,
+        instructions: `Give ${mlPerDose} ml (${tidDoseMg} mg) TID for 5 days after feeds [Dose: 40mg/kg/day for ${wt}kg child]`,
+      };
+    } else if (selectedPediatricDrug === 'PARACETAMOL') {
+      const doseMg = Math.round(wt * 15);
+      const mlPerDose = Number(((doseMg / 250) * 5).toFixed(1));
+      newMed = {
+        drugName: 'Calpol 250 Pead',
+        genericName: 'Paracetamol Paediatric Suspension (250mg/5ml)',
+        dosageForm: 'SYP',
+        strength: '250mg/5ml',
+        frequency: 'SOS',
+        durationDays: 3,
+        instructions: `Give ${mlPerDose} ml (${doseMg} mg) every 4-6h SOS for temp > 100°F (max 4 doses/day) [Dose: 15mg/kg/dose for ${wt}kg child]`,
+      };
+    } else {
+      const doseMg = Math.round(wt * 10);
+      const mlPerDose = Number(((doseMg / 200) * 5).toFixed(1));
+      newMed = {
+        drugName: 'Zady 200 Susp',
+        genericName: 'Azithromycin Paediatric Suspension (200mg/5ml)',
+        dosageForm: 'SYP',
+        strength: '200mg/5ml',
+        frequency: '1-0-0',
+        durationDays: 3,
+        instructions: `Give ${mlPerDose} ml (${doseMg} mg) OD on empty stomach for 3 days [Dose: 10mg/kg/day for ${wt}kg child]`,
+      };
+    }
+
+    setMedications((prev) => [...prev, newMed]);
+    setPediatricToast(`✓ Added ${newMed.drugName} - ${newMed.instructions.split('[')[0]?.trim()}`);
+    setTimeout(() => setPediatricToast(null), 5000);
   };
 
   // Complete & Sign Prescription
@@ -797,10 +951,276 @@ export default function DoctorPrescriptionComposerPage() {
                     Indian Pharmacopoeia Formulations with Brand + Generic in brackets
                   </p>
                 </div>
-                <span className="text-[11px] font-semibold text-slate-600">
-                  {medications.length} items in Rx
-                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    data-testid="btn-toggle-pediatric-doser"
+                    onClick={() => setIsPediatricDoserOpen(!isPediatricDoserOpen)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs ${
+                      isPediatricDoserOpen || (activePatient && activePatient.patientAge < 12)
+                        ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    }`}
+                  >
+                    <span>👶 Pediatric Doser</span>
+                    {activePatient && activePatient.patientAge < 12 && (
+                      <span className="px-1.5 py-0.2 rounded text-[10px] bg-amber-600 text-white font-black">
+                        Age {activePatient.patientAge}
+                      </span>
+                    )}
+                  </button>
+                  <span className="text-[11px] font-semibold text-slate-600">
+                    {medications.length} items in Rx
+                  </span>
+                </div>
               </div>
+
+              {/* Phase 10: Pediatric Weight-Based mg/kg Dosage Calculator */}
+              {(isPediatricDoserOpen || (activePatient && activePatient.patientAge < 12)) && (
+                <div
+                  data-testid="card-pediatric-doser"
+                  className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/90 shadow-xs space-y-3"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200/60 pb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">🍼</span>
+                      <div>
+                        <span className="text-xs font-bold text-amber-950 block">
+                          Pediatric Weight-Based mg/kg Dosage Calculator (IP Standard)
+                        </span>
+                        <span className="text-[10px] text-amber-800">
+                          Automatic mg/kg/day computation for liquid paediatric oral suspensions
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="font-semibold text-amber-900">Child Weight:</span>
+                      <div className="flex items-center">
+                        <input
+                          type="number"
+                          step="0.5"
+                          min="2"
+                          max="50"
+                          data-testid="input-child-weight"
+                          value={childWeightKg}
+                          onChange={(e) => setChildWeightKg(Number(e.target.value))}
+                          className="w-16 px-2 py-1 text-center font-mono font-bold text-xs bg-white border border-amber-300 rounded-l-lg focus:outline-none focus:ring-1 focus:ring-amber-500"
+                        />
+                        <span className="px-2 py-1 bg-amber-200/60 text-amber-900 font-bold rounded-r-lg border-y border-r border-amber-300 text-xs">
+                          kg
+                        </span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-200 text-amber-900">
+                        {activePatient?.patientAge ? `${activePatient.patientAge} Yrs` : 'Child'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Drug Selector Chips */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      data-testid="btn-pediatric-amox"
+                      onClick={() => setSelectedPediatricDrug('AMOXICILLIN')}
+                      className={`p-2 rounded-xl text-left border transition-all ${
+                        selectedPediatricDrug === 'AMOXICILLIN'
+                          ? 'bg-amber-100 border-amber-500 ring-2 ring-amber-500/20'
+                          : 'bg-white border-amber-200 hover:bg-amber-50'
+                      }`}
+                    >
+                      <span className="font-bold text-xs text-amber-950 block">Syr. Amoxicillin</span>
+                      <span className="text-[10px] text-amber-800">40 mg/kg/day (TID)</span>
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="btn-pediatric-pcm"
+                      onClick={() => setSelectedPediatricDrug('PARACETAMOL')}
+                      className={`p-2 rounded-xl text-left border transition-all ${
+                        selectedPediatricDrug === 'PARACETAMOL'
+                          ? 'bg-amber-100 border-amber-500 ring-2 ring-amber-500/20'
+                          : 'bg-white border-amber-200 hover:bg-amber-50'
+                      }`}
+                    >
+                      <span className="font-bold text-xs text-amber-950 block">Syr. Paracetamol</span>
+                      <span className="text-[10px] text-amber-800">15 mg/kg/dose (SOS)</span>
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="btn-pediatric-azithro"
+                      onClick={() => setSelectedPediatricDrug('AZITHROMYCIN')}
+                      className={`p-2 rounded-xl text-left border transition-all ${
+                        selectedPediatricDrug === 'AZITHROMYCIN'
+                          ? 'bg-amber-100 border-amber-500 ring-2 ring-amber-500/20'
+                          : 'bg-white border-amber-200 hover:bg-amber-50'
+                      }`}
+                    >
+                      <span className="font-bold text-xs text-amber-950 block">Syr. Azithromycin</span>
+                      <span className="text-[10px] text-amber-800">10 mg/kg/day (OD)</span>
+                    </button>
+                  </div>
+
+                  {/* Calculated Result & 1-Click Action */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-white rounded-xl border border-amber-200">
+                    <div className="text-xs">
+                      <span className="text-[10px] text-slate-500 uppercase font-semibold block">
+                        Calculated Paediatric Formulation
+                      </span>
+                      <span data-testid="text-pediatric-computed-dose" className="font-bold text-slate-900 text-xs">
+                        {selectedPediatricDrug === 'AMOXICILLIN' && (
+                          <>
+                            Novamox 250 (Amoxicillin 250mg/5ml) •{' '}
+                            <span className="font-mono text-emerald-700 font-black">
+                              {Number((((Math.round((childWeightKg * 40) / 3)) / 250) * 5).toFixed(1))} ml TID
+                            </span>{' '}
+                            ({Math.round((childWeightKg * 40) / 3)} mg/dose) x 5 days
+                          </>
+                        )}
+                        {selectedPediatricDrug === 'PARACETAMOL' && (
+                          <>
+                            Calpol 250 Pead (Paracetamol 250mg/5ml) •{' '}
+                            <span className="font-mono text-emerald-700 font-black">
+                              {Number((((Math.round(childWeightKg * 15)) / 250) * 5).toFixed(1))} ml SOS
+                            </span>{' '}
+                            ({Math.round(childWeightKg * 15)} mg/dose) every 4-6h
+                          </>
+                        )}
+                        {selectedPediatricDrug === 'AZITHROMYCIN' && (
+                          <>
+                            Zady 200 Susp (Azithromycin 200mg/5ml) •{' '}
+                            <span className="font-mono text-emerald-700 font-black">
+                              {Number((((Math.round(childWeightKg * 10)) / 200) * 5).toFixed(1))} ml OD
+                            </span>{' '}
+                            ({Math.round(childWeightKg * 10)} mg/dose) x 3 days
+                          </>
+                        )}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      data-testid="btn-insert-pediatric-dose"
+                      onClick={handleInsertPediatricDose}
+                      className="px-3.5 py-2 rounded-xl text-xs font-black bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-600/20 flex items-center gap-1.5 transition-all shrink-0"
+                    >
+                      <span>+ Insert Calculated Dose to Rx</span>
+                    </button>
+                  </div>
+
+                  {pediatricToast && (
+                    <div
+                      data-testid="toast-pediatric-dose-added"
+                      className="p-2.5 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold flex items-center justify-between"
+                    >
+                      <span>{pediatricToast}</span>
+                      <button
+                        type="button"
+                        onClick={() => setPediatricToast(null)}
+                        className="text-emerald-700 hover:text-emerald-950 font-mono text-sm ml-2"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Phase 10: Clinical CDS 2.0 High-Risk Drug-Drug Interaction Shield */}
+              {detectedInteractions.map((alert) => (
+                <div
+                  key={alert.id}
+                  data-testid="banner-ddi-alert"
+                  className="p-4 rounded-2xl bg-gradient-to-r from-rose-950 via-slate-950 to-red-950 text-white border-2 border-rose-500 shadow-xl space-y-3 relative overflow-hidden"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-rose-800/60 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-rose-500 text-white animate-pulse">
+                        HIGH CLINICAL RISK • CDS 2.0 SHIELD
+                      </span>
+                      <span className="text-xs font-mono font-bold text-rose-300">
+                        {alert.drugAName} ⚡ {alert.drugBName}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        data-testid="btn-remove-interacting-drug"
+                        onClick={() => handleRemoveInteractingDrug(alert.drugBName)}
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition-colors"
+                      >
+                        ✕ Remove {alert.drugBName}
+                      </button>
+                      <button
+                        type="button"
+                        data-testid="btn-open-override"
+                        onClick={() => setActiveOverridePromptId(alert.id)}
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-colors"
+                      >
+                        Override with Justification
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 data-testid="text-ddi-title" className="text-sm font-bold text-rose-200">
+                      {alert.title}
+                    </h4>
+                    <p className="text-xs text-rose-100/90 mt-1 leading-relaxed">
+                      <span className="font-bold text-white">Mechanism: </span>
+                      {alert.mechanism}
+                    </p>
+                    <p className="text-xs text-amber-200/90 mt-1">
+                      <span className="font-bold text-amber-300">Clinical Guidance: </span>
+                      {alert.clinicalGuidance}
+                    </p>
+                  </div>
+
+                  {activeOverridePromptId === alert.id && (
+                    <div className="p-3 bg-white/10 rounded-xl border border-white/20 space-y-2">
+                      <label className="block text-xs font-bold text-white">
+                        Document Clinical Override Justification (IT Act 2000 Audit Trail):
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          data-testid="input-override-reason"
+                          value={overrideInputText}
+                          onChange={(e) => setOverrideInputText(e.target.value)}
+                          placeholder="e.g. Checked serum K+ 4.2; patient refractory to monotherapy"
+                          className="flex-1 px-3 py-2 rounded-lg text-xs text-slate-900 bg-white border border-rose-300 focus:outline-none"
+                        />
+                        <button
+                          type="button"
+                          data-testid="btn-confirm-override"
+                          onClick={() => handleConfirmDdiOverride(alert.id)}
+                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-xs"
+                        >
+                          Confirm Override
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Overridden DDI Logged Badges */}
+              {overriddenDdiIds.map((id) => (
+                <div
+                  key={id}
+                  data-testid="badge-ddi-overridden"
+                  className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-emerald-700">✓ CDS Warning Overridden:</span>
+                    <span>{DDI_RULES.find((r) => r.id === id)?.title}</span>
+                    <span className="text-[11px] text-slate-600 font-mono italic">
+                      (&quot;{overrideReasons[id]}&quot;)
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-emerald-800 font-mono font-bold bg-emerald-100 px-2 py-0.5 rounded">
+                    Audit Logged
+                  </span>
+                </div>
+              ))}
 
               {/* Autocomplete Input */}
               <div className="relative">
