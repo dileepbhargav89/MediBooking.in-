@@ -4,7 +4,7 @@
       "C:\\Program Files\\nodejs\\node.exe",
       "D:\\Projects\\Startup Project\\MediBooking.in\\node_modules\\@playwright\\test\\cli.js",
       "test",
-      "tests/e2e/46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
+      "tests/e2e/47-phase13-phase14-fhir-lab-hold.spec.ts",
       "--project=webkit"
     ],
     "configFile": "D:\\Projects\\Startup Project\\MediBooking.in\\playwright.config.ts",
@@ -162,20 +162,20 @@
   },
   "suites": [
     {
-      "title": "46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
-      "file": "46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
+      "title": "47-phase13-phase14-fhir-lab-hold.spec.ts",
+      "file": "47-phase13-phase14-fhir-lab-hold.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Phase 11 & Phase 12: Dynamic SaaS Chamber Quota Gating, Instant UPI Payouts, Voice Search & WhatsApp Pass",
-          "file": "46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
+          "title": "Phase 13 & Phase 14: ABDM FHIR R4 Validation & Doctor Chamber Token Parking (Lab/STAT Hold)",
+          "file": "47-phase13-phase14-fhir-lab-hold.spec.ts",
           "line": 6,
           "column": 6,
           "specs": [
             {
-              "title": "46.1 Clinic Admin: Dynamic Chamber Quota Intercept & 1-Click Upgrade to Enterprise",
+              "title": "47.1 Doctor Chamber: Place Token on STAT Diagnostic Lab Hold & Advance Queue",
               "ok": true,
               "tags": [],
               "tests": [
@@ -190,12 +190,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 26444,
+                      "duration": 8082,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T14:53:18.706Z",
+                      "startTime": "2026-11-14T15:29:23.630Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -203,13 +203,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "49cbb8d493c37994bb0d-fcf75cb3b7a7f529016c",
-              "file": "46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
+              "id": "113e73b0f60206deaace-feedb5784bae06798851",
+              "file": "47-phase13-phase14-fhir-lab-hold.spec.ts",
               "line": 9,
               "column": 7
             },
             {
-              "title": "46.2 Super Admin: Instant 24x7 UPI Disbursal to Doctor VPA with NPCI RRN",
+              "title": "47.2 Doctor Chamber: Resume Consultation for Parked Token & Restore Clinical Draft",
               "ok": true,
               "tags": [],
               "tests": [
@@ -224,12 +224,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 31894,
+                      "duration": 10627,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T14:53:45.626Z",
+                      "startTime": "2026-11-14T15:29:32.001Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -237,13 +237,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "49cbb8d493c37994bb0d-ca5cf16dbddc51ab4b35",
-              "file": "46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
-              "line": 59,
+              "id": "113e73b0f60206deaace-3345e669adf88e169f38",
+              "file": "47-phase13-phase14-fhir-lab-hold.spec.ts",
+              "line": 75,
               "column": 7
             },
             {
-              "title": "46.3 Public Discovery: Voice-Assisted Bilingual Symptom Search (Hindi / English)",
+              "title": "47.3 Doctor Chamber: ABDM Milestone M2/M3 FHIR R4 Bundle Validation & Export",
               "ok": true,
               "tags": [],
               "tests": [
@@ -258,12 +258,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 29220,
+                      "duration": 13962,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T14:54:17.543Z",
+                      "startTime": "2026-11-14T15:29:42.652Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -271,13 +271,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "49cbb8d493c37994bb0d-1f7f253e7f4c393bc967",
-              "file": "46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
-              "line": 99,
+              "id": "113e73b0f60206deaace-6cd68b59666ad8e79f04",
+              "file": "47-phase13-phase14-fhir-lab-hold.spec.ts",
+              "line": 122,
               "column": 7
             },
             {
-              "title": "46.4 Patient Portal: 1-Click WhatsApp Live Queue Pass with Instant Delivery Preview",
+              "title": "47.4 Patient Dashboard: Digital Health Vault ABDM FHIR R4 Document Export",
               "ok": true,
               "tags": [],
               "tests": [
@@ -292,12 +292,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 17842,
+                      "duration": 12922,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T14:54:46.787Z",
+                      "startTime": "2026-11-14T15:29:56.644Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -305,9 +305,9 @@
                   "status": "expected"
                 }
               ],
-              "id": "49cbb8d493c37994bb0d-af67f0df62c4b92e3fb7",
-              "file": "46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
-              "line": 137,
+              "id": "113e73b0f60206deaace-ee80c2f864b865c00f42",
+              "file": "47-phase13-phase14-fhir-lab-hold.spec.ts",
+              "line": 172,
               "column": 7
             }
           ]
@@ -317,8 +317,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-14T14:53:17.739Z",
-    "duration": 107063.496,
+    "startTime": "2026-11-14T15:29:22.835Z",
+    "duration": 46842.964,
     "expected": 4,
     "skipped": 0,
     "unexpected": 0,

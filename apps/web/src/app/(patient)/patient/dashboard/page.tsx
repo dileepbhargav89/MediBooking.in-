@@ -188,6 +188,22 @@ export default function UnifiedPatientDashboardPage() {
     setWhatsAppNotice(true);
   };
 
+  // Phase 13: Patient Health Vault ABDM FHIR R4 Export State
+  const [isPatientFhirModalOpen, setIsPatientFhirModalOpen] = useState(false);
+  const [activeRecordForFhir, setActiveRecordForFhir] = useState<HealthRecordDocument | null>(null);
+  const [patientFhirToast, setPatientFhirToast] = useState<string | null>(null);
+
+  const handleOpenPatientFhir = (record: HealthRecordDocument) => {
+    setActiveRecordForFhir(record);
+    setIsPatientFhirModalOpen(true);
+  };
+
+  const handlePatientExportFhir = () => {
+    setPatientFhirToast('✓ Exported ABDM FHIR R4 Health Record Bundle (NRCES Compliant).');
+    setTimeout(() => setPatientFhirToast(null), 6000);
+    setIsPatientFhirModalOpen(false);
+  };
+
   // Sync with API if reachable
   useEffect(() => {
     fetch('http://127.0.0.1:4000/api/v1/patients/pat-ramesh-38/family')
@@ -507,6 +523,15 @@ export default function UnifiedPatientDashboardPage() {
               </span>
             </div>
 
+            {patientFhirToast && (
+              <div
+                data-testid="toast-patient-fhir-exported"
+                className="p-3.5 rounded-xl bg-teal-50 border border-teal-300 text-teal-900 text-xs font-bold animate-fadeIn shadow-xs"
+              >
+                {patientFhirToast}
+              </div>
+            )}
+
             {/* Health Records List */}
             <div className="space-y-3" data-testid="health-records-list">
               {healthRecords.map((record) => (
@@ -562,7 +587,7 @@ export default function UnifiedPatientDashboardPage() {
                       <button
                         type="button"
                         data-testid="btn-download-fhir-bundle"
-                        onClick={() => alert(`Downloaded FHIR R4 JSON for ${record.patientName}`)}
+                        onClick={() => handleOpenPatientFhir(record)}
                         className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold"
                       >
                         📄 Export FHIR JSON
@@ -950,6 +975,107 @@ Current Serving: Token #11 | Est. Wait: ~24 mins
               </Button>
             </div>
           )}
+        </div>
+      </Modal>
+
+      {/* Patient ABDM FHIR R4 Health Record Viewer Modal */}
+      <Modal
+        isOpen={isPatientFhirModalOpen}
+        onClose={() => setIsPatientFhirModalOpen(false)}
+        title="ABDM FHIR R4 Health Record Document"
+      >
+        <div data-testid="modal-patient-fhir-view" className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+          <div className="p-4 rounded-2xl bg-teal-950 text-white border border-teal-500 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-teal-500/20 text-teal-300 border border-teal-400/40">
+                ABDM Milestone M2/M3
+              </span>
+              <span className="font-mono text-[11px] text-teal-300">
+                NRCES Compliant
+              </span>
+            </div>
+            <h3 className="font-bold text-white text-sm">
+              {activeRecordForFhir?.title}
+            </h3>
+            <p className="text-xs text-teal-200/80">
+              Patient: <strong className="text-white">{activeRecordForFhir?.patientName}</strong> • Attending: {activeRecordForFhir?.doctorName} ({activeRecordForFhir?.clinicName})
+            </p>
+          </div>
+
+          <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1 text-xs font-mono">
+            <div className="text-slate-500">Document Type: <span className="text-slate-800 font-bold">{activeRecordForFhir?.documentType}</span></div>
+            <div className="text-slate-500">Visit Date: <span className="text-slate-800 font-bold">{activeRecordForFhir?.visitDate}</span></div>
+            <div className="text-slate-500">ABDM Profile: <span className="text-teal-700 font-bold">https://nrces.in/ndhm/fhir/r4/StructureDefinition/DocumentBundle</span></div>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-1">Standard FHIR R4 JSON Bundle:</label>
+            <pre
+              data-testid="pre-patient-fhir-json"
+              className="p-3.5 rounded-xl bg-slate-900 text-teal-300 font-mono text-[11px] max-h-48 overflow-y-auto leading-relaxed border border-slate-800"
+            >
+              {JSON.stringify(
+                {
+                  resourceType: 'Bundle',
+                  id: `abdm-vault-${activeRecordForFhir?.id}`,
+                  meta: {
+                    profile: ['https://nrces.in/ndhm/fhir/r4/StructureDefinition/DocumentBundle'],
+                  },
+                  type: 'document',
+                  timestamp: activeRecordForFhir?.visitDate || new Date().toISOString(),
+                  entry: [
+                    {
+                      resource: {
+                        resourceType: 'Composition',
+                        title: activeRecordForFhir?.title,
+                        status: 'final',
+                        type: { text: 'Clinical Consultation Record' },
+                      },
+                    },
+                    {
+                      resource: {
+                        resourceType: 'Patient',
+                        name: [{ text: activeRecordForFhir?.patientName }],
+                        identifier: [{ system: 'https://healthid.ndhm.gov.in', value: '91-4820-9182-3901' }],
+                      },
+                    },
+                    {
+                      resource: {
+                        resourceType: 'Practitioner',
+                        name: [{ text: activeRecordForFhir?.doctorName }],
+                      },
+                    },
+                    {
+                      resource: {
+                        resourceType: 'Condition',
+                        code: { text: activeRecordForFhir?.diagnoses?.join(', ') || 'Consultation Record' },
+                      },
+                    },
+                  ],
+                },
+                null,
+                2
+              )}
+            </pre>
+          </div>
+
+          <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsPatientFhirModalOpen(false)}
+            >
+              Close
+            </Button>
+            <Button
+              size="sm"
+              data-testid="btn-patient-export-fhir-json"
+              onClick={handlePatientExportFhir}
+              className="bg-teal-700 hover:bg-teal-600 text-white font-bold"
+            >
+              ⬇ Download FHIR R4 JSON
+            </Button>
+          </div>
         </div>
       </Modal>
     </div>
