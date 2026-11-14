@@ -42,6 +42,9 @@ export interface OnboardClinicWizardDTO {
   }>;
   receptionistName?: string;
   receptionistMobile?: string;
+  receptionistPin?: string;
+  gstin?: string;
+  panNumber?: string;
   upiVpa?: string;
   merchantName?: string;
   openingCashFloat?: number;
@@ -236,6 +239,9 @@ export class ClinicService {
       merchantName: dto.merchantName || dto.name,
       openingCashFloat: dto.openingCashFloat ?? 2000,
       autoPrintReceipt: dto.autoPrintReceipt ?? true,
+      gstin: dto.gstin,
+      panNumber: dto.panNumber,
+      receptionStaffPin: dto.receptionistPin,
     };
 
     this.clinics.set(clinicId, clinic);
@@ -462,6 +468,36 @@ export class ClinicService {
       .trim()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
+  }
+
+  public async generateTestToken(clinicId: string): Promise<{
+    tokenNumber: string;
+    patientName: string;
+    mobile: string;
+    chamberNumber: string;
+    doctorName: string;
+    clinicName: string;
+    feeRupees: number;
+    status: string;
+    timeSlot: string;
+    issuedAt: string;
+  }> {
+    const clinic = this.clinics.get(clinicId);
+    const chambers = this.chambers.get(clinicId) || [];
+    const ch = chambers[0] || { chamberNumber: 'CH-1' };
+    const now = new Date();
+    return {
+      tokenNumber: '#01',
+      patientName: 'Ramesh Kumar (Verification OPD)',
+      mobile: '9826011111',
+      chamberNumber: ch.chamberNumber,
+      doctorName: 'Dr. Rajesh Sharma',
+      clinicName: clinic ? clinic.name : 'MediBooking Polyclinic',
+      feeRupees: 600,
+      status: 'WAITING',
+      timeSlot: `${now.getHours() % 12 || 12}:${String(now.getMinutes()).padStart(2, '0')} ${now.getHours() >= 12 ? 'PM' : 'AM'}`,
+      issuedAt: now.toISOString(),
+    };
   }
 
   public reset(): void {

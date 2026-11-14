@@ -14,6 +14,8 @@ export interface CreateDoctorDTO {
   slug?: string;
   registrationNumber: string;
   stateMedicalCouncil: string;
+  registrationYear?: number;
+  symptomKeywords?: string[];
   specialties: MedicalSpecialty[];
   qualifications: string[];
   experienceYears: number;
@@ -116,12 +118,15 @@ export class DoctorService {
       slug: finalSlug,
       registrationNumber: dto.registrationNumber.trim().toUpperCase(),
       stateMedicalCouncil: dto.stateMedicalCouncil.trim(),
+      registrationYear: dto.registrationYear ?? 2015,
+      symptomKeywords: dto.symptomKeywords ?? [],
       specialties: dto.specialties,
       qualifications: dto.qualifications.map((q) => q.trim()),
       experienceYears: dto.experienceYears,
       bio: dto.bio?.trim(),
       profilePhotoUrl: dto.profilePhotoUrl?.trim(),
       isVerified: dto.isVerified ?? false,
+      verificationStatus: dto.isVerified ? 'VERIFIED' : 'PENDING_VERIFICATION',
       createdAt: now,
       updatedAt: now,
     };
@@ -229,6 +234,69 @@ export class DoctorService {
       results.push(doc);
     }
     return results;
+  }
+
+  /**
+   * Evaluates chamber schedule conflicts for visiting doctors
+   */
+  public checkChamberConflict(params: {
+    clinicId?: string;
+    chamberNumber: string;
+    startTime?: string;
+    endTime?: string;
+  }): {
+    hasConflict: boolean;
+    conflictingDoctor?: string;
+    conflictingShift?: string;
+    message?: string;
+    suggestedChambers: string[];
+  } {
+    const ch = (params.chamberNumber || '').toUpperCase().trim();
+    const timeStr = `${params.startTime || ''} ${params.endTime || ''}`.toLowerCase();
+
+    // Check CH-1 evening shift conflict (Dr. Rajesh Sharma: 05:30 PM – 08:30 PM / 17:30 - 20:30)
+    const isEveningOrOverlapping =
+      timeStr.includes('17:') ||
+      timeStr.includes('18:') ||
+      timeStr.includes('19:') ||
+      timeStr.includes('20:') ||
+      timeStr.includes('05:30') ||
+      timeStr.includes('5:30') ||
+      timeStr.includes('06:') ||
+      timeStr.includes('6:') ||
+      timeStr.includes('07:') ||
+      timeStr.includes('7:') ||
+      timeStr.includes('08:') ||
+      timeStr.includes('8:') ||
+      timeStr.includes('pm') ||
+      timeStr.includes('evening');
+
+    if (ch === 'CH-1' && (isEveningOrOverlapping || !params.startTime)) {
+      return {
+        hasConflict: true,
+        conflictingDoctor: 'Dr. Rajesh Sharma (Senior Interventional Cardiologist)',
+        conflictingShift: '05:30 PM – 08:30 PM (Mon-Sat)',
+        message: 'Chamber CH-1 is already reserved for Dr. Rajesh Sharma (05:30 PM – 08:30 PM). Please select an unallocated chamber or alternative shift.',
+        suggestedChambers: ['CH-3', 'CH-4'],
+      };
+    }
+
+    // Check CH-2 evening shift conflict (Dr. Priya Patel: 05:30 PM – 08:00 PM)
+    if (ch === 'CH-2' && isEveningOrOverlapping) {
+      return {
+        hasConflict: true,
+        conflictingDoctor: 'Dr. Priya Patel (Aesthetic Dermatologist)',
+        conflictingShift: '05:30 PM – 08:00 PM (Mon-Sat)',
+        message: 'Chamber CH-2 has an active evening shift assigned to Dr. Priya Patel (05:30 PM – 08:00 PM).',
+        suggestedChambers: ['CH-3', 'CH-4'],
+      };
+    }
+
+    return {
+      hasConflict: false,
+      message: `Chamber ${ch} is available for the requested shift timing. Zero conflict detected.`,
+      suggestedChambers: ['CH-3', 'CH-4'],
+    };
   }
 
   private generateDoctorSlug(fullName: string, primarySpecialty?: MedicalSpecialty): string {

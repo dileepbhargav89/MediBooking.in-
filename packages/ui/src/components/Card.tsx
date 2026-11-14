@@ -1,6 +1,6 @@
 import React from 'react';
 
-export interface CardProps {
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
   onClick?: () => void;
@@ -12,6 +12,7 @@ export const Card: React.FC<CardProps> = ({
   className = '',
   onClick,
   interactive = false,
+  ...rest
 }) => {
   const baseClasses =
     'bg-white border border-slate-200 rounded-xl shadow-sm text-slate-900 transition-all duration-150';
@@ -23,6 +24,7 @@ export const Card: React.FC<CardProps> = ({
     <div
       onClick={onClick}
       className={`${baseClasses} ${interactiveClasses} ${className}`}
+      {...rest}
     >
       {children}
     </div>

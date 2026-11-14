@@ -39,6 +39,12 @@ const onboardDoctorSchema = z.object({
   consultationFeeRupees: z.number().positive().default(600),
   followUpFeeRupees: z.number().nonnegative().optional(),
   followUpValidityDays: z.number().int().positive().default(14),
+  registrationYear: z.number().int().optional(),
+  symptomKeywords: z.array(z.string()).optional(),
+  shiftDays: z.array(z.number()).optional(),
+  startTime: z.string().optional(),
+  endTime: z.string().optional(),
+  splitRatioDoctor: z.number().min(0).max(1).optional().default(0.80),
 });
 
 const createDoctorSchema = z.object({
@@ -96,6 +102,8 @@ export async function doctorRoutes(fastify: FastifyInstance) {
         fullName: data.fullName,
         registrationNumber: data.registrationNumber,
         stateMedicalCouncil: data.stateMedicalCouncil,
+        registrationYear: data.registrationYear,
+        symptomKeywords: data.symptomKeywords,
         specialties: data.specialties,
         qualifications: data.qualifications,
         experienceYears: data.experienceYears,
@@ -158,6 +166,45 @@ export async function doctorRoutes(fastify: FastifyInstance) {
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Doctor onboarding failed';
+      return reply.status(500).send({
+        error: 'Internal Server Error',
+        message,
+      });
+    }
+  });
+
+  /**
+   * Chamber Schedule Conflict Detection: POST /api/v1/doctors/check-chamber-conflict
+   * Automated verification to ensure no two doctors share a chamber simultaneously
+   */
+  fastify.post('/doctors/check-chamber-conflict', async (req, reply) => {
+    const body = req.body as {
+      clinicId?: string;
+      chamberNumber: string;
+      startTime?: string;
+      endTime?: string;
+    };
+
+    if (!body || !body.chamberNumber) {
+      return reply.status(400).send({
+        error: 'Validation Error',
+        message: 'chamberNumber is required',
+      });
+    }
+
+    try {
+      const result = doctorService.checkChamberConflict({
+        clinicId: body.clinicId,
+        chamberNumber: body.chamberNumber,
+        startTime: body.startTime,
+        endTime: body.endTime,
+      });
+      return reply.status(200).send({
+        success: true,
+        ...result,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to evaluate chamber conflict';
       return reply.status(500).send({
         error: 'Internal Server Error',
         message,

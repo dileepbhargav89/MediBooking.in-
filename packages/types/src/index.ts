@@ -94,6 +94,9 @@ export interface Clinic {
   merchantName?: string;
   openingCashFloat?: number;
   autoPrintReceipt?: boolean;
+  gstin?: string;
+  panNumber?: string;
+  receptionStaffPin?: string;
 }
 
 export interface Chamber {
@@ -112,12 +115,15 @@ export interface DoctorProfile {
   slug: string; // e.g. "dr-rajesh-sharma-cardio"
   registrationNumber: string; // State Medical Council Registration (NMC)
   stateMedicalCouncil: string; // e.g. "Madhya Pradesh Medical Council"
+  registrationYear?: number;
+  symptomKeywords?: string[];
   specialties: MedicalSpecialty[];
   qualifications: string[]; // e.g. ["MBBS", "MD (Medicine)", "DM (Cardiology)"]
   experienceYears: number;
   bio?: string;
   profilePhotoUrl?: string;
   isVerified: boolean;
+  verificationStatus?: 'VERIFIED' | 'PENDING_VERIFICATION' | 'REJECTED';
   createdAt: string;
   updatedAt: string;
 }

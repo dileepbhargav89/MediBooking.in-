@@ -57,6 +57,9 @@ const onboardClinicWizardSchema = z.object({
     .min(1, 'At least 1 chamber must be configured'),
   receptionistName: z.string().min(2).optional(),
   receptionistMobile: z.string().regex(/^[6-9]\d{9}$/, 'Must be a valid 10-digit Indian mobile number').optional(),
+  receptionistPin: z.string().regex(/^\d{4}$/, 'Must be a 4-digit PIN').optional(),
+  gstin: z.string().optional(),
+  panNumber: z.string().optional(),
   upiVpa: z.string().regex(/^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/, 'Must be a valid UPI VPA handle (e.g. clinic@icici)').optional(),
   merchantName: z.string().optional(),
   openingCashFloat: z.number().nonnegative().optional().default(2000),
@@ -86,6 +89,28 @@ export async function clinicRoutes(fastify: FastifyInstance) {
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to onboard clinic';
+      return reply.status(500).send({
+        error: 'Internal Server Error',
+        message,
+      });
+    }
+  });
+
+  /**
+   * One-Click Verification Test Token: POST /api/v1/clinics/:clinicId/test-token
+   * Generates a sample token #01 for instant cashiering, TV display, and thermal printing verification
+   */
+  fastify.post('/clinics/:clinicId/test-token', async (req, reply) => {
+    const { clinicId } = req.params as { clinicId: string };
+    try {
+      const testToken = await clinicService.generateTestToken(clinicId);
+      return reply.status(200).send({
+        success: true,
+        message: 'Sample test token generated successfully for verification',
+        token: testToken,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to generate test token';
       return reply.status(500).send({
         error: 'Internal Server Error',
         message,
