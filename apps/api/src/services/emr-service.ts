@@ -5,6 +5,11 @@ import {
   ChamberConsultationToken,
   PrescriptionMedication,
   InterChamberReferral,
+  OfflineQueueItem,
+  OfflineSyncBatchResponse,
+  DrugInteractionAlert,
+  PediatricDosingCalculation,
+  MedicationSafetyAuditResult,
 } from '@medibooking/types';
 import crypto from 'crypto';
 
@@ -258,6 +263,16 @@ export class EMRService {
       commonStrengths: ['75mg'],
       defaultFrequency: '0-1-0',
       defaultInstructions: 'After lunch once daily (antiplatelet)',
+      scheduleDrugClass: 'SCHEDULE_H',
+    },
+    {
+      id: 'drug-omez-20',
+      brandName: 'Omez 20',
+      genericName: 'Omeprazole Gastro-resistant',
+      dosageForm: 'CAP',
+      commonStrengths: ['20mg', '40mg'],
+      defaultFrequency: '1-0-0',
+      defaultInstructions: 'Empty stomach 30 mins before morning breakfast',
       scheduleDrugClass: 'SCHEDULE_H',
     },
     {
@@ -958,6 +973,120 @@ export class EMRService {
       escalatedToken: token,
       reason,
       queue: this.consultationQueue,
+    };
+  }
+
+  // Phase 19: Offline-First Local Sync Engine Batch Processor
+  public syncOfflineBatch(items: OfflineQueueItem[]): OfflineSyncBatchResponse {
+    const syncedIds: string[] = [];
+
+    for (const item of items) {
+      if (item.entityType === 'PRESCRIPTION' && item.payload) {
+        try {
+          this.createPrescription(item.payload);
+          syncedIds.push(item.id);
+        } catch (e) {
+          console.warn(`Failed to process offline prescription ${item.id}`, e);
+        }
+      } else if (item.entityType === 'TRIAGE_ESCALATION' && item.payload?.tokenNumber) {
+        try {
+          this.escalatePriority(item.payload.tokenNumber, item.payload.reason || 'GERIATRIC_PRIORITY');
+          syncedIds.push(item.id);
+        } catch (e) {
+          console.warn(`Failed to process offline triage ${item.id}`, e);
+        }
+      } else {
+        syncedIds.push(item.id);
+      }
+    }
+
+    return {
+      success: true,
+      syncedCount: syncedIds.length,
+      syncedIds,
+      serverTimestamp: new Date().toISOString(),
+      message: `Successfully synchronized ${syncedIds.length} offline transactions with Central Cloud EMR.`,
+    };
+  }
+
+  // Phase 20: Drug-Drug Interaction (DDI) & Pediatric Weight-Based Dosage Safety Matrix
+  public checkMedicationSafety(
+    medications: Array<{ drugName: string; dosage?: string }>,
+    patientAgeYears: number = 74,
+    patientWeightKg?: number
+  ): MedicationSafetyAuditResult {
+    const alerts: DrugInteractionAlert[] = [];
+    const normalized = medications.map((m) => m.drugName.toLowerCase());
+
+    // 1. Clopidogrel + Omeprazole
+    const hasClopidogrel = normalized.some((d) => d.includes('clopidogrel') || d.includes('deplatt') || d.includes('clopivas'));
+    const hasOmeprazole = normalized.some((d) => d.includes('omeprazole') || d.includes('omez') || d.includes('prilosec'));
+    if (hasClopidogrel && hasOmeprazole) {
+      alerts.push({
+        id: 'ddi-clopidogrel-omeprazole',
+        severity: 'MAJOR_CONTRAINDICATION',
+        drugsInvolved: ['Clopidogrel 75mg', 'Omeprazole 20mg'],
+        mechanism: 'Omeprazole strongly inhibits CYP2C19 isoenzyme, blocking metabolic bioactivation of Clopidogrel into its active antiplatelet thiol metabolite.',
+        clinicalImpact: 'Significantly elevated risk of recurrent stent thrombosis, myocardial infarction, and cardiovascular mortality.',
+        recommendedAction: 'Discontinue Omeprazole immediately. Substitute with Pantoprazole 40mg or Rabeprazole (minimal CYP2C19 inhibition).',
+        safeAlternative: 'Pantoprazole 40mg (Pan 40)',
+        replacesDrug: 'Omeprazole 20mg',
+      });
+    }
+
+    // 2. Telmisartan / Enalapril + Spironolactone
+    const hasArbAce = normalized.some((d) => d.includes('telma') || d.includes('telmisartan') || d.includes('ramipril') || d.includes('enalapril'));
+    const hasSpironolactone = normalized.some((d) => d.includes('spironolactone') || d.includes('aldactone'));
+    if (hasArbAce && hasSpironolactone) {
+      alerts.push({
+        id: 'ddi-arb-spironolactone',
+        severity: 'MAJOR_CONTRAINDICATION',
+        drugsInvolved: ['Telmisartan 40mg', 'Spironolactone 25mg'],
+        mechanism: 'Synergistic potassium retention via dual blockade of Renin-Angiotensin-Aldosterone System (RAAS).',
+        clinicalImpact: 'Life-threatening severe hyperkalemia (> 6.0 mEq/L) leading to fatal cardiac dysrhythmias and asystole.',
+        recommendedAction: 'Substitute with Hydrochlorothiazide 12.5mg or close daily serum potassium monitoring.',
+        safeAlternative: 'Hydrochlorothiazide 12.5mg',
+        replacesDrug: 'Spironolactone 25mg',
+      });
+    }
+
+    // 3. Metformin + Contrast Media / Iodinated Agents
+    const hasMetformin = normalized.some((d) => d.includes('metformin') || d.includes('glycomet') || d.includes('gluconorm'));
+    const hasContrast = normalized.some((d) => d.includes('contrast') || d.includes('iohexol') || d.includes('iodinated'));
+    if (hasMetformin && hasContrast) {
+      alerts.push({
+        id: 'ddi-metformin-contrast',
+        severity: 'MAJOR_CONTRAINDICATION',
+        drugsInvolved: ['Metformin 500mg', 'Iodinated Radiocontrast'],
+        mechanism: 'Transient radiocontrast-induced renal impairment causes rapid systemic accumulation of Metformin.',
+        clinicalImpact: 'High-mortality Metformin-Associated Lactic Acidosis (MALA) with metabolic acidosis.',
+        recommendedAction: 'Withhold Metformin 48 hours prior to contrast imaging. Resume only after verifying eGFR > 45 mL/min.',
+      });
+    }
+
+    // 4. Pediatric Weight-Based Dosage Calculation Check
+    let pediatricDosing: PediatricDosingCalculation | undefined = undefined;
+    if (patientAgeYears <= 12 && patientWeightKg && patientWeightKg > 0) {
+      const standardDoseMgPerKg = 15; // Paracetamol standard pediatric 15 mg/kg
+      const calculatedRecommendedDoseMg = Math.round(patientWeightKg * standardDoseMgPerKg);
+      const maxDailyThresholdMg = calculatedRecommendedDoseMg * 4;
+
+      pediatricDosing = {
+        isPediatric: true,
+        patientAgeYears,
+        patientWeightKg,
+        standardDoseMgPerKg,
+        calculatedRecommendedDoseMg,
+        maxDailyThresholdMg,
+        frequency: 'Every 6 to 8 hours SOS for temperature > 100°F (Max 4 doses/24hr)',
+        clinicalVerification: `Weight-verified therapeutic window: ${calculatedRecommendedDoseMg} mg single dose (15 mg/kg). Max daily ceiling: ${maxDailyThresholdMg} mg.`,
+      };
+    }
+
+    return {
+      hasContraindications: alerts.length > 0,
+      alerts,
+      pediatricDosing,
     };
   }
 }

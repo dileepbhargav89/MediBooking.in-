@@ -1563,6 +1563,53 @@ export interface InterChamberReferral {
   status: 'PENDING_INTAKE' | 'ACCEPTED' | 'COMPLETED';
 }
 
+// Phase 19: Offline-First Local Sync Engine
+export interface OfflineQueueItem {
+  id: string;
+  entityType: 'PRESCRIPTION' | 'INTAKE' | 'TRIAGE_ESCALATION';
+  payload: any;
+  createdAt: string;
+  status: 'QUEUED' | 'SYNCED' | 'FAILED';
+  retryCount?: number;
+}
+
+export interface OfflineSyncBatchResponse {
+  success: boolean;
+  syncedCount: number;
+  syncedIds: string[];
+  serverTimestamp: string;
+  message: string;
+}
+
+// Phase 20: Drug-Drug Interaction & Pediatric Dosing Safety Matrix
+export interface DrugInteractionAlert {
+  id: string;
+  severity: 'MAJOR_CONTRAINDICATION' | 'MODERATE_PRECAUTION';
+  drugsInvolved: [string, string];
+  mechanism: string;
+  clinicalImpact: string;
+  recommendedAction: string;
+  safeAlternative?: string;
+  replacesDrug?: string;
+}
+
+export interface PediatricDosingCalculation {
+  isPediatric: boolean;
+  patientAgeYears: number;
+  patientWeightKg: number;
+  standardDoseMgPerKg: number;
+  calculatedRecommendedDoseMg: number;
+  maxDailyThresholdMg: number;
+  frequency: string;
+  clinicalVerification: string;
+}
+
+export interface MedicationSafetyAuditResult {
+  hasContraindications: boolean;
+  alerts: DrugInteractionAlert[];
+  pediatricDosing?: PediatricDosingCalculation;
+}
+
 export * from './auth-edge';
 
 

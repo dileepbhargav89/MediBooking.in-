@@ -4,7 +4,7 @@
       "C:\\Program Files\\nodejs\\node.exe",
       "D:\\Projects\\Startup Project\\MediBooking.in\\node_modules\\@playwright\\test\\cli.js",
       "test",
-      "tests/e2e/49-phase17-phase18-audio-priority-triage.spec.ts",
+      "tests/e2e/50-phase19-phase20-offline-sync-ddi.spec.ts",
       "--project=webkit"
     ],
     "configFile": "D:\\Projects\\Startup Project\\MediBooking.in\\playwright.config.ts",
@@ -162,20 +162,20 @@
   },
   "suites": [
     {
-      "title": "49-phase17-phase18-audio-priority-triage.spec.ts",
-      "file": "49-phase17-phase18-audio-priority-triage.spec.ts",
+      "title": "50-phase19-phase20-offline-sync-ddi.spec.ts",
+      "file": "50-phase19-phase20-offline-sync-ddi.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Phase 17 & Phase 18: Multi-Language Regional Audio Rx & Smart Geriatric/Infant Priority Triage Escalation",
-          "file": "49-phase17-phase18-audio-priority-triage.spec.ts",
+          "title": "Phase 19 & Phase 20: Offline-First Local Sync Engine & Real-Time DDI / Pediatric Dosage Safety Shield",
+          "file": "50-phase19-phase20-offline-sync-ddi.spec.ts",
           "line": 6,
           "column": 6,
           "specs": [
             {
-              "title": "49.1 Doctor Chamber: Regional Multi-Language Audio Prescription Synthesis & WhatsApp Dispatch",
+              "title": "50.1 Doctor Chamber: Offline-First Local Storage Engine & Simulated Network Drop Recovery",
               "ok": true,
               "tags": [],
               "tests": [
@@ -190,12 +190,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 11444,
+                      "duration": 5061,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T16:00:57.027Z",
+                      "startTime": "2026-11-14T17:43:58.580Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -203,13 +203,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "72cfd222b71a2ccf6d38-fc8025610f5e75aa1c8f",
-              "file": "49-phase17-phase18-audio-priority-triage.spec.ts",
+              "id": "6884f7427a5ee2715109-26705a9af70d7a5696c0",
+              "file": "50-phase19-phase20-offline-sync-ddi.spec.ts",
               "line": 14,
               "column": 7
             },
             {
-              "title": "49.2 Doctor Chamber: Smart Geriatric & Infant Priority Queue Triage Escalation",
+              "title": "50.2 Doctor Chamber: Real-Time Drug-Drug Interaction (DDI) Detection & 1-Click Safe Substitution",
               "ok": true,
               "tags": [],
               "tests": [
@@ -224,12 +224,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 10265,
+                      "duration": 5585,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T16:01:08.836Z",
+                      "startTime": "2026-11-14T17:44:03.924Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -237,13 +237,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "72cfd222b71a2ccf6d38-f7e631dfcb50e18d2add",
-              "file": "49-phase17-phase18-audio-priority-triage.spec.ts",
-              "line": 90,
+              "id": "6884f7427a5ee2715109-5140cee331619420960f",
+              "file": "50-phase19-phase20-offline-sync-ddi.spec.ts",
+              "line": 75,
               "column": 7
             },
             {
-              "title": "49.3 Reception Desk: Smart Geriatric & Infant Triage Escalation Flagging",
+              "title": "50.3 Doctor Chamber: Pediatric Weight-Based Dosage Safety Window Verification",
               "ok": true,
               "tags": [],
               "tests": [
@@ -258,12 +258,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 11384,
+                      "duration": 6971,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T16:01:19.126Z",
+                      "startTime": "2026-11-14T17:44:09.522Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -271,13 +271,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "72cfd222b71a2ccf6d38-9b7ad8f4d7ebbc774d4f",
-              "file": "49-phase17-phase18-audio-priority-triage.spec.ts",
-              "line": 143,
+              "id": "6884f7427a5ee2715109-63b6230f31865f0f6a50",
+              "file": "50-phase19-phase20-offline-sync-ddi.spec.ts",
+              "line": 129,
               "column": 7
             },
             {
-              "title": "49.4 Patient Unified Dashboard: Health Vault Regional Audio Prescription Guide",
+              "title": "50.4 Doctor Chamber: Complete & Sign Consultation with Full Clinical Safety Governance",
               "ok": true,
               "tags": [],
               "tests": [
@@ -292,12 +292,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 29419,
+                      "duration": 6632,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T16:01:30.567Z",
+                      "startTime": "2026-11-14T17:44:16.508Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -305,9 +305,9 @@
                   "status": "expected"
                 }
               ],
-              "id": "72cfd222b71a2ccf6d38-8263f9ebc5cd7ce79fe4",
-              "file": "49-phase17-phase18-audio-priority-triage.spec.ts",
-              "line": 175,
+              "id": "6884f7427a5ee2715109-537573d31c424541c0f6",
+              "file": "50-phase19-phase20-offline-sync-ddi.spec.ts",
+              "line": 168,
               "column": 7
             }
           ]
@@ -317,8 +317,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-14T16:00:56.124Z",
-    "duration": 64038.201,
+    "startTime": "2026-11-14T17:43:57.997Z",
+    "duration": 25218.607,
     "expected": 4,
     "skipped": 0,
     "unexpected": 0,

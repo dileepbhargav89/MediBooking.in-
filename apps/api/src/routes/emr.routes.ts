@@ -156,5 +156,32 @@ export const emrRoutes: FastifyPluginAsync = async (server: FastifyInstance) => 
     const result = emrService.escalatePriority(tokenNumber, reason);
     return reply.send(result);
   });
+
+  // Phase 19: Offline-First Local Sync Engine Batch Ingestion
+  server.post<{
+    Body: {
+      items: any[];
+    };
+  }>('/emr/sync/batch', async (request, reply) => {
+    const { items } = request.body || { items: [] };
+    const result = emrService.syncOfflineBatch(items);
+    return reply.send(result);
+  });
+
+  // Phase 20: Real-Time Drug-Drug Interaction & Pediatric Dosing Safety Matrix
+  server.post<{
+    Body: {
+      medications: Array<{ drugName: string; dosage?: string }>;
+      patientAgeYears?: number;
+      patientWeightKg?: number;
+    };
+  }>('/emr/safety/check-interactions', async (request, reply) => {
+    const { medications, patientAgeYears, patientWeightKg } = request.body || { medications: [] };
+    const result = emrService.checkMedicationSafety(medications, patientAgeYears, patientWeightKg);
+    return reply.send({
+      success: true,
+      ...result,
+    });
+  });
 };
 
