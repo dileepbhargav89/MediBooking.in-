@@ -668,7 +668,7 @@ export default function DoctorPrescriptionComposerPage() {
           {nextQueuedToken && (
             <div
               data-testid="banner-next-patient-peek"
-              className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-50 border border-teal-200 text-xs text-teal-900 shrink-0 font-semibold"
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-teal-50 border border-teal-200 text-xs text-teal-900 shrink-0 font-semibold"
             >
               <span className="text-teal-700 font-bold">⏭️ Next:</span>
               <span className="font-mono font-bold text-teal-950">#{nextQueuedToken.tokenNumber}</span>
