@@ -29,3 +29,4 @@ test.describe('Capture Current Admin & Super Admin Portals', () => {
     await page.screenshot({ path: path.join(screenshotDir, 'qa-20-current-super-admin-portal.png'), fullPage: true });
   });
 });
+

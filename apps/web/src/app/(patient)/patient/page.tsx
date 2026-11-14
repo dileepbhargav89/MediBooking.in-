@@ -210,6 +210,30 @@ export default function PatientQueueTrackerPage() {
             </div>
           </Link>
 
+          {/* Navigation Tabs */}
+          <div className="flex items-center gap-1.5 text-xs font-bold">
+            <Link
+              href="/patient"
+              className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white shadow-xs"
+            >
+              Queue Tracker
+            </Link>
+            <Link
+              href="/patient/family"
+              className="px-2.5 py-1 rounded-lg text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
+              data-testid="header-nav-family"
+            >
+              Family
+            </Link>
+            <Link
+              href="/patient/health-vault"
+              className="px-2.5 py-1 rounded-lg text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
+              data-testid="header-nav-vault"
+            >
+              Health Vault
+            </Link>
+          </div>
+
           <div className="flex items-center gap-2">
             <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />

@@ -39,3 +39,4 @@ test.describe('Capture Phase 1 Visual Artifacts', () => {
     });
   });
 });
+

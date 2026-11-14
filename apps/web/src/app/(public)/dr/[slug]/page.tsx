@@ -66,20 +66,58 @@ export default function DoctorPublicProfilePage({
     }
   }, [slug, doctorInfo]);
 
+  const FAMILY_PRESETS = [
+    { id: 'self', label: '👤 Self (Ramesh)', name: 'Ramesh Kumar', age: '45', gender: 'MALE' as const, symptoms: 'Routine checkup, BP monitor' },
+    { id: 'father', label: '👴 Father (Kailash)', name: 'Kailash Prasad', age: '74', gender: 'MALE' as const, symptoms: 'Type 2 Diabetes follow-up, BP review' },
+    { id: 'mother', label: '👵 Mother (Savitri)', name: 'Savitri Devi', age: '70', gender: 'FEMALE' as const, symptoms: 'Knee joint pain & mobility check' },
+    { id: 'daughter', label: '👧 Daughter (Pooja)', name: 'Pooja Kumar', age: '14', gender: 'FEMALE' as const, symptoms: 'Seasonal allergic cough' },
+  ];
+
+  const [selectedFamilyId, setSelectedFamilyId] = useState('self');
   const [selectedDateIndex, setSelectedDateIndex] = useState(0);
   const [selectedSlot, setSelectedSlot] = useState<SlotItem | null>(null);
   const [lockCountdown, setLockCountdown] = useState<number>(300); // 5 minutes
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [patientName, setPatientName] = useState('');
-  const [patientMobile, setPatientMobile] = useState('');
-  const [patientAge, setPatientAge] = useState<string>('48');
+  const [patientName, setPatientName] = useState('Ramesh Kumar');
+  const [patientMobile, setPatientMobile] = useState('9826011111');
+  const [patientAge, setPatientAge] = useState<string>('45');
   const [patientGender, setPatientGender] = useState<'MALE' | 'FEMALE' | 'OTHER'>('MALE');
-  const [symptoms, setSymptoms] = useState('');
+  const [symptoms, setSymptoms] = useState('Routine checkup, BP monitor');
   const [dpdpConsent, setDpdpConsent] = useState(true);
   const [bookingConfirmed, setBookingConfirmed] = useState<boolean>(false);
   const [allocatedToken, setAllocatedToken] = useState<number>(14);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Sync family prefill if opened with query params
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const nameParam = params.get('name');
+      const ageParam = params.get('age');
+      const genderParam = params.get('gender') as 'MALE' | 'FEMALE' | 'OTHER' | null;
+      const condParam = params.get('conditions');
+
+      if (nameParam) {
+        setPatientName(nameParam);
+        if (nameParam.toLowerCase().includes('kailash')) setSelectedFamilyId('father');
+        else if (nameParam.toLowerCase().includes('savitri')) setSelectedFamilyId('mother');
+        else if (nameParam.toLowerCase().includes('pooja')) setSelectedFamilyId('daughter');
+        else setSelectedFamilyId('custom');
+      }
+      if (ageParam) setPatientAge(ageParam);
+      if (genderParam) setPatientGender(genderParam);
+      if (condParam) setSymptoms(condParam);
+    }
+  }, []);
+
+  const selectFamilyMember = (fam: typeof FAMILY_PRESETS[0]) => {
+    setSelectedFamilyId(fam.id);
+    setPatientName(fam.name);
+    setPatientAge(fam.age);
+    setPatientGender(fam.gender);
+    setSymptoms(fam.symptoms);
+  };
 
   // Generate next 7 dates
   const dates = Array.from({ length: 7 }, (_, i) => {
@@ -422,6 +460,7 @@ export default function DoctorPublicProfilePage({
               {morningSlots.map((slot) => (
                 <button
                   key={slot.id}
+                  data-testid={`slot-btn-${slot.id}`}
                   disabled={!slot.isAvailable || slot.isLocked}
                   onClick={() => handleSelectSlot(slot)}
                   className={`py-2.5 px-3 rounded-xl border text-xs font-bold font-mono tabular-nums transition-all ${
@@ -452,6 +491,7 @@ export default function DoctorPublicProfilePage({
               {eveningSlots.map((slot) => (
                 <button
                   key={slot.id}
+                  data-testid={`slot-btn-${slot.id}`}
                   disabled={!slot.isAvailable || slot.isLocked}
                   onClick={() => handleSelectSlot(slot)}
                   className={`py-2.5 px-3 rounded-xl border text-xs font-bold font-mono tabular-nums transition-all ${
@@ -503,6 +543,41 @@ export default function DoctorPublicProfilePage({
             )}
 
             <div className="space-y-3">
+              {/* Family Dependent Selector */}
+              <div className="p-3 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl space-y-2" data-testid="family-member-selector">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-emerald-950 uppercase tracking-wider">
+                    Booking For / यह अपॉइंटमेंट किसके लिए है?
+                  </span>
+                  <Link href="/patient/family" className="text-[10px] text-emerald-700 font-bold hover:underline">
+                    Manage Family ⚙️
+                  </Link>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {FAMILY_PRESETS.map((fam) => {
+                    const isSelected = selectedFamilyId === fam.id;
+                    return (
+                      <button
+                        key={fam.id}
+                        type="button"
+                        onClick={() => selectFamilyMember(fam)}
+                        className={`text-xs px-2.5 py-1 rounded-xl font-bold transition-all ${
+                          isSelected
+                            ? 'bg-emerald-600 text-white shadow-xs'
+                            : 'bg-white hover:bg-emerald-50 text-slate-700 border border-slate-200'
+                        }`}
+                        data-testid={`btn-book-for-${fam.id}`}
+                      >
+                        {fam.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="text-[10px] text-emerald-800 font-medium">
+                  Pre-consultation letterhead will be prepared under {patientName || 'selected dependent'}&apos;s profile.
+                </div>
+              </div>
+
               <Input
                 label="Patient Full Name (मरीज़ का पूरा नाम)"
                 placeholder="e.g. Ramesh Kumar"
@@ -684,7 +759,7 @@ export default function DoctorPublicProfilePage({
             </div>
 
             <div className="p-4 rounded-2xl bg-white/80 border border-emerald-100 text-left text-xs space-y-2 shadow-xs backdrop-blur-sm">
-              <div className="flex justify-between">
+              <div className="flex justify-between" data-testid="confirmed-patient-family">
                 <span className="text-slate-500">Patient:</span>
                 <span className="font-bold text-slate-900">
                   {patientName} ({patientAge} / {patientGender === 'MALE' ? 'M' : patientGender === 'FEMALE' ? 'F' : 'O'})

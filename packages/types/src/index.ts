@@ -1262,6 +1262,75 @@ export interface CloseShiftDTO {
   supervisorOverride?: boolean;
 }
 
+// ==========================================
+// 12. PHASE 3: FAMILY PROFILES & ABDM ABHA
+// ==========================================
+
+export type FamilyRelationship = 'SELF' | 'SPOUSE' | 'PARENT' | 'CHILD' | 'OTHER';
+
+export interface FamilyMember {
+  id: string;
+  primaryMobile: string;
+  fullName: string;
+  relationship: FamilyRelationship;
+  gender: 'MALE' | 'FEMALE' | 'OTHER';
+  age: number;
+  dob?: string;
+  bloodGroup?: string;
+  chronicConditions: string[];
+  knownAllergies?: string[];
+  abhaId?: string;
+  abhaAddress?: string;
+  isAbhaLinked: boolean;
+  createdAt: string;
+}
+
+export interface HealthRecordDocument {
+  id: string;
+  patientId: string;
+  patientName: string;
+  relationship: string;
+  clinicId: string;
+  clinicName: string;
+  doctorId: string;
+  doctorName: string;
+  specialty: string;
+  chamberNumber: string;
+  recordType: 'PRESCRIPTION' | 'LAB_REPORT' | 'VITALS_SUMMARY';
+  title: string;
+  diagnoses: string[];
+  prescriptions: Array<{
+    medicine: string;
+    dosage: string;
+    duration: string;
+    instructions: string;
+  }>;
+  vitals?: {
+    bpSystolic?: number;
+    bpDiastolic?: number;
+    pulseRate?: number;
+    bloodSugar?: number;
+  };
+  documentUrl?: string;
+  fhirBundleId?: string;
+  isAbhaLinked: boolean;
+  date: string;
+}
+
+export interface AbhaProfile {
+  abhaNumber: string;
+  abhaAddress: string;
+  fullName: string;
+  gender: 'MALE' | 'FEMALE' | 'OTHER';
+  dob: string;
+  yearOfBirth: number;
+  state: string;
+  district: string;
+  status: 'ACTIVE_VERIFIED' | 'PENDING_LINKING';
+  qrCodeData: string;
+  healthRewardsCredits: number;
+}
+
 export * from './auth-edge';
 
 

@@ -43,3 +43,4 @@ test.describe('Capture Sidebar Views Detail', () => {
     await page.screenshot({ path: path.join(screenshotDir, 'qa-26-superadmin-nmc-desk.png'), fullPage: true });
   });
 });
+
