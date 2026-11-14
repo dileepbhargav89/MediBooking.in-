@@ -508,6 +508,185 @@ export default function DoctorPublicProfilePage({
             </div>
           </div>
         </div>
+
+        {/* Phase 5: Patient Feedback & MediBooking Prime Reputation Hub */}
+        <div
+          className="bg-white/85 backdrop-blur-xl border border-emerald-100 rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-950/5 space-y-6"
+          data-testid="doctor-reviews-section"
+        >
+          {/* Header & MediBooking Prime Badge */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="px-3 py-0.5 rounded-full bg-amber-100 text-amber-900 font-extrabold text-xs border border-amber-300 flex items-center gap-1">
+                  ⭐ 4.9 (48 Verified Patient Stories)
+                </span>
+                <span
+                  className="px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-extrabold text-xs border border-emerald-300 flex items-center gap-1"
+                  data-testid="badge-prime-accredited"
+                >
+                  🏅 MediBooking Prime Polyclinic
+                </span>
+              </div>
+              <h2 className="text-xl font-black text-slate-900 tracking-tight">
+                Verified Patient Experiences & Bedside Manner
+              </h2>
+              <p className="text-xs text-slate-500">
+                100% verified appointments from Bhopal City Care Polyclinic • Zero anonymous or unverified reviews
+              </p>
+            </div>
+
+            <Link href="/patient/review">
+              <Button
+                size="sm"
+                data-testid="btn-leave-review"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md"
+              >
+                ✍️ Rate Your Consultation
+              </Button>
+            </Link>
+          </div>
+
+          {/* Metric Cards: Wait Time, Recommendation & Bedside Manner */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-100">
+              <span className="text-[11px] font-bold text-emerald-900 uppercase tracking-wider block">
+                Wait Time Accuracy
+              </span>
+              <span className="text-2xl font-black text-slate-900 mt-1 block">94%</span>
+              <p className="text-[11px] text-slate-600 mt-0.5">
+                Consulted within &lt; 15 minutes of token announcement
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-teal-50/60 border border-teal-100">
+              <span className="text-[11px] font-bold text-teal-900 uppercase tracking-wider block">
+                Family Recommendation
+              </span>
+              <span className="text-2xl font-black text-slate-900 mt-1 block">98%</span>
+              <p className="text-[11px] text-slate-600 mt-0.5">
+                Caregivers recommend Dr. Sharma for elderly family members
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-100">
+              <span className="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">
+                Doctor Bedside Manner
+              </span>
+              <span className="text-2xl font-black text-slate-900 mt-1 block">4.9 / 5.0</span>
+              <p className="text-[11px] text-slate-600 mt-0.5">
+                Praised for patient listening & clear bilingual advice
+              </p>
+            </div>
+          </div>
+
+          {/* Top Feedback Tags */}
+          <div className="space-y-2">
+            <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+              What Bhopal Patients Value Most:
+            </span>
+            <div className="flex flex-wrap gap-2 text-xs">
+              <span className="px-3 py-1 rounded-xl bg-slate-100 text-slate-800 font-semibold border border-slate-200">
+                ✓ Doctor Listened Carefully (46)
+              </span>
+              <span className="px-3 py-1 rounded-xl bg-slate-100 text-slate-800 font-semibold border border-slate-200">
+                ✓ Minimal Wait Time &lt; 15 mins (42)
+              </span>
+              <span className="px-3 py-1 rounded-xl bg-slate-100 text-slate-800 font-semibold border border-slate-200">
+                ✓ Bilingual Instructions (Hindi/English) (39)
+              </span>
+              <span className="px-3 py-1 rounded-xl bg-slate-100 text-slate-800 font-semibold border border-slate-200">
+                ✓ Clean & Sanitized Clinic (37)
+              </span>
+            </div>
+          </div>
+
+          {/* Patient Reviews Feed */}
+          <div className="space-y-4 pt-2 border-t border-slate-100" data-testid="patient-reviews-feed">
+            {/* Review 1: Ramesh Kumar */}
+            <div
+              className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-3"
+              data-testid="review-card-rev-sharma-01"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-sm text-slate-900">
+                      Ramesh Kumar (for Kailash Prasad)
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                      ✓ Verified Consultation Token #10
+                    </span>
+                  </div>
+                  <span className="text-xs text-slate-500 font-medium">Bhopal • Visited Today</span>
+                </div>
+                <div className="text-amber-400 font-bold text-sm">★★★★★</div>
+              </div>
+
+              <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                "डॉक्टर साहब ने मेरे पिताजी (कैलाश जी) की डायबिटीज़ और बीपी की स्थिति बहुत धैर्य से समझाई। व्हाट्सएप पर पर्ची तुरंत मिल गई। Highly recommended for senior citizens."
+              </p>
+
+              <div className="flex flex-wrap gap-1.5 text-[11px]">
+                <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
+                  Doctor Listened Carefully
+                </span>
+                <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
+                  Minimal Wait Time
+                </span>
+                <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
+                  Bilingual Instructions
+                </span>
+              </div>
+
+              {/* Verified Doctor Reply */}
+              <div
+                className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl text-xs space-y-1"
+                data-testid="doctor-reply-box"
+              >
+                <div className="flex items-center gap-1.5 font-bold text-emerald-900">
+                  <span>🩺</span>
+                  <span>Dr. Rajesh Sharma (Verified Doctor Reply):</span>
+                </div>
+                <p className="text-emerald-800 text-[11px] leading-relaxed">
+                  "Thank you Ramesh ji. Please ensure Kailash ji takes his morning BP medicine consistently and walks 30 minutes daily."
+                </p>
+              </div>
+            </div>
+
+            {/* Review 2: Sunita Verma */}
+            <div
+              className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-3"
+              data-testid="review-card-rev-sharma-02"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-sm text-slate-900">Sunita Verma</span>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                      ✓ Verified Consultation Token #9
+                    </span>
+                  </div>
+                  <span className="text-xs text-slate-500 font-medium">Bhopal • Visited Today</span>
+                </div>
+                <div className="text-amber-400 font-bold text-sm">★★★★★</div>
+              </div>
+
+              <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                "Very thorough checkup. Front desk receptionist Sunita took vitals accurately before entering the chamber. No waiting at all."
+              </p>
+
+              <div className="flex flex-wrap gap-1.5 text-[11px]">
+                <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
+                  Polite Staff
+                </span>
+                <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
+                  Clear Prescription
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
 
       {/* Booking Confirmation / Slot Lock Modal (Glassmorphic) */}

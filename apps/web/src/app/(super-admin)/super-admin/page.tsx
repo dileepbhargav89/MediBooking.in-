@@ -1,10 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { logout } from '../../../lib/auth';
 import { Button } from '@medibooking/ui';
+import {
+  NetworkOPDMetrics,
+  DoctorRevenueShareRecord,
+  ChamberUtilizationHeatmap,
+  Section194JQuarterlySummary,
+} from '@medibooking/types';
 
 interface PendingDoctorReview {
   id: string;
@@ -211,7 +217,162 @@ const SAMPLE_PATIENTS: PlatformPatientRecord[] = [
   },
 ];
 
-type SuperAdminTab = 'OVERVIEW' | 'NMC_DESK' | 'TENANTS' | 'PATIENTS_DIRECTORY' | 'DPDP_AUDIT' | 'TELEMETRY';
+const INITIAL_NETWORK_METRICS: NetworkOPDMetrics = {
+  totalClinicsLive: 10,
+  activeChambersCount: 32,
+  totalChambersCount: 37,
+  totalConsultationsToday: 248,
+  avgWaitTimeMinutes: 14,
+  totalRevenueToday: 148800,
+  cashCollections: 59520,
+  upiCollections: 89280,
+  networkOccupancyRate: 86.5,
+};
+
+const INITIAL_DOCTOR_LEDGER: DoctorRevenueShareRecord[] = [
+  {
+    id: 'payout-sharma-01',
+    doctorId: 'doc-sharma-cardio',
+    doctorName: 'Dr. Rajesh Sharma',
+    clinicId: 'clinic-bhopal-city-care',
+    clinicName: 'Bhopal City Care Polyclinic',
+    totalConsultations: 24,
+    grossConsultationFee: 14400,
+    doctorShare80: 11520,
+    clinicShare20: 2880,
+    tdsDeductionSection194J: 1152,
+    netPayableToDoctor: 10368,
+    payoutStatus: 'PENDING',
+    bankAccountMasked: 'HDFC Bank •••• 4819',
+    ifscCode: 'HDFC0000042',
+  },
+  {
+    id: 'payout-patel-02',
+    doctorId: 'doc-patel-derma',
+    doctorName: 'Dr. Priya Patel',
+    clinicId: 'clinic-arera-super',
+    clinicName: 'Arera Super Specialty Polyclinic',
+    totalConsultations: 18,
+    grossConsultationFee: 10800,
+    doctorShare80: 8640,
+    clinicShare20: 2160,
+    tdsDeductionSection194J: 864,
+    netPayableToDoctor: 7776,
+    payoutStatus: 'PENDING',
+    bankAccountMasked: 'ICICI Bank •••• 7721',
+    ifscCode: 'ICIC0001004',
+  },
+  {
+    id: 'payout-singh-03',
+    doctorId: 'doc-singh-neuro',
+    doctorName: 'Dr. Vikramaditya Singh',
+    clinicId: 'clinic-kolar-family',
+    clinicName: 'Kolar Road Family Clinic',
+    totalConsultations: 20,
+    grossConsultationFee: 16000,
+    doctorShare80: 12800,
+    clinicShare20: 3200,
+    tdsDeductionSection194J: 1280,
+    netPayableToDoctor: 11520,
+    payoutStatus: 'PENDING',
+    bankAccountMasked: 'Axis Bank •••• 5590',
+    ifscCode: 'UTIB0000128',
+  },
+  {
+    id: 'payout-sen-04',
+    doctorId: 'doc-sen-gynae',
+    doctorName: 'Dr. Ananya Sen',
+    clinicId: 'clinic-bhopal-city-care',
+    clinicName: 'Bhopal City Care Polyclinic',
+    totalConsultations: 15,
+    grossConsultationFee: 9000,
+    doctorShare80: 7200,
+    clinicShare20: 1800,
+    tdsDeductionSection194J: 720,
+    netPayableToDoctor: 6480,
+    payoutStatus: 'DISBURSED',
+    bankAccountMasked: 'SBI •••• 9012',
+    ifscCode: 'SBIN0001234',
+    disbursedAt: '2026-11-13T18:30:00Z',
+    utrReference: 'UTR-HDFC-20261113-984210',
+  },
+];
+
+const INITIAL_CHAMBER_HEATMAPS: ChamberUtilizationHeatmap[] = [
+  {
+    clinicId: 'clinic-bhopal-city-care',
+    clinicName: 'Bhopal City Care Polyclinic',
+    chamberNumber: 'CH-1',
+    chamberName: 'Consultation Suite 1 (Cardiology)',
+    utilizationPercentage: 92,
+    hourlySlots: [
+      { hour: '09:00', isOccupied: true, doctorName: 'Dr. Rajesh Sharma', specialty: 'Cardiology' },
+      { hour: '10:00', isOccupied: true, doctorName: 'Dr. Rajesh Sharma', specialty: 'Cardiology' },
+      { hour: '11:00', isOccupied: true, doctorName: 'Dr. Rajesh Sharma', specialty: 'Cardiology' },
+      { hour: '12:00', isOccupied: true, doctorName: 'Dr. Rajesh Sharma', specialty: 'Cardiology' },
+      { hour: '13:00', isOccupied: true, doctorName: 'Dr. Rajesh Sharma', specialty: 'Cardiology' },
+      { hour: '14:00', isOccupied: false, idleOpportunityNote: 'Lunch / Sanitization Break' },
+      { hour: '15:00', isOccupied: false, idleOpportunityNote: 'Afternoon Vacancy: Available for visiting consultant' },
+      { hour: '16:00', isOccupied: false, idleOpportunityNote: 'Afternoon Vacancy: Available for visiting consultant' },
+      { hour: '17:00', isOccupied: true, doctorName: 'Dr. Rajesh Sharma', specialty: 'Cardiology' },
+      { hour: '18:00', isOccupied: true, doctorName: 'Dr. Rajesh Sharma', specialty: 'Cardiology' },
+      { hour: '19:00', isOccupied: true, doctorName: 'Dr. Rajesh Sharma', specialty: 'Cardiology' },
+    ],
+  },
+  {
+    clinicId: 'clinic-bhopal-city-care',
+    clinicName: 'Bhopal City Care Polyclinic',
+    chamberNumber: 'CH-2',
+    chamberName: 'Consultation Suite 2 (Multi-Specialty)',
+    utilizationPercentage: 58,
+    hourlySlots: [
+      { hour: '09:00', isOccupied: true, doctorName: 'Dr. Ananya Sen', specialty: 'Gynaecology' },
+      { hour: '10:00', isOccupied: true, doctorName: 'Dr. Ananya Sen', specialty: 'Gynaecology' },
+      { hour: '11:00', isOccupied: true, doctorName: 'Dr. Ananya Sen', specialty: 'Gynaecology' },
+      { hour: '12:00', isOccupied: true, doctorName: 'Dr. Ananya Sen', specialty: 'Gynaecology' },
+      { hour: '13:00', isOccupied: false, idleOpportunityNote: 'Idle Gap' },
+      { hour: '14:00', isOccupied: false, idleOpportunityNote: 'CH-2 Idle (14:00 - 17:00): Sublease Opportunity for Paediatrician' },
+      { hour: '15:00', isOccupied: false, idleOpportunityNote: 'CH-2 Idle (14:00 - 17:00): Sublease Opportunity for Paediatrician' },
+      { hour: '16:00', isOccupied: false, idleOpportunityNote: 'CH-2 Idle (14:00 - 17:00): Sublease Opportunity for Paediatrician' },
+      { hour: '17:00', isOccupied: false, idleOpportunityNote: 'Evening Vacancy' },
+      { hour: '18:00', isOccupied: true, doctorName: 'Dr. Amit Verma', specialty: 'General Medicine' },
+      { hour: '19:00', isOccupied: true, doctorName: 'Dr. Amit Verma', specialty: 'General Medicine' },
+    ],
+  },
+  {
+    clinicId: 'clinic-arera-super',
+    clinicName: 'Arera Super Specialty Polyclinic',
+    chamberNumber: 'CH-3',
+    chamberName: 'Dermatology & Cosmetology Suite',
+    utilizationPercentage: 85,
+    hourlySlots: [
+      { hour: '09:00', isOccupied: true, doctorName: 'Dr. Priya Patel', specialty: 'Dermatology' },
+      { hour: '10:00', isOccupied: true, doctorName: 'Dr. Priya Patel', specialty: 'Dermatology' },
+      { hour: '11:00', isOccupied: true, doctorName: 'Dr. Priya Patel', specialty: 'Dermatology' },
+      { hour: '12:00', isOccupied: true, doctorName: 'Dr. Priya Patel', specialty: 'Dermatology' },
+      { hour: '13:00', isOccupied: false, idleOpportunityNote: 'Sanitization Break' },
+      { hour: '14:00', isOccupied: false, idleOpportunityNote: 'Break' },
+      { hour: '15:00', isOccupied: true, doctorName: 'Dr. Priya Patel', specialty: 'Dermatology' },
+      { hour: '16:00', isOccupied: true, doctorName: 'Dr. Priya Patel', specialty: 'Dermatology' },
+      { hour: '17:00', isOccupied: true, doctorName: 'Dr. Priya Patel', specialty: 'Dermatology' },
+      { hour: '18:00', isOccupied: true, doctorName: 'Dr. Priya Patel', specialty: 'Dermatology' },
+      { hour: '19:00', isOccupied: true, doctorName: 'Dr. Priya Patel', specialty: 'Dermatology' },
+    ],
+  },
+];
+
+const INITIAL_SECTION194J_SUMMARY: Section194JQuarterlySummary = {
+  financialYear: '2026-27',
+  quarter: 'Q3',
+  totalGrossDisbursed: 1245000,
+  totalTdsDeducted10Percent: 124500,
+  form16ACertificatesCount: 38,
+  tanNumber: 'BPLM01294F',
+  complianceStatus: 'COMPLIANT',
+  filingDueDate: '2027-01-31',
+};
+
+type SuperAdminTab = 'OVERVIEW' | 'SAAS_BI' | 'NMC_DESK' | 'TENANTS' | 'PATIENTS_DIRECTORY' | 'DPDP_AUDIT' | 'TELEMETRY';
 
 export default function SuperAdminPortalPage() {
   const router = useRouter();
@@ -220,6 +381,85 @@ export default function SuperAdminPortalPage() {
   const [tenants] = useState<ClinicTenantItem[]>(INITIAL_TENANTS);
   const [isChainVerifying, setIsChainVerifying] = useState(false);
   const [chainVerifyNotice, setChainVerifyNotice] = useState<string | null>(null);
+
+  const [networkMetrics, setNetworkMetrics] = useState<NetworkOPDMetrics>(INITIAL_NETWORK_METRICS);
+  const [doctorLedger, setDoctorLedger] = useState<DoctorRevenueShareRecord[]>(INITIAL_DOCTOR_LEDGER);
+  const [chamberHeatmaps, setChamberHeatmaps] = useState<ChamberUtilizationHeatmap[]>(INITIAL_CHAMBER_HEATMAPS);
+  const [taxReport, setTaxReport] = useState<Section194JQuarterlySummary>(INITIAL_SECTION194J_SUMMARY);
+  const [isDisbursing, setIsDisbursing] = useState(false);
+  const [payoutBatchResult, setPayoutBatchResult] = useState<any | null>(null);
+  const [isGeneratingTax, setIsGeneratingTax] = useState(false);
+  const [taxGeneratedNotice, setTaxGeneratedNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:4000/api/v1/saas/network-metrics')
+      .then((res) => res.json())
+      .then((d) => {
+        if (d.success && d.metrics) setNetworkMetrics(d.metrics);
+      })
+      .catch((e) => console.error(e));
+
+    fetch('http://127.0.0.1:4000/api/v1/saas/doctor-ledger')
+      .then((res) => res.json())
+      .then((d) => {
+        if (d.success && d.ledger) setDoctorLedger(d.ledger);
+      })
+      .catch((e) => console.error(e));
+
+    fetch('http://127.0.0.1:4000/api/v1/saas/chamber-utilization')
+      .then((res) => res.json())
+      .then((d) => {
+        if (d.success && d.heatmaps) setChamberHeatmaps(d.heatmaps);
+      })
+      .catch((e) => console.error(e));
+
+    fetch('http://127.0.0.1:4000/api/v1/saas/tax/section-194j-report')
+      .then((res) => res.json())
+      .then((d) => {
+        if (d.success && d.report) setTaxReport(d.report);
+      })
+      .catch((e) => console.error(e));
+  }, []);
+
+  const handleBatchDisburse = async () => {
+    setIsDisbursing(true);
+    try {
+      const res = await fetch('http://127.0.0.1:4000/api/v1/saas/doctor-ledger/batch-disburse', {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPayoutBatchResult(data);
+        setDoctorLedger((prev) =>
+          prev.map((r) =>
+            r.payoutStatus === 'PENDING'
+              ? {
+                  ...r,
+                  payoutStatus: 'DISBURSED',
+                  disbursedAt: new Date().toISOString(),
+                  utrReference: `UTR-HDFC-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-CMS`,
+                }
+              : r
+          )
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsDisbursing(false);
+    }
+  };
+
+  const handleGenerateForm16A = () => {
+    setIsGeneratingTax(true);
+    setTaxGeneratedNotice(null);
+    setTimeout(() => {
+      setIsGeneratingTax(false);
+      setTaxGeneratedNotice(
+        '✓ Form 16A TDS Certificates (38 Doctors) & ITNS-281 Challan Batch Zip Generated Successfully for Q3 FY 2026-27.'
+      );
+    }, 600);
+  };
 
   const handleVerifyDoctor = (docId: string, status: 'VERIFIED' | 'REJECTED') => {
     setDoctors((prev) =>
@@ -338,6 +578,32 @@ export default function SuperAdminPortalPage() {
                   }`}
                 >
                   Live
+                </span>
+              </button>
+
+              {/* Tab: Network OPD BI & 80/20 Revenue */}
+              <button
+                type="button"
+                data-testid="sidebar-btn-saas-bi"
+                onClick={() => setActiveTab('SAAS_BI')}
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                  activeTab === 'SAAS_BI'
+                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30 font-bold'
+                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="text-base">📊</span>
+                  <span>Network OPD & 80/20 Revenue</span>
+                </div>
+                <span
+                  className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                    activeTab === 'SAAS_BI'
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                  }`}
+                >
+                  ₹1.48L Today
                 </span>
               </button>
 
@@ -469,6 +735,23 @@ export default function SuperAdminPortalPage() {
                   99.8%
                 </span>
               </button>
+
+              {/* Tab 7: Review Moderation & Defamation Shield */}
+              <Link href="/super-admin/reviews" className="block">
+                <button
+                  type="button"
+                  data-testid="sidebar-btn-reviews"
+                  className="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all text-slate-300 hover:bg-slate-800/80 hover:text-white"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-base">⭐</span>
+                    <span>Review Moderation & Defamation</span>
+                  </div>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-400 border border-amber-800">
+                    Defamation Shield
+                  </span>
+                </button>
+              </Link>
             </div>
           </div>
 
@@ -580,6 +863,27 @@ export default function SuperAdminPortalPage() {
                 </div>
               </div>
 
+              {/* Live Network OPD Command Teaser */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-emerald-950/40 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span className="text-xs font-bold text-white">Network OPD Real-Time Velocity & Revenue Engine</span>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    {networkMetrics.totalConsultationsToday} Consultations Today • ₹{networkMetrics.totalRevenueToday.toLocaleString('en-IN')} Total Collections (60% UPI, 40% Cash) • 80/20 Doctor Disbursals Ready
+                  </p>
+                </div>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setActiveTab('SAAS_BI')}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-xs font-bold shadow-md shadow-emerald-600/30 shrink-0"
+                >
+                  Open BI & Revenue Engine ↗
+                </Button>
+              </div>
+
               {/* Geographic Grid Breakdown */}
               <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -603,6 +907,345 @@ export default function SuperAdminPortalPage() {
                     <span className="text-xs font-bold text-white block">Kolar & Suburbs</span>
                     <span className="text-[11px] text-slate-400 block mt-0.5">4 Polyclinics • 11 Chambers</span>
                     <span className="text-xs font-mono font-bold text-emerald-400 mt-2 block">100% Online</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW: Network OPD BI & 80/20 Revenue */}
+          {activeTab === 'SAAS_BI' && (
+            <div className="space-y-6" data-testid="network-opd-command-center">
+              {/* Header Strip */}
+              <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-950/80 via-slate-900 to-indigo-950/70 border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
+                <div className="flex items-center gap-3.5">
+                  <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white flex items-center justify-center font-black text-xl shadow-md shadow-emerald-500/20">
+                    📊
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-extrabold text-white text-base">
+                        Network-Wide OPD Command Center & SaaS Engine
+                      </h3>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold font-mono">
+                        ● LIVE CLUSTER SYNC
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-300 mt-0.5">
+                      Real-time cross-polyclinic OPD velocity, automated 80/20 doctor ledger disbursals, chamber idle optimization, and Section 194J TDS compliance.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 rounded-xl bg-emerald-900/60 border border-emerald-700 text-emerald-300 text-xs font-bold font-mono">
+                    10/10 Clinics Live
+                  </span>
+                  <span className="px-3 py-1 rounded-xl bg-teal-900/60 border border-teal-700 text-teal-300 text-xs font-bold font-mono">
+                    86.5% Occupancy
+                  </span>
+                </div>
+              </div>
+
+              {/* 4 Multi-Clinic OPD Velocity KPI Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {/* Metric 1: Live Clinics & Chambers */}
+                <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Network Capacity
+                  </span>
+                  <span data-testid="metric-clinics-live" className="text-2xl font-black font-mono tabular-nums text-white mt-1.5 block">
+                    {networkMetrics.totalClinicsLive} / 10 Clinics Live
+                  </span>
+                  <span data-testid="metric-active-chambers" className="text-xs text-emerald-400 font-semibold block mt-1">
+                    {networkMetrics.activeChambersCount} / {networkMetrics.totalChambersCount} Active Chambers
+                  </span>
+                </div>
+
+                {/* Metric 2: Consultations Today */}
+                <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                    OPD Footfall
+                  </span>
+                  <span data-testid="metric-consultations-today" className="text-2xl font-black font-mono tabular-nums text-white mt-1.5 block">
+                    {networkMetrics.totalConsultationsToday} Consultations
+                  </span>
+                  <span data-testid="metric-avg-wait-time" className="text-xs text-teal-400 font-semibold block mt-1">
+                    Avg Wait Time: {networkMetrics.avgWaitTimeMinutes} mins
+                  </span>
+                </div>
+
+                {/* Metric 3: Total Collections */}
+                <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Total Revenue Today
+                  </span>
+                  <span data-testid="metric-total-revenue" className="text-2xl font-black font-mono tabular-nums text-emerald-400 mt-1.5 block">
+                    ₹{networkMetrics.totalRevenueToday.toLocaleString('en-IN')}
+                  </span>
+                  <span data-testid="metric-collections-split" className="text-[11px] text-slate-300 font-semibold block mt-1 truncate">
+                    Cash ₹{networkMetrics.cashCollections.toLocaleString('en-IN')} (40%) • UPI ₹{networkMetrics.upiCollections.toLocaleString('en-IN')} (60%)
+                  </span>
+                </div>
+
+                {/* Metric 4: SaaS Net Yield (20%) */}
+                <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Clinic 20% Net Yield
+                  </span>
+                  <span className="text-2xl font-black font-mono tabular-nums text-teal-400 mt-1.5 block">
+                    ₹{(networkMetrics.totalRevenueToday * 0.2).toLocaleString('en-IN')}
+                  </span>
+                  <span className="text-xs text-emerald-400 font-semibold block mt-1">
+                    100% Reconciled
+                  </span>
+                </div>
+              </div>
+
+              {/* SECTION: Automated Doctor Revenue Ledger & 80/20 Payout Disbursal */}
+              <div className="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-sm space-y-4 p-5" data-testid="doctor-revenue-ledger-section">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                  <div>
+                    <h3 className="font-bold text-white text-base">
+                      Automated Doctor Revenue Ledger & 80/20 Payout Disbursal
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Automated 80/20 split between visiting consultants and clinic facilities with 10% Section 194J TDS deductions and HDFC/ICICI NEFT CMS batch payment export.
+                    </p>
+                  </div>
+                  <Button
+                    variant="primary"
+                    size="md"
+                    data-testid="batch-disburse-btn"
+                    isLoading={isDisbursing}
+                    onClick={handleBatchDisburse}
+                    className="bg-emerald-600 hover:bg-emerald-500 text-xs font-bold shadow-md shadow-emerald-600/30 shrink-0"
+                  >
+                    ⚡ Disburse All via HDFC/ICICI NEFT CMS
+                  </Button>
+                </div>
+
+                {/* Disburse Success Alert Banner */}
+                {payoutBatchResult && (
+                  <div
+                    data-testid="payout-success-banner"
+                    className="p-4 rounded-xl bg-emerald-950/90 border border-emerald-600 text-emerald-200 text-xs space-y-2 shadow-lg"
+                  >
+                    <div className="flex items-center justify-between font-bold text-emerald-300">
+                      <span className="flex items-center gap-2">
+                        <span>✓</span>
+                        <span>Bank NEFT CMS Batch Payout Disbursal Executed Successfully</span>
+                      </span>
+                      <span className="font-mono text-[11px] bg-emerald-900/80 px-2.5 py-0.5 rounded border border-emerald-700">
+                        Batch Ref: {payoutBatchResult.batchId}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-[11px] text-emerald-300/90 pt-1">
+                      <div>Total Disbursed: <span className="font-bold text-white">₹{payoutBatchResult.totalDisbursedAmount?.toLocaleString('en-IN')}</span></div>
+                      <div>Doctors Disbursed: <span className="font-bold text-white">{payoutBatchResult.disbursedCount} Consultants</span></div>
+                      <div>CMS File: <span className="font-bold text-white truncate">{payoutBatchResult.cmsFileName}</span></div>
+                    </div>
+                    <div className="flex items-center justify-between pt-1 border-t border-emerald-800/60 text-[10px]">
+                      <span className="font-mono text-emerald-400/80 truncate">
+                        SHA-256 Hash: {payoutBatchResult.fileHashSha256}
+                      </span>
+                      <button
+                        type="button"
+                        data-testid="download-cms-file-btn"
+                        onClick={() => alert(`Downloaded ${payoutBatchResult.cmsFileName} for HDFC/ICICI corporate banking upload.`)}
+                        className="px-2.5 py-1 rounded bg-emerald-800 hover:bg-emerald-700 text-white font-bold tracking-tight"
+                      >
+                        📥 Download .enc File
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Ledger Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs text-slate-300">
+                    <thead className="bg-slate-950 border-b border-slate-800 uppercase text-[10px] font-bold text-slate-400">
+                      <tr>
+                        <th className="px-4 py-3">Consultant / Clinic</th>
+                        <th className="px-4 py-3">OPD Visits</th>
+                        <th className="px-4 py-3">Gross Fee</th>
+                        <th className="px-4 py-3 text-emerald-400">Doctor 80%</th>
+                        <th className="px-4 py-3 text-teal-400">Clinic 20%</th>
+                        <th className="px-4 py-3 text-amber-400">Sec 194J TDS (10%)</th>
+                        <th className="px-4 py-3 text-white font-bold">Net Payable</th>
+                        <th className="px-4 py-3">Bank A/c & IFSC</th>
+                        <th className="px-4 py-3 text-right">Payout Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 font-mono text-[11px]">
+                      {doctorLedger.map((record) => (
+                        <tr key={record.id} className="hover:bg-slate-800/40 transition-colors">
+                          <td className="px-4 py-3 font-sans">
+                            <span className="font-bold text-white block">{record.doctorName}</span>
+                            <span className="text-[10px] text-slate-400 block font-sans">{record.clinicName}</span>
+                          </td>
+                          <td className="px-4 py-3 text-slate-300 font-bold">{record.totalConsultations}</td>
+                          <td className="px-4 py-3 text-slate-300">₹{record.grossConsultationFee.toLocaleString('en-IN')}</td>
+                          <td className="px-4 py-3 font-bold text-emerald-400">₹{record.doctorShare80.toLocaleString('en-IN')}</td>
+                          <td className="px-4 py-3 text-teal-300">₹{record.clinicShare20.toLocaleString('en-IN')}</td>
+                          <td className="px-4 py-3 text-amber-300">-₹{record.tdsDeductionSection194J.toLocaleString('en-IN')}</td>
+                          <td className="px-4 py-3 font-bold text-white text-xs">₹{record.netPayableToDoctor.toLocaleString('en-IN')}</td>
+                          <td className="px-4 py-3 text-slate-400 text-[10px] font-sans">
+                            <span className="text-white block font-mono">{record.bankAccountMasked}</span>
+                            <span className="text-slate-500 font-mono">IFSC: {record.ifscCode}</span>
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            {record.payoutStatus === 'DISBURSED' ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800 inline-block">
+                                ✓ DISBURSED
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-400 border border-amber-800 inline-block animate-pulse">
+                                ● PENDING
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* SECTION: Chamber Idle Time Minimization Heatmap */}
+              <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4" data-testid="chamber-utilization-section">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                  <div>
+                    <h3 className="font-bold text-white text-sm">
+                      Chamber Idle Time Minimization & Sublease Optimization
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      Hourly chamber occupancy heatmaps across Bhopal clinics to detect afternoon lull vacancies and optimize facility monetization.
+                    </p>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs font-bold font-mono">
+                    3 Chambers Audited
+                  </span>
+                </div>
+
+                {/* Actionable Sublease Optimization Alert */}
+                <div
+                  data-testid="chamber-idle-alert"
+                  className="p-3.5 rounded-xl bg-amber-950/80 border border-amber-700/80 text-amber-200 text-xs flex items-start gap-3 shadow-sm"
+                >
+                  <span className="text-base shrink-0 mt-0.5">💡</span>
+                  <div>
+                    <span className="font-bold text-amber-100 block">
+                      Sublease Optimization Opportunity: Chamber CH-2 is vacant between 2:00 PM and 5:00 PM (14:00 - 17:00)
+                    </span>
+                    <p className="text-[11px] text-amber-300/90 mt-0.5 leading-relaxed">
+                      High patient demand for Paediatrics & Sonology in MP Nagar Zone II during afternoon hours. Subleasing this chamber to visiting consultants can recover approximately <strong className="text-white">₹18,000/month</strong> in idle facility revenue.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Heatmap Cards */}
+                <div className="space-y-3">
+                  {chamberHeatmaps.map((chamber) => (
+                    <div key={chamber.chamberNumber} className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded bg-slate-800 font-mono font-bold text-emerald-400 text-[11px]">
+                            {chamber.chamberNumber}
+                          </span>
+                          <span className="font-bold text-white">{chamber.chamberName}</span>
+                          <span className="text-slate-400 text-[11px]">({chamber.clinicName})</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] text-slate-400">Utilization:</span>
+                          <span className={`font-mono font-bold text-xs ${chamber.utilizationPercentage >= 80 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                            {chamber.utilizationPercentage}%
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Hourly Grid */}
+                      <div className="grid grid-cols-6 sm:grid-cols-11 gap-1.5 pt-1">
+                        {chamber.hourlySlots.map((slot) => (
+                          <div
+                            key={slot.hour}
+                            title={slot.isOccupied ? `${slot.doctorName} (${slot.specialty})` : slot.idleOpportunityNote || 'Vacant'}
+                            className={`p-1.5 rounded-lg border text-center transition-all ${
+                              slot.isOccupied
+                                ? 'bg-emerald-950/70 border-emerald-700/60 text-emerald-300'
+                                : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-amber-700/60'
+                            }`}
+                          >
+                            <span className="font-mono text-[10px] block font-semibold">{slot.hour}</span>
+                            <span className="text-[9px] font-bold block truncate mt-0.5">
+                              {slot.isOccupied ? '✓ In-Use' : 'Idle'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* SECTION: Section 194J Quarterly TDS Tax Compliance & Form 16A Generator */}
+              <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4" data-testid="section-194j-tax-section">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                  <div>
+                    <h3 className="font-bold text-white text-base">
+                      Section 194J Quarterly TDS Tax Compliance (Form 16A)
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Statutory 10% tax deduction on professional fees for visiting medical consultants under Indian Income Tax Act 1961.
+                    </p>
+                  </div>
+                  <Button
+                    variant="primary"
+                    size="md"
+                    data-testid="generate-form16a-btn"
+                    isLoading={isGeneratingTax}
+                    onClick={handleGenerateForm16A}
+                    className="bg-emerald-600 hover:bg-emerald-500 text-xs font-bold shadow-md shadow-emerald-600/30 shrink-0"
+                  >
+                    📄 Generate Quarterly Form 16A ZIP & ITNS-281
+                  </Button>
+                </div>
+
+                {taxGeneratedNotice && (
+                  <div
+                    data-testid="form16a-generated-banner"
+                    className="p-3.5 rounded-xl bg-emerald-950/90 border border-emerald-600 text-emerald-200 text-xs flex items-center justify-between gap-3 shadow-md"
+                  >
+                    <span className="font-bold">{taxGeneratedNotice}</span>
+                    <button
+                      type="button"
+                      onClick={() => alert('Downloading Form_16A_Q3_FY2026-27_Consortium.zip')}
+                      className="px-2.5 py-1 rounded bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-[11px] shrink-0"
+                    >
+                      📥 Download ZIP
+                    </button>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+                  <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+                    <span className="text-[10px] text-slate-400 block font-sans">Financial Quarter</span>
+                    <span className="text-sm font-bold text-white mt-1 block">FY {taxReport.financialYear} ({taxReport.quarter})</span>
+                    <span className="text-[10px] text-emerald-400 block mt-1">Due: {taxReport.filingDueDate}</span>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+                    <span className="text-[10px] text-slate-400 block font-sans">Consortium TAN</span>
+                    <span className="text-sm font-bold text-teal-300 mt-1 block">{taxReport.tanNumber}</span>
+                    <span className="text-[10px] text-slate-400 block mt-1">Bhopal Polyclinics</span>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+                    <span className="text-[10px] text-slate-400 block font-sans">Total Gross Disbursed</span>
+                    <span className="text-sm font-bold text-white mt-1 block">₹{taxReport.totalGrossDisbursed.toLocaleString('en-IN')}</span>
+                    <span className="text-[10px] text-slate-400 block mt-1">38 Doctors Audited</span>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+                    <span className="text-[10px] text-slate-400 block font-sans">TDS Deducted (10%)</span>
+                    <span className="text-sm font-bold text-amber-400 mt-1 block">₹{taxReport.totalTdsDeducted10Percent.toLocaleString('en-IN')}</span>
+                    <span className="text-[10px] text-emerald-400 block mt-1">✓ {taxReport.complianceStatus}</span>
                   </div>
                 </div>
               </div>

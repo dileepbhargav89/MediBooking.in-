@@ -31,6 +31,7 @@ lerna-debug.log*
 
 # OS and IDE files
 test-results/
+playwright-report/
 tests/reports/html-report/
 .DS_Store
 Thumbs.db

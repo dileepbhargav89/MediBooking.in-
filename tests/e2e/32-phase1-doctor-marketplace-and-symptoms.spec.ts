@@ -95,6 +95,6 @@ test.describe('Phase 1 E2E: Consumer Discovery, Doctor Marketplace & Symptom Sea
     await expect(page.locator('text=Appointment Confirmed')).toBeVisible();
     await expect(page.locator('[data-testid="confirmed-token-number"]')).toBeVisible();
     await expect(page.locator('[data-testid="badge-booking-fee-paid"]')).toContainText('₹49 Booking Fee Paid Online');
-    await expect(page.locator('text=Ramesh Kumar')).toBeVisible();
+    await expect(page.locator('text=Ramesh Kumar').first()).toBeVisible();
   });
 });

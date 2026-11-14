@@ -1435,6 +1435,112 @@ export interface ChamberConsultationToken {
   chiefComplaints: string[];
 }
 
+// ==========================================
+// 13. PHASE 5: PATIENT FEEDBACK & REPUTATION ENGINE
+// ==========================================
+
+export type WaitTimeRating = 'ACCURATE' | 'MODERATE_DELAY' | 'VERY_LONG';
+export type ReviewModerationStatus = 'PUBLISHED' | 'PENDING_MODERATION' | 'FLAGGED';
+
+export interface ConsultationReview {
+  id: string;
+  tokenNumber: number;
+  clinicId: string;
+  clinicName: string;
+  doctorId: string;
+  doctorName: string;
+  patientId: string;
+  patientName: string;
+  primaryMobile: string;
+  overallRating: number; // 1 to 5
+  waitTimeRating: WaitTimeRating;
+  cleanlinessRating: number; // 1 to 5
+  doctorCommunicationRating: number; // 1 to 5
+  staffCourtesyRating: number; // 1 to 5
+  positiveTags: string[];
+  comment: string;
+  doctorReplyText?: string;
+  doctorRepliedAt?: string;
+  status: ReviewModerationStatus;
+  isVerifiedConsultation: boolean;
+  createdAt: string;
+}
+
+export interface DoctorReputationScore {
+  doctorId: string;
+  doctorName: string;
+  averageRating: number;
+  totalReviews: number;
+  recommendationPercentage: number;
+  waitTimeAccuracyPercentage: number;
+  isPrimeAccredited: boolean;
+  ratingBreakdown: { 5: number; 4: number; 3: number; 2: number; 1: number };
+  topPositiveTags: Array<{ tag: string; count: number }>;
+}
+
+// ==========================================
+// 14. PHASE 6: SUPER ADMIN MULTI-CLINIC BI & SAAS ENGINE
+// ==========================================
+
+export interface NetworkOPDMetrics {
+  totalClinicsLive: number;
+  activeChambersCount: number;
+  totalChambersCount: number;
+  totalConsultationsToday: number;
+  avgWaitTimeMinutes: number;
+  totalRevenueToday: number;
+  cashCollections: number;
+  upiCollections: number;
+  networkOccupancyRate: number;
+}
+
+export interface DoctorRevenueShareRecord {
+  id: string;
+  doctorId: string;
+  doctorName: string;
+  clinicId: string;
+  clinicName: string;
+  totalConsultations: number;
+  grossConsultationFee: number;
+  doctorShare80: number;
+  clinicShare20: number;
+  tdsDeductionSection194J: number; // 10% on professional fees
+  netPayableToDoctor: number;
+  payoutStatus: 'PENDING' | 'DISBURSED';
+  bankAccountMasked: string;
+  ifscCode: string;
+  disbursedAt?: string;
+  utrReference?: string;
+}
+
+export interface ChamberHourlySlot {
+  hour: string;
+  isOccupied: boolean;
+  doctorName?: string;
+  specialty?: string;
+  idleOpportunityNote?: string;
+}
+
+export interface ChamberUtilizationHeatmap {
+  clinicId: string;
+  clinicName: string;
+  chamberNumber: string;
+  chamberName: string;
+  utilizationPercentage: number;
+  hourlySlots: ChamberHourlySlot[];
+}
+
+export interface Section194JQuarterlySummary {
+  financialYear: string;
+  quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4';
+  totalGrossDisbursed: number;
+  totalTdsDeducted10Percent: number;
+  form16ACertificatesCount: number;
+  tanNumber: string;
+  complianceStatus: 'COMPLIANT' | 'NEEDS_FILING';
+  filingDueDate: string;
+}
+
 export * from './auth-edge';
 
 
