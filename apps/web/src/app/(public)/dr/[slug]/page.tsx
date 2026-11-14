@@ -504,7 +504,7 @@ export default function DoctorPublicProfilePage({
 
             <div className="space-y-3">
               <Input
-                label="Patient Full Name"
+                label="Patient Full Name (मरीज़ का पूरा नाम)"
                 placeholder="e.g. Ramesh Kumar"
                 value={patientName}
                 data-testid="input-patient-name"
@@ -515,7 +515,7 @@ export default function DoctorPublicProfilePage({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                    Age (Years)
+                    Age / उम्र (Years)
                   </label>
                   <input
                     type="number"
@@ -531,7 +531,7 @@ export default function DoctorPublicProfilePage({
 
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                    Gender
+                    Gender / लिंग
                   </label>
                   <select
                     value={patientGender}
@@ -539,15 +539,15 @@ export default function DoctorPublicProfilePage({
                     onChange={(e) => setPatientGender(e.target.value as any)}
                     className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                   >
-                    <option value="MALE">Male</option>
-                    <option value="FEMALE">Female</option>
-                    <option value="OTHER">Other</option>
+                    <option value="MALE">Male (पुरुष)</option>
+                    <option value="FEMALE">Female (महिला)</option>
+                    <option value="OTHER">Other (अन्य)</option>
                   </select>
                 </div>
               </div>
 
               <Input
-                label="10-Digit WhatsApp Mobile Number"
+                label="10-Digit WhatsApp Mobile Number (व्हाट्सएप नंबर)"
                 prefixText="+91"
                 placeholder="98260 12345"
                 value={patientMobile}
@@ -624,6 +624,10 @@ export default function DoctorPublicProfilePage({
               <p className="text-[11px] text-slate-600 leading-tight">
                 💡 <span className="font-semibold text-emerald-900">Why ₹49?</span> Confirms your chamber token and prepares your physical <span className="font-semibold text-emerald-800">Pre-Consultation Prescription Sheet</span> (with Doctor NMC registration & vitals checklist) at the counter before you arrive. Doctor fees and procedures are settled directly at the clinic.
               </p>
+              <div className="flex items-center gap-1.5 pt-1 text-[10px] font-bold text-emerald-800">
+                <span>🛡️ 100% Refund Guarantee:</span>
+                <span className="text-slate-600 font-medium">Cancel anytime up to 2 hours before slot for full instant refund.</span>
+              </div>
             </div>
 
             {/* Instant UPI QR Simulation Box */}
@@ -726,9 +730,20 @@ export default function DoctorPublicProfilePage({
             <div className="flex flex-col gap-2.5">
               <Link href={`/patient?token=${allocatedToken}&chamber=${selectedVenue.chamberNumber}&doctor=${encodeURIComponent(doctorInfo.fullName)}&clinic=${encodeURIComponent(selectedVenue.clinicName)}&patient=${encodeURIComponent(patientName)}`}>
                 <Button variant="primary" fullWidth size="md" className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md shadow-emerald-600/20">
-                  Track Live Queue Position
+                  Track Live Queue Position (लाइव कतार देखें)
                 </Button>
               </Link>
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(
+                  `*MediBooking Token Confirmed!*\n• Patient: ${patientName}\n• Token #${allocatedToken}\n• Doctor: ${doctorInfo.fullName} (${selectedVenue.chamberNumber})\n• Clinic: ${selectedVenue.clinicName}, ${selectedVenue.address}\n• Slot: ${selectedSlot?.time}\n• Live Tracker: http://localhost:3000/patient?token=${allocatedToken}&chamber=${selectedVenue.chamberNumber}`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="py-2.5 px-4 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+              >
+                <span>📲</span>
+                <span>Share Token with Family on WhatsApp (व्हाट्सएप पर शेयर करें)</span>
+              </a>
               <Button
                 variant="outline"
                 fullWidth

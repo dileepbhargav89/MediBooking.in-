@@ -6,6 +6,7 @@ import { Button, Badge } from '@medibooking/ui';
 import {
   DOCTORS_MASTER_DIRECTORY,
   BHOPAL_LOCALITIES,
+  DoctorDirectoryItem,
 } from '@/lib/doctor-directory';
 import {
   COMMON_SYMPTOMS_TAXONOMY,
@@ -28,10 +29,30 @@ export default function DoctorsMarketplacePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('ALL');
   const [selectedLocality, setSelectedLocality] = useState('ALL');
+  const [onlyAvailableToday, setOnlyAvailableToday] = useState(false);
+  const [sortBy, setSortBy] = useState<'RECOMMENDED' | 'FEE_LOW' | 'EXPERIENCE'>('RECOMMENDED');
 
   const searchResult = useMemo(() => {
-    return searchDoctorsAndSymptoms(searchQuery, selectedSpecialty, selectedLocality);
-  }, [searchQuery, selectedSpecialty, selectedLocality]);
+    const rawResult = searchDoctorsAndSymptoms(searchQuery, selectedSpecialty, selectedLocality);
+    let list = [...rawResult.filteredDoctors];
+
+    // Filter by available today
+    if (onlyAvailableToday) {
+      list = list.filter((doc) => doc.venues.some((v) => v.currentStatus === 'ACTIVE'));
+    }
+
+    // Sort
+    if (sortBy === 'FEE_LOW') {
+      list.sort((a, b) => (a.venues[0]?.feeRupees || 0) - (b.venues[0]?.feeRupees || 0));
+    } else if (sortBy === 'EXPERIENCE') {
+      list.sort((a, b) => b.experienceYears - a.experienceYears);
+    }
+
+    return {
+      ...rawResult,
+      filteredDoctors: list,
+    };
+  }, [searchQuery, selectedSpecialty, selectedLocality, onlyAvailableToday, sortBy]);
 
   const handleSymptomClick = (symptomKey: string, specialty: string, label: string) => {
     setSearchQuery(label);
@@ -42,6 +63,8 @@ export default function DoctorsMarketplacePage() {
     setSearchQuery('');
     setSelectedSpecialty('ALL');
     setSelectedLocality('ALL');
+    setOnlyAvailableToday(false);
+    setSortBy('RECOMMENDED');
   };
 
   return (
@@ -170,18 +193,18 @@ export default function DoctorsMarketplacePage() {
             </div>
           </div>
 
-          {/* Specialty & Locality Filters Bar */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+          {/* Specialty, Locality & Controls Bar */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-4 border-t border-slate-100">
             {/* Specialty Selector */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
                 Specialty:
               </label>
               <select
                 value={selectedSpecialty}
                 data-testid="select-filter-specialty"
                 onChange={(e) => setSelectedSpecialty(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
               >
                 {SPECIALTY_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -193,14 +216,14 @@ export default function DoctorsMarketplacePage() {
 
             {/* Locality Selector */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
                 Bhopal Locality:
               </label>
               <select
                 value={selectedLocality}
                 data-testid="select-filter-locality"
                 onChange={(e) => setSelectedLocality(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
               >
                 {BHOPAL_LOCALITIES.map((loc) => (
                   <option key={loc.id} value={loc.id}>
@@ -208,6 +231,39 @@ export default function DoctorsMarketplacePage() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Sort Selector */}
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
+                Sort By:
+              </label>
+              <select
+                value={sortBy}
+                data-testid="select-sort-by"
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
+              >
+                <option value="RECOMMENDED">✨ Recommended</option>
+                <option value="FEE_LOW">💰 Fee: Low to High</option>
+                <option value="EXPERIENCE">🎓 Experience: High to Low</option>
+              </select>
+            </div>
+
+            {/* Available Today Filter */}
+            <div className="flex items-end">
+              <button
+                type="button"
+                onClick={() => setOnlyAvailableToday(!onlyAvailableToday)}
+                className={`w-full py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                  onlyAvailableToday
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                    : 'bg-white hover:bg-emerald-50 text-slate-700 border-slate-300'
+                }`}
+              >
+                <span>🟢</span>
+                <span>Available Today</span>
+              </button>
             </div>
           </div>
         </div>
@@ -224,8 +280,13 @@ export default function DoctorsMarketplacePage() {
                 Auto-Matched: {searchResult.matchedSpecialty}
               </Badge>
             )}
+            {onlyAvailableToday && (
+              <Badge variant="blue" size="sm">
+                🟢 Today Only
+              </Badge>
+            )}
           </div>
-          {(searchQuery || selectedSpecialty !== 'ALL' || selectedLocality !== 'ALL') && (
+          {(searchQuery || selectedSpecialty !== 'ALL' || selectedLocality !== 'ALL' || onlyAvailableToday || sortBy !== 'RECOMMENDED') && (
             <button
               onClick={handleClearFilters}
               data-testid="btn-reset-marketplace-filters"
@@ -304,13 +365,26 @@ export default function DoctorsMarketplacePage() {
                     </div>
 
                     {/* NMC & Rating Badges */}
-                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 text-xs">
-                      <span className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md">
-                        🛡️ NMC: {doc.nmcNumber}
-                      </span>
-                      <span className="inline-flex items-center gap-1 font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md text-[11px]">
-                        ⭐ {doc.rating} ({doc.reviewCount}+ reviews)
-                      </span>
+                    <div className="flex items-center justify-between gap-2 mt-3 pt-3 border-t border-slate-100 text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md">
+                          🛡️ NMC: {doc.nmcNumber}
+                        </span>
+                        <span className="inline-flex items-center gap-1 font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md text-[11px]">
+                          ⭐ {doc.rating} ({doc.reviewCount}+ reviews)
+                        </span>
+                      </div>
+                      <a
+                        href={`https://wa.me/?text=${encodeURIComponent(
+                          `Check out ${doc.fullName} (${doc.specialtyLabel}) in Bhopal on MediBooking: http://localhost:3000/dr/${doc.slug}`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
+                        title="Share on WhatsApp"
+                      >
+                        <span>📲 Share</span>
+                      </a>
                     </div>
 
                     {/* Treated Symptoms Tags */}

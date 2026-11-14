@@ -313,6 +313,17 @@ export default function PatientQueueTrackerPage() {
               <span className="block text-xs text-slate-500 mt-1 font-medium">
                 {tokenState.specialty} • {tokenState.clinicName}
               </span>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                  `${tokenState.clinicName} Bhopal`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-emerald-700 hover:text-emerald-800 hover:underline"
+              >
+                <span>📍 Get Directions (दिशा निर्देश)</span>
+                <span>→</span>
+              </a>
             </div>
           </div>
 
