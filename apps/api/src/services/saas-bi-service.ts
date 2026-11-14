@@ -37,6 +37,7 @@ export class SaasBiService {
       payoutStatus: 'PENDING',
       bankAccountMasked: 'HDFC Bank •••• 4819',
       ifscCode: 'HDFC0000042',
+      vpa: 'dr.sharma.cardio@okhdfcbank',
     },
     {
       id: 'payout-patel-02',
@@ -53,6 +54,7 @@ export class SaasBiService {
       payoutStatus: 'PENDING',
       bankAccountMasked: 'ICICI Bank •••• 7721',
       ifscCode: 'ICIC0001004',
+      vpa: 'dr.priya.patel@icici',
     },
     {
       id: 'payout-singh-03',
@@ -69,6 +71,7 @@ export class SaasBiService {
       payoutStatus: 'PENDING',
       bankAccountMasked: 'Axis Bank •••• 5590',
       ifscCode: 'UTIB0000128',
+      vpa: 'vikram.singh@axisbank',
     },
     {
       id: 'payout-sen-04',
@@ -85,6 +88,7 @@ export class SaasBiService {
       payoutStatus: 'DISBURSED',
       bankAccountMasked: 'SBI •••• 9012',
       ifscCode: 'SBIN0001234',
+      vpa: 'ananya.sen@sbi',
       disbursedAt: '2026-11-13T18:30:00Z',
       utrReference: 'UTR-HDFC-20261113-984210',
     },
@@ -231,6 +235,51 @@ export class SaasBiService {
       disbursedCount: disbursedRecords.length,
       cmsFileName,
       fileHashSha256,
+      disbursedRecords,
+    };
+  }
+
+  public disburseInstantUpi(recordId?: string): {
+    success: boolean;
+    batchId: string;
+    mode: 'UPI_INSTANT';
+    totalDisbursedAmount: number;
+    disbursedCount: number;
+    gateway: string;
+    npciRrn: string;
+    utrReference: string;
+    disbursedRecords: DoctorRevenueShareRecord[];
+  } {
+    const targetRecords = recordId
+      ? this.doctorLedger.filter((r) => r.id === recordId && r.payoutStatus === 'PENDING')
+      : this.doctorLedger.filter((r) => r.payoutStatus === 'PENDING');
+
+    const nowIso = new Date().toISOString();
+    const batchId = `UPI-RZPX-${Date.now().toString().slice(-6)}`;
+    const npciRrn = `4321${Math.floor(10000000 + Math.random() * 90000000)}`;
+    const utrPrefix = `UPI-RZPX-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`;
+
+    let totalDisbursedAmount = 0;
+    const disbursedRecords: DoctorRevenueShareRecord[] = [];
+
+    targetRecords.forEach((record, index) => {
+      record.payoutStatus = 'DISBURSED_UPI';
+      record.payoutMethod = 'UPI';
+      record.disbursedAt = nowIso;
+      record.utrReference = `${utrPrefix}-${Math.floor(100000 + index + Math.random() * 899999)}`;
+      totalDisbursedAmount += record.netPayableToDoctor;
+      disbursedRecords.push({ ...record });
+    });
+
+    return {
+      success: true,
+      batchId,
+      mode: 'UPI_INSTANT',
+      totalDisbursedAmount,
+      disbursedCount: disbursedRecords.length,
+      gateway: 'RazorpayX Instant UPI Payout Engine (NPCI Fast-Route)',
+      npciRrn,
+      utrReference: disbursedRecords[0]?.utrReference || `${utrPrefix}-000000`,
       disbursedRecords,
     };
   }

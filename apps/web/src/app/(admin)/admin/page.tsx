@@ -200,6 +200,8 @@ export default function ClinicAdministratorPortal() {
   const [affiliations, setAffiliations] = useState<AdminDoctorAffiliation[]>(INITIAL_AFFILIATIONS);
   const [isAffiliationModalOpen, setIsAffiliationModalOpen] = useState(false);
   const [editingAffiliation, setEditingAffiliation] = useState<AdminDoctorAffiliation | null>(null);
+  const [isChamberQuotaModalOpen, setIsChamberQuotaModalOpen] = useState(false);
+  const [chamberAddedToast, setChamberAddedToast] = useState<string | null>(null);
 
   // EOD Cash Drawer State
   const [countedCash, setCountedCash] = useState<number>(12400);
@@ -387,6 +389,60 @@ export default function ClinicAdministratorPortal() {
       type: 'invoice',
     });
     setTimeout(() => setSaasToast(null), 6000);
+  };
+
+  const handleInitiateAddChamber = () => {
+    if (affiliations.length >= saasPlan.licensedChambers) {
+      setIsChamberQuotaModalOpen(true);
+    } else {
+      const newIndex = affiliations.length + 1;
+      const newAff: AdminDoctorAffiliation = {
+        id: `aff-${newIndex}`,
+        doctorId: `d10${newIndex}0000-0000-4000-8000-00000000000${newIndex}`,
+        doctorName: 'Dr. Alok Mathur',
+        specialty: 'ENT Specialist',
+        nmcNumber: 'MP-55102',
+        chamberNumber: `CH-${newIndex}`,
+        consultationFeeRupees: 500,
+        followUpFeeRupees: 250,
+        followUpValidityDays: 14,
+        isActive: true,
+      };
+      setAffiliations((prev) => [...prev, newAff]);
+      setSaasPlan((prev) => ({ ...prev, activeChambers: prev.activeChambers + 1 }));
+      setChamberAddedToast(`✓ Chamber CH-${newIndex} provisioned for Dr. Alok Mathur (ENT Specialist).`);
+      setTimeout(() => setChamberAddedToast(null), 6000);
+    }
+  };
+
+  const handleUpgradeAndAddChamber = () => {
+    setSaasPlan((prev) => ({
+      ...prev,
+      tier: 'ENTERPRISE',
+      tierName: 'Polyclinic Enterprise',
+      monthlyFeeRupees: 4999,
+      licensedChambers: 8,
+      activeChambers: 5,
+      daysRemaining: 30,
+      renewalDateStr: '14 Dec 2026',
+    }));
+
+    const newAff: AdminDoctorAffiliation = {
+      id: 'aff-5',
+      doctorId: 'd1050000-0000-4000-8000-000000000005',
+      doctorName: 'Dr. Alok Mathur',
+      specialty: 'ENT Specialist',
+      nmcNumber: 'MP-55102',
+      chamberNumber: 'CH-5',
+      consultationFeeRupees: 500,
+      followUpFeeRupees: 250,
+      followUpValidityDays: 14,
+      isActive: true,
+    };
+    setAffiliations((prev) => [...prev, newAff]);
+    setIsChamberQuotaModalOpen(false);
+    setChamberAddedToast('✓ Upgraded to Polyclinic Enterprise! Chamber CH-5 provisioned for Dr. Alok Mathur (ENT Specialist).');
+    setTimeout(() => setChamberAddedToast(null), 6000);
   };
 
   const expectedCash = 12400;
@@ -866,12 +922,40 @@ export default function ClinicAdministratorPortal() {
                 <div className="flex items-center justify-between">
                   <h3 className="font-extrabold text-slate-900 text-sm tracking-tight flex items-center gap-2">
                     <span>Chamber Status & Live Queue Intake</span>
-                    <span className="text-xs font-normal text-slate-500">(CH-1 to CH-4)</span>
+                    <span className="text-xs font-normal text-slate-500">
+                      ({affiliations.map((a) => a.chamberNumber).join(', ')})
+                    </span>
                   </h3>
-                  <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-                    ● Real-Time Waiting Room SSE Connected
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      data-testid="btn-add-chamber"
+                      onClick={handleInitiateAddChamber}
+                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs flex items-center gap-1.5 transition-all"
+                    >
+                      <span>➕ Add New Chamber</span>
+                    </button>
+                    <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                      ● Real-Time Waiting Room SSE Connected
+                    </span>
+                  </div>
                 </div>
+
+                {chamberAddedToast && (
+                  <div
+                    data-testid="toast-chamber-added"
+                    className="p-3 rounded-xl bg-emerald-600 text-white text-xs font-bold flex items-center justify-between shadow-lg animate-fadeIn"
+                  >
+                    <span>{chamberAddedToast}</span>
+                    <button
+                      type="button"
+                      onClick={() => setChamberAddedToast(null)}
+                      className="text-white hover:text-emerald-200 text-sm font-mono ml-2"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Chamber 1 */}
@@ -993,6 +1077,41 @@ export default function ClinicAdministratorPortal() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Chamber 5 (Enterprise) */}
+                  {affiliations.some((a) => a.chamberNumber === 'CH-5') && (
+                    <div
+                      data-testid="chamber-card-ch-5"
+                      className="p-4 rounded-2xl bg-white/90 backdrop-blur-xl border border-indigo-200/90 shadow-xs hover:border-indigo-400 transition-colors animate-fadeIn"
+                    >
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
+                        <div className="flex items-center gap-2.5">
+                          <span className="px-2.5 py-1 rounded-lg font-mono font-black text-xs bg-indigo-100 text-indigo-800 border border-indigo-300">
+                            CH-5
+                          </span>
+                          <div>
+                            <span className="font-bold text-slate-900 text-xs block">Dr. Alok Mathur</span>
+                            <span className="text-[11px] text-slate-500">ENT Specialist • NMC: MP-55102</span>
+                          </div>
+                        </div>
+                        <Badge variant="mint" size="sm">ACTIVE NOW</Badge>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                        <div className="p-2 rounded-xl bg-slate-50">
+                          <span className="text-[10px] text-slate-500 block">Current Serving</span>
+                          <span className="font-mono font-bold text-emerald-700 text-base">Token #05</span>
+                        </div>
+                        <div className="p-2 rounded-xl bg-slate-50">
+                          <span className="text-[10px] text-slate-500 block">Waiting in Lobby</span>
+                          <span className="font-mono font-bold text-slate-800 text-base">0 Patients</span>
+                        </div>
+                        <div className="p-2 rounded-xl bg-slate-50">
+                          <span className="text-[10px] text-slate-500 block">Est. Wait</span>
+                          <span className="font-mono font-bold text-slate-800 text-base">0 Mins</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1787,6 +1906,66 @@ export default function ClinicAdministratorPortal() {
         onClose={() => setIsDiagnosticModalOpen(false)}
         clinicName="Bhopal City Care Polyclinic"
       />
+
+      {/* SaaS Chamber Quota Gating Modal */}
+      <Modal
+        isOpen={isChamberQuotaModalOpen}
+        onClose={() => setIsChamberQuotaModalOpen(false)}
+        title="Chamber License Quota Reached"
+        subtitle="B2B SaaS Plan Restriction • Polyclinic Tier Gating"
+      >
+        <div data-testid="modal-chamber-quota-exceeded" className="space-y-4">
+          <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
+            <div className="flex items-center gap-2 font-bold text-amber-950">
+              <span className="text-sm">⚠️</span>
+              <span>Quota Cap Reached: {saasPlan.activeChambers} of {saasPlan.licensedChambers} Chambers in Use</span>
+            </div>
+            <p className="text-[11px] leading-relaxed text-amber-800">
+              Your polyclinic is currently licensed under the <strong className="text-amber-950">{saasPlan.tierName}</strong> (capped at {saasPlan.licensedChambers} active chambers). Adding Chamber CH-5 requires upgrading to the <strong className="text-amber-950">Polyclinic Enterprise Plan</strong>.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Current Tier</span>
+              <span className="font-black text-slate-800 text-sm block mt-0.5">{saasPlan.tierName}</span>
+              <span className="font-mono text-slate-600 text-xs block mt-1">₹{saasPlan.monthlyFeeRupees.toLocaleString('en-IN')}/mo</span>
+              <span className="text-[11px] text-slate-500 block mt-2">✓ Max {saasPlan.licensedChambers} Chambers</span>
+            </div>
+            <div className="p-3 rounded-xl bg-emerald-50/80 border border-emerald-300 relative overflow-hidden">
+              <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-emerald-600 text-white">Recommended</span>
+              <span className="text-[10px] uppercase font-bold text-emerald-800 block">Upgrade To</span>
+              <span className="font-black text-emerald-950 text-sm block mt-0.5">Polyclinic Enterprise</span>
+              <span className="font-mono text-emerald-700 text-xs font-bold block mt-1">₹4,999/mo</span>
+              <span className="text-[11px] text-emerald-800 font-semibold block mt-2">✓ 8 Chambers (+4 Unlocked)</span>
+              <span className="text-[11px] text-emerald-800 font-semibold block">✓ Multi-Chamber TV Matrix</span>
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <Button
+              type="button"
+              variant="primary"
+              fullWidth
+              size="md"
+              data-testid="btn-quota-upgrade-enterprise"
+              onClick={handleUpgradeAndAddChamber}
+              className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold"
+            >
+              🚀 Upgrade to Enterprise & Provision CH-5
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="md"
+              data-testid="btn-cancel-quota-modal"
+              onClick={() => setIsChamberQuotaModalOpen(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Footer */}
       <footer className="bg-white/80 backdrop-blur-md border-t border-emerald-100 py-4 px-6 text-center text-xs text-slate-500">

@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';
+
+declare const process: any;
 import { Badge } from './Badge';
 import { EscposPrinterDriver } from '../printers/escpos-printer-driver';
 import { OfflineSyncQueueManager } from '../storage/offline-sync-queue';
@@ -20,7 +22,7 @@ export const HardwareDiagnosticModal: React.FC<HardwareDiagnosticModalProps> = (
   isOpen,
   onClose,
   clinicName = 'Bhopal City Care Polyclinic',
-  apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000',
+  apiBaseUrl = (typeof process !== 'undefined' && (process as any).env?.NEXT_PUBLIC_API_URL) || 'http://127.0.0.1:4000',
 }) => {
   const [printerStatus, setPrinterStatus] = useState<CheckStatus>('IDLE');
   const [printerDetails, setPrinterDetails] = useState<string | null>(null);

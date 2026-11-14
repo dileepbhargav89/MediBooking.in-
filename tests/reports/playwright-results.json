@@ -4,16 +4,8 @@
       "C:\\Program Files\\nodejs\\node.exe",
       "D:\\Projects\\Startup Project\\MediBooking.in\\node_modules\\@playwright\\test\\cli.js",
       "test",
-      "tests/e2e/32-phase1-doctor-marketplace-and-symptoms.spec.ts",
-      "tests/e2e/35-phase2-onboarding-audit.spec.ts",
-      "tests/e2e/36-phase3-family-and-abha-audit.spec.ts",
-      "tests/e2e/37-phase4-emr-prescription-composer.spec.ts",
-      "tests/e2e/38-phase5-patient-feedback-and-reputation.spec.ts",
-      "tests/e2e/39-phase6-superadmin-bi-saas-engine.spec.ts",
-      "tests/e2e/40-ceo-cross-browser-multi-role-audit.spec.ts",
-      "tests/e2e/41-phase7-unified-patient-experience.spec.ts",
-      "tests/e2e/42-phase8-high-velocity-doctor-chamber.spec.ts",
-      "--project=chromium"
+      "tests/e2e/46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
+      "--project=webkit"
     ],
     "configFile": "D:\\Projects\\Startup Project\\MediBooking.in\\playwright.config.ts",
     "rootDir": "D:/Projects/Startup Project/MediBooking.in/tests/e2e",
@@ -106,7 +98,7 @@
         "metadata": {
           "actualWorkers": 1
         },
-        "name": "chromium",
+        "name": "webkit",
         "testDir": "D:\\Projects\\Startup Project\\MediBooking.in\\tests\\e2e",
         "snapshotDir": "D:\\Projects\\Startup Project\\MediBooking.in\\tests\\e2e",
         "testIgnore": [],
@@ -117,23 +109,23 @@
           "trace": "on-first-retry",
           "screenshot": "only-on-failure",
           "video": "retain-on-failure",
-          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+          "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15",
           "viewport": {
             "width": 1280,
             "height": 720
           },
           "screen": {
-            "width": 1920,
-            "height": 1080
+            "width": 1792,
+            "height": 1120
           },
-          "deviceScaleFactor": 1,
+          "deviceScaleFactor": 2,
           "isMobile": false,
           "hasTouch": false,
-          "defaultBrowserType": "chromium"
+          "defaultBrowserType": "webkit"
         },
         "dependencies": [],
         "ignoreSnapshots": false,
-        "__projectId": "chromium"
+        "__projectId": "webkit"
       }
     ],
     "quiet": false,
@@ -170,139 +162,20 @@
   },
   "suites": [
     {
-      "title": "32-phase1-doctor-marketplace-and-symptoms.spec.ts",
-      "file": "32-phase1-doctor-marketplace-and-symptoms.spec.ts",
+      "title": "46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
+      "file": "46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Phase 1 E2E: Consumer Discovery, Doctor Marketplace & Symptom Search",
-          "file": "32-phase1-doctor-marketplace-and-symptoms.spec.ts",
-          "line": 3,
+          "title": "Phase 11 & Phase 12: Dynamic SaaS Chamber Quota Gating, Instant UPI Payouts, Voice Search & WhatsApp Pass",
+          "file": "46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
+          "line": 6,
           "column": 6,
           "specs": [
             {
-              "title": "1.1 Homepage semantic symptom search and emergency triage alert",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 1787,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:24:38.784Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "df8bd67b8d86b5c2478e-28b38cfb72c5b96b0aef",
-              "file": "32-phase1-doctor-marketplace-and-symptoms.spec.ts",
-              "line": 4,
-              "column": 7
-            },
-            {
-              "title": "1.2 Dedicated Doctors Marketplace (/doctors) with symptom auto-matching and filters",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 1269,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:24:40.715Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "df8bd67b8d86b5c2478e-21d9346b750c986f2e31",
-              "file": "32-phase1-doctor-marketplace-and-symptoms.spec.ts",
-              "line": 34,
-              "column": 7
-            },
-            {
-              "title": "1.3 Doctor profile (/dr/[slug]) displays NMC shield, treated symptoms, and DPDP consent booking",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2402,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:24:41.999Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "df8bd67b8d86b5c2478e-c32bac384e07835f4bd4",
-              "file": "32-phase1-doctor-marketplace-and-symptoms.spec.ts",
-              "line": 62,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "35-phase2-onboarding-audit.spec.ts",
-      "file": "35-phase2-onboarding-audit.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Phase 2 Multi-Perspective Audit: Self-Service Polyclinic & Doctor Onboarding Wizards",
-          "file": "35-phase2-onboarding-audit.spec.ts",
-          "line": 4,
-          "column": 6,
-          "specs": [
-            {
-              "title": "35.1 Polyclinic Onboarding Wizard with Locality Chips, Section 194J Compliance, and Test Token #01",
+              "title": "46.1 Clinic Admin: Dynamic Chamber Quota Intercept & 1-Click Upgrade to Enterprise",
               "ok": true,
               "tags": [],
               "tests": [
@@ -310,19 +183,19 @@
                   "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
                   "results": [
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2035,
+                      "duration": 26444,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T11:24:44.423Z",
+                      "startTime": "2026-11-14T14:53:18.706Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -330,13 +203,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "27a3563b5eafa9d23428-931f477a0cee6856ad44",
-              "file": "35-phase2-onboarding-audit.spec.ts",
-              "line": 7,
+              "id": "49cbb8d493c37994bb0d-fcf75cb3b7a7f529016c",
+              "file": "46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
+              "line": 9,
               "column": 7
             },
             {
-              "title": "35.2 Receptionist 90-Second Quick Start Mode (Sunita Walk-in Onboarding & Training in Hindi/English)",
+              "title": "46.2 Super Admin: Instant 24x7 UPI Disbursal to Doctor VPA with NPCI RRN",
               "ok": true,
               "tags": [],
               "tests": [
@@ -344,19 +217,19 @@
                   "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
                   "results": [
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2696,
+                      "duration": 31894,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T11:24:46.477Z",
+                      "startTime": "2026-11-14T14:53:45.626Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -364,13 +237,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "27a3563b5eafa9d23428-c32f07211913c9d91e62",
-              "file": "35-phase2-onboarding-audit.spec.ts",
-              "line": 81,
+              "id": "49cbb8d493c37994bb0d-ca5cf16dbddc51ab4b35",
+              "file": "46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
+              "line": 59,
               "column": 7
             },
             {
-              "title": "35.3 Doctor Self-Registration with Symptom Tags, NMC Status, and Automated Chamber Conflict Detection",
+              "title": "46.3 Public Discovery: Voice-Assisted Bilingual Symptom Search (Hindi / English)",
               "ok": true,
               "tags": [],
               "tests": [
@@ -378,19 +251,19 @@
                   "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
                   "results": [
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 11933,
+                      "duration": 29220,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T11:24:49.190Z",
+                      "startTime": "2026-11-14T14:54:17.543Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -398,13 +271,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "27a3563b5eafa9d23428-19b0a8fb34e9a60e8f3d",
-              "file": "35-phase2-onboarding-audit.spec.ts",
-              "line": 141,
+              "id": "49cbb8d493c37994bb0d-1f7f253e7f4c393bc967",
+              "file": "46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
+              "line": 99,
               "column": 7
             },
             {
-              "title": "35.4 Mobile Viewport (390x844) Responsiveness for Onboarding Wizards",
+              "title": "46.4 Patient Portal: 1-Click WhatsApp Live Queue Pass with Instant Delivery Preview",
               "ok": true,
               "tags": [],
               "tests": [
@@ -412,19 +285,19 @@
                   "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
                   "results": [
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3560,
+                      "duration": 17842,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T11:25:01.145Z",
+                      "startTime": "2026-11-14T14:54:46.787Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -432,1114 +305,9 @@
                   "status": "expected"
                 }
               ],
-              "id": "27a3563b5eafa9d23428-3a56e092be2315514c19",
-              "file": "35-phase2-onboarding-audit.spec.ts",
-              "line": 214,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "36-phase3-family-and-abha-audit.spec.ts",
-      "file": "36-phase3-family-and-abha-audit.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Phase 3 Multi-Perspective Audit: Patient Family Profiles, Health Records & ABHA Integration (ABDM)",
-          "file": "36-phase3-family-and-abha-audit.spec.ts",
-          "line": 4,
-          "column": 6,
-          "specs": [
-            {
-              "title": "36.1 Family Healthcare Dashboard & DPDP Caregiver Dependent Intake (/patient/family)",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4928,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:25:04.753Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "4187f818ed53262452d7-b2e8d00614050b0d8928",
-              "file": "36-phase3-family-and-abha-audit.spec.ts",
-              "line": 7,
-              "column": 7
-            },
-            {
-              "title": "36.2 ABDM Milestone 1 ABHA ID Verification & Ayushman Bharat Card Issuance",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 3262,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:25:09.698Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "4187f818ed53262452d7-926d0fa7038445a17b14",
-              "file": "36-phase3-family-and-abha-audit.spec.ts",
-              "line": 58,
-              "column": 7
-            },
-            {
-              "title": "36.3 Digital Health Vault Longitudinal Prescriptions, FHIR Standards & DPDP Export (/patient/health-vault)",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 3319,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:25:12.981Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "4187f818ed53262452d7-2354e1f674377b4da4cf",
-              "file": "36-phase3-family-and-abha-audit.spec.ts",
-              "line": 105,
-              "column": 7
-            },
-            {
-              "title": "36.4 Caregiver 1-Click Family Dependent Booking in Doctor Profile (/dr/[slug])",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4654,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:25:16.321Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "4187f818ed53262452d7-200e89f9225fbca88be6",
-              "file": "36-phase3-family-and-abha-audit.spec.ts",
-              "line": 149,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "37-phase4-emr-prescription-composer.spec.ts",
-      "file": "37-phase4-emr-prescription-composer.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Phase 4 Multi-Perspective Audit: Doctor Digital Prescription (Rx) Composer & Clinical EMR",
-          "file": "37-phase4-emr-prescription-composer.spec.ts",
-          "line": 4,
-          "column": 6,
-          "specs": [
-            {
-              "title": "37.1 Doctor Chamber Glance & Consultation Queue with Pre-Recorded Vitals",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 6223,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:25:21.013Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "de1399cf71031485abcf-96da53af53f9895e64c7",
-              "file": "37-phase4-emr-prescription-composer.spec.ts",
-              "line": 21,
-              "column": 7
-            },
-            {
-              "title": "37.2 Real-Time Drug Autocomplete & Critical Drug-Allergy Warning Engine",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 6487,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:25:27.261Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "de1399cf71031485abcf-fc25bcb23bb5b0bc5ec5",
-              "file": "37-phase4-emr-prescription-composer.spec.ts",
-              "line": 62,
-              "column": 7
-            },
-            {
-              "title": "37.3 1-Click Clinical Protocol Bundle Execution (3-Second Prescription)",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 6174,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:25:33.771Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "de1399cf71031485abcf-0b9c78a8d0609a8183c7",
-              "file": "37-phase4-emr-prescription-composer.spec.ts",
-              "line": 104,
-              "column": 7
-            },
-            {
-              "title": "37.4 Digital Prescription Completion, NMC Digital Sign, WhatsApp Dispatch & Reception Print",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 7399,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:25:39.966Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "de1399cf71031485abcf-9d11e7b1eb8781dd2c22",
-              "file": "37-phase4-emr-prescription-composer.spec.ts",
-              "line": 138,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "38-phase5-patient-feedback-and-reputation.spec.ts",
-      "file": "38-phase5-patient-feedback-and-reputation.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Phase 5 Multi-Perspective Audit: Patient Feedback & Reputation Engine (MediBooking Prime Accreditation)",
-          "file": "38-phase5-patient-feedback-and-reputation.spec.ts",
-          "line": 4,
-          "column": 6,
-          "specs": [
-            {
-              "title": "38.1 Doctor Profile Verified Reviews & MediBooking Prime Accreditation Badge (/dr/[slug])",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 3126,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:25:47.403Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "c15d99881257d89e3c89-7f5096155532468b18db",
-              "file": "38-phase5-patient-feedback-and-reputation.spec.ts",
-              "line": 7,
-              "column": 7
-            },
-            {
-              "title": "38.2 Transaction-Verified Patient Feedback & Rating Submission (/patient/review)",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 9668,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:25:50.548Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "c15d99881257d89e3c89-7ab98031cd805a38f469",
-              "file": "38-phase5-patient-feedback-and-reputation.spec.ts",
-              "line": 47,
-              "column": 7
-            },
-            {
-              "title": "38.3 Doctor Bedside Manner Public Reply Workflow",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 6043,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:26:00.239Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "c15d99881257d89e3c89-ad91aef1a934be9e1658",
-              "file": "38-phase5-patient-feedback-and-reputation.spec.ts",
-              "line": 88,
-              "column": 7
-            },
-            {
-              "title": "38.4 Super Admin Review Moderation & Defamation Shield (/super-admin/reviews)",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 22507,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:26:06.317Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "c15d99881257d89e3c89-e158bbf74d26edf1bfd1",
-              "file": "38-phase5-patient-feedback-and-reputation.spec.ts",
-              "line": 117,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "39-phase6-superadmin-bi-saas-engine.spec.ts",
-      "file": "39-phase6-superadmin-bi-saas-engine.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Phase 6 Multi-Perspective Audit: Super Admin Multi-Clinic BI & SaaS Engine",
-          "file": "39-phase6-superadmin-bi-saas-engine.spec.ts",
-          "line": 4,
-          "column": 6,
-          "specs": [
-            {
-              "title": "39.1 Network-Wide Multi-Clinic OPD Command Center (/super-admin -> SAAS_BI)",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 3828,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:26:28.881Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "5c60b3b6c8bf6204fac6-8a40aa4e5afbe9e06b9c",
-              "file": "39-phase6-superadmin-bi-saas-engine.spec.ts",
-              "line": 17,
-              "column": 7
-            },
-            {
-              "title": "39.2 Automated Doctor Revenue Ledger & 80/20 Batch NEFT CMS Payout Disbursal",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4213,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:26:32.739Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "5c60b3b6c8bf6204fac6-00c51acfdf75a43f9a1a",
-              "file": "39-phase6-superadmin-bi-saas-engine.spec.ts",
-              "line": 62,
-              "column": 7
-            },
-            {
-              "title": "39.3 Chamber Idle Time Minimization Heatmap & Sublease Optimization",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 3199,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:26:36.981Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "5c60b3b6c8bf6204fac6-d24b1485ce30369063f7",
-              "file": "39-phase6-superadmin-bi-saas-engine.spec.ts",
-              "line": 108,
-              "column": 7
-            },
-            {
-              "title": "39.4 Section 194J Quarterly TDS Tax Compliance & Form 16A Generator",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5061,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:26:40.226Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "5c60b3b6c8bf6204fac6-a0f6ea26f5cdb872b01b",
-              "file": "39-phase6-superadmin-bi-saas-engine.spec.ts",
-              "line": 143,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "40-ceo-cross-browser-multi-role-audit.spec.ts",
-      "file": "40-ceo-cross-browser-multi-role-audit.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "CEO Executive Cross-Browser & Multi-Role Full Platform Audit",
-          "file": "40-ceo-cross-browser-multi-role-audit.spec.ts",
-          "line": 4,
-          "column": 6,
-          "specs": [
-            {
-              "title": "40.1 Patient Public Discovery, Doctor Marketplace, Family Health Vault & Review Flow",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 75000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 31600,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:26:45.325Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "dd240f97556ce241f5ce-5c25f2bcdef5db5bb28a",
-              "file": "40-ceo-cross-browser-multi-role-audit.spec.ts",
-              "line": 8,
-              "column": 7
-            },
-            {
-              "title": "40.2 Receptionist Front-Desk Intake, Queue Serving & Waiting Room TV Display",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 75000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 11537,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:27:16.947Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "dd240f97556ce241f5ce-f895cd5e6567d9833b90",
-              "file": "40-ceo-cross-browser-multi-role-audit.spec.ts",
-              "line": 63,
-              "column": 7
-            },
-            {
-              "title": "40.3 Doctor Chamber Desk, Vitals, Allergy Warning Shield & 1-Minute Rx Composer",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 75000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 22315,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:27:28.518Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "dd240f97556ce241f5ce-568c7ceb31b92277c1ab",
-              "file": "40-ceo-cross-browser-multi-role-audit.spec.ts",
-              "line": 92,
-              "column": 7
-            },
-            {
-              "title": "40.4 Clinic Admin Polyclinic Organization, Chambers, Doctors & Revenue Settlements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 75000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 10061,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:27:50.871Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "dd240f97556ce241f5ce-412651fb950cbcd72221",
-              "file": "40-ceo-cross-browser-multi-role-audit.spec.ts",
-              "line": 159,
-              "column": 7
-            },
-            {
-              "title": "40.5 Super Admin Command Center, 80/20 Revenue Ledger, Section 194J TDS & Review Shield",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 75000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 8882,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:28:00.966Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "dd240f97556ce241f5ce-da218f821bf78f4708e9",
-              "file": "40-ceo-cross-browser-multi-role-audit.spec.ts",
-              "line": 181,
-              "column": 7
-            },
-            {
-              "title": "40.6 Mobile Viewport Cross-Platform Responsiveness & Navigation Ease",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 75000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5941,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:28:09.871Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "dd240f97556ce241f5ce-a6f6d722ab5ca573fcbe",
-              "file": "40-ceo-cross-browser-multi-role-audit.spec.ts",
-              "line": 229,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "41-phase7-unified-patient-experience.spec.ts",
-      "file": "41-phase7-unified-patient-experience.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Phase 7: Unified Patient Experience, Navbar Simplification & Mobile First Hub",
-          "file": "41-phase7-unified-patient-experience.spec.ts",
-          "line": 4,
-          "column": 6,
-          "specs": [
-            {
-              "title": "41.1 Public Navbar Streamlining, Partner Dropdown & One-Click Navigation",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 45000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4133,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:28:15.855Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "762f17331a3f170ae825-e91085867ba7a739557b",
-              "file": "41-phase7-unified-patient-experience.spec.ts",
-              "line": 8,
-              "column": 7
-            },
-            {
-              "title": "41.2 Unified Patient Dashboard Tab Switching, Family Profiles & Health Vault",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 7965,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:28:20.009Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "762f17331a3f170ae825-95f86c0884a725ba2d17",
-              "file": "41-phase7-unified-patient-experience.spec.ts",
-              "line": 49,
-              "column": 7
-            },
-            {
-              "title": "41.3 Add Dependent Family Member & ABHA M1 Health ID Link Flow",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 45000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2989,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:28:28.000Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "762f17331a3f170ae825-c0cfa83fe34d181ab091",
-              "file": "41-phase7-unified-patient-experience.spec.ts",
-              "line": 119,
-              "column": 7
-            },
-            {
-              "title": "41.4 Mobile Viewport Bottom Navigation (390x844 iPhone Viewport)",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 45000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2307,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:28:31.017Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "762f17331a3f170ae825-e90cff95fe6cc63b3b6c",
-              "file": "41-phase7-unified-patient-experience.spec.ts",
-              "line": 158,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "42-phase8-high-velocity-doctor-chamber.spec.ts",
-      "file": "42-phase8-high-velocity-doctor-chamber.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Phase 8: High-Velocity Doctor Chamber Desk (1-Click Sign & Advance Queue)",
-          "file": "42-phase8-high-velocity-doctor-chamber.spec.ts",
-          "line": 4,
-          "column": 6,
-          "specs": [
-            {
-              "title": "42.1 Doctor Chamber Identity, Queue Strip, Next Patient Peek & Chamber Buzzer",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5424,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:28:33.356Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "422f460881c85f195c9b-c16f798685003c014830",
-              "file": "42-phase8-high-velocity-doctor-chamber.spec.ts",
-              "line": 29,
-              "column": 7
-            },
-            {
-              "title": "42.2 1-Click Complete, Sign Prescription & Advance Queue to Next Token",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4511,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:28:38.803Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "422f460881c85f195c9b-025355de955303bf987f",
-              "file": "42-phase8-high-velocity-doctor-chamber.spec.ts",
-              "line": 69,
-              "column": 7
-            },
-            {
-              "title": "42.3 Modal-Assisted Review & Fast-Forward Queue to Token #14",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5562,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-14T11:28:43.340Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "422f460881c85f195c9b-f3eb02b6b2da4050a109",
-              "file": "42-phase8-high-velocity-doctor-chamber.spec.ts",
-              "line": 111,
+              "id": "49cbb8d493c37994bb0d-af67f0df62c4b92e3fb7",
+              "file": "46-phase11-phase12-saas-gating-upi-voice-whatsapp.spec.ts",
+              "line": 137,
               "column": 7
             }
           ]
@@ -1549,9 +317,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-14T11:24:38.123Z",
-    "duration": 251476.883,
-    "expected": 36,
+    "startTime": "2026-11-14T14:53:17.739Z",
+    "duration": 107063.496,
+    "expected": 4,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

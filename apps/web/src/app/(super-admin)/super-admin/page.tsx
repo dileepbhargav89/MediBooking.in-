@@ -388,6 +388,8 @@ export default function SuperAdminPortalPage() {
   const [taxReport, setTaxReport] = useState<Section194JQuarterlySummary>(INITIAL_SECTION194J_SUMMARY);
   const [isDisbursing, setIsDisbursing] = useState(false);
   const [payoutBatchResult, setPayoutBatchResult] = useState<any | null>(null);
+  const [isInstantUpiDisbursing, setIsInstantUpiDisbursing] = useState(false);
+  const [instantUpiResult, setInstantUpiResult] = useState<any | null>(null);
   const [isGeneratingTax, setIsGeneratingTax] = useState(false);
   const [taxGeneratedNotice, setTaxGeneratedNotice] = useState<string | null>(null);
 
@@ -447,6 +449,39 @@ export default function SuperAdminPortalPage() {
       console.error(err);
     } finally {
       setIsDisbursing(false);
+    }
+  };
+
+  const handleInstantUpiDisburse = async (recordId?: string) => {
+    setIsInstantUpiDisbursing(true);
+    try {
+      const res = await fetch('http://127.0.0.1:4000/api/v1/saas/doctor-ledger/instant-upi-payout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recordId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setInstantUpiResult(data);
+        setDoctorLedger((prev) =>
+          prev.map((r) => {
+            if (recordId ? r.id === recordId : r.payoutStatus === 'PENDING') {
+              return {
+                ...r,
+                payoutStatus: 'DISBURSED_UPI',
+                payoutMethod: 'UPI',
+                disbursedAt: new Date().toISOString(),
+                utrReference: data.utrReference || `UPI-RZPX-${Date.now().toString().slice(-8)}`,
+              };
+            }
+            return r;
+          })
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsInstantUpiDisbursing(false);
     }
   };
 
@@ -1009,20 +1044,63 @@ export default function SuperAdminPortalPage() {
                       Automated Doctor Revenue Ledger & 80/20 Payout Disbursal
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      Automated 80/20 split between visiting consultants and clinic facilities with 10% Section 194J TDS deductions and HDFC/ICICI NEFT CMS batch payment export.
+                      Automated 80/20 split between visiting consultants and clinic facilities with 10% Section 194J TDS deductions, 24x7 Instant UPI Disbursal (RazorpayX), and HDFC/ICICI NEFT CMS batch payment export.
                     </p>
                   </div>
-                  <Button
-                    variant="primary"
-                    size="md"
-                    data-testid="batch-disburse-btn"
-                    isLoading={isDisbursing}
-                    onClick={handleBatchDisburse}
-                    className="bg-emerald-600 hover:bg-emerald-500 text-xs font-bold shadow-md shadow-emerald-600/30 shrink-0"
-                  >
-                    ⚡ Disburse All via HDFC/ICICI NEFT CMS
-                  </Button>
+                  <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                    <Button
+                      variant="primary"
+                      size="md"
+                      data-testid="instant-upi-disburse-btn"
+                      isLoading={isInstantUpiDisbursing}
+                      onClick={() => handleInstantUpiDisburse()}
+                      className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-xs font-bold shadow-md shadow-teal-600/30 shrink-0 flex items-center gap-1.5"
+                    >
+                      <span>⚡ 24x7 Instant UPI Payout (RazorpayX)</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="md"
+                      data-testid="batch-disburse-btn"
+                      isLoading={isDisbursing}
+                      onClick={handleBatchDisburse}
+                      className="border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold shrink-0"
+                    >
+                      <span>🏦 HDFC/ICICI NEFT CMS</span>
+                    </Button>
+                  </div>
                 </div>
+
+                {/* Instant UPI Disburse Success Alert Banner */}
+                {instantUpiResult && (
+                  <div
+                    data-testid="upi-payout-success-banner"
+                    className="p-4 rounded-xl bg-teal-950/90 border border-teal-500 text-teal-200 text-xs space-y-2 shadow-lg animate-fadeIn"
+                  >
+                    <div className="flex items-center justify-between font-bold text-teal-300">
+                      <span className="flex items-center gap-2">
+                        <span>✓</span>
+                        <span>Instant UPI Payout Disbursal Confirmed via RazorpayX & NPCI Fast-Route</span>
+                      </span>
+                      <span className="font-mono text-[11px] bg-teal-900/80 px-2.5 py-0.5 rounded border border-teal-700">
+                        NPCI RRN: {instantUpiResult.npciRrn}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-[11px] text-teal-300/90 pt-1">
+                      <div>Total Disbursed: <span className="font-bold text-white">₹{instantUpiResult.totalDisbursedAmount?.toLocaleString('en-IN')}</span></div>
+                      <div>Doctors Disbursed: <span className="font-bold text-white">{instantUpiResult.disbursedCount} Consultants</span></div>
+                      <div>UTR: <span className="font-bold text-white truncate">{instantUpiResult.utrReference}</span></div>
+                    </div>
+                    <div className="flex items-center justify-between pt-1 border-t border-teal-800/60 text-[10px]">
+                      <span className="font-mono text-teal-400/80 truncate">
+                        Gateway: {instantUpiResult.gateway}
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-teal-900 text-teal-200 font-bold">
+                        Zero Latency Instant Credit
+                      </span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Disburse Success Alert Banner */}
                 {payoutBatchResult && (
@@ -1092,16 +1170,39 @@ export default function SuperAdminPortalPage() {
                           <td className="px-4 py-3 text-slate-400 text-[10px] font-sans">
                             <span className="text-white block font-mono">{record.bankAccountMasked}</span>
                             <span className="text-slate-500 font-mono">IFSC: {record.ifscCode}</span>
+                            {record.vpa && (
+                              <span className="text-teal-400 font-mono block mt-0.5 truncate text-[9px]">
+                                VPA: {record.vpa}
+                              </span>
+                            )}
                           </td>
                           <td className="px-4 py-3 text-right">
-                            {record.payoutStatus === 'DISBURSED' ? (
+                            {record.payoutStatus === 'DISBURSED_UPI' ? (
+                              <span
+                                data-testid={`status-upi-${record.id}`}
+                                className="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-950 text-teal-300 border border-teal-700 inline-block"
+                              >
+                                ✓ SETTLED (UPI)
+                              </span>
+                            ) : record.payoutStatus === 'DISBURSED' ? (
                               <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800 inline-block">
-                                ✓ DISBURSED
+                                ✓ DISBURSED (NEFT)
                               </span>
                             ) : (
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-400 border border-amber-800 inline-block animate-pulse">
-                                ● PENDING
-                              </span>
+                              <div className="flex items-center justify-end gap-1.5">
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-400 border border-amber-800 inline-block animate-pulse">
+                                  ● PENDING
+                                </span>
+                                <button
+                                  type="button"
+                                  data-testid={`single-upi-btn-${record.id}`}
+                                  onClick={() => handleInstantUpiDisburse(record.id)}
+                                  className="px-2 py-0.5 rounded bg-teal-800 hover:bg-teal-700 text-teal-100 font-bold text-[10px] transition-all shrink-0"
+                                  title="Disburse immediately to Doctor's VPA"
+                                >
+                                  ⚡ UPI
+                                </button>
+                              </div>
                             )}
                           </td>
                         </tr>

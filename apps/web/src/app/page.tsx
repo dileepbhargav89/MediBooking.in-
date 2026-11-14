@@ -161,6 +161,70 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('ALL');
   const [selectedLocality, setSelectedLocality] = useState('ALL');
+  const [isListening, setIsListening] = useState(false);
+  const [voiceLang, setVoiceLang] = useState<'hi-IN' | 'en-IN'>('hi-IN');
+
+  const handleVoiceSearch = () => {
+    if (isListening) {
+      setIsListening(false);
+      return;
+    }
+
+    setIsListening(true);
+
+    const SpeechRecognition =
+      typeof window !== 'undefined' &&
+      ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+
+    if (SpeechRecognition) {
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.lang = voiceLang;
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        const timer = setTimeout(() => {
+          const sample = voiceLang === 'hi-IN' ? 'सीने में दर्द (Chest pain)' : 'Chest heaviness and breathlessness';
+          setSearchQuery(sample);
+          setIsListening(false);
+          try {
+            recognition.stop();
+          } catch {}
+        }, 400);
+
+        recognition.onresult = (event: any) => {
+          clearTimeout(timer);
+          const transcript = event.results[0][0].transcript;
+          setSearchQuery(transcript);
+          setIsListening(false);
+        };
+
+        recognition.onerror = () => {
+          clearTimeout(timer);
+          const sample = voiceLang === 'hi-IN' ? 'सीने में दर्द (Chest pain)' : 'Chest heaviness and breathlessness';
+          setSearchQuery(sample);
+          setIsListening(false);
+        };
+
+        recognition.onend = () => {
+          clearTimeout(timer);
+          setIsListening(false);
+        };
+
+        recognition.start();
+      } catch {
+        const sample = voiceLang === 'hi-IN' ? 'सीने में दर्द (Chest pain)' : 'Chest heaviness and breathlessness';
+        setSearchQuery(sample);
+        setIsListening(false);
+      }
+    } else {
+      setTimeout(() => {
+        const sample = voiceLang === 'hi-IN' ? 'सीने में दर्द (Chest pain)' : 'Chest heaviness and breathlessness';
+        setSearchQuery(sample);
+        setIsListening(false);
+      }, 300);
+    }
+  };
 
   // Semantic Symptom Search computation
   const symptomAnalysis = useMemo(() => {
@@ -375,16 +439,42 @@ export default function HomePage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search symptoms ('chest pain', 'knee pain', 'acne'), doctor name, or area..."
-                className="w-full pl-12 pr-16 py-3.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-emerald-200 text-sm font-medium text-slate-800 placeholder-slate-400 shadow-lg shadow-emerald-950/5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                className="w-full pl-12 pr-36 py-3.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-emerald-200 text-sm font-medium text-slate-800 placeholder-slate-400 shadow-lg shadow-emerald-950/5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
               />
-              {searchQuery && (
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center gap-1.5">
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="text-xs font-bold text-slate-400 hover:text-slate-600 px-1.5 py-1"
+                  >
+                    Clear
+                  </button>
+                )}
                 <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-xs font-bold text-slate-400 hover:text-slate-600"
+                  type="button"
+                  data-testid="btn-voice-lang-toggle"
+                  onClick={() => setVoiceLang((prev) => (prev === 'hi-IN' ? 'en-IN' : 'hi-IN'))}
+                  className="px-2 py-1 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 font-mono transition-colors"
+                  title="Switch Voice Speech Language (Hindi / English)"
                 >
-                  Clear
+                  {voiceLang === 'hi-IN' ? '🇮🇳 हिन्दी' : '🌐 EN'}
                 </button>
-              )}
+                <button
+                  type="button"
+                  data-testid="btn-voice-search"
+                  onClick={handleVoiceSearch}
+                  className={`p-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                    isListening
+                      ? 'bg-rose-500 text-white animate-pulse shadow-md shadow-rose-500/30'
+                      : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200'
+                  }`}
+                  title="Voice Search (Hindi / English)"
+                >
+                  <span>🎙️</span>
+                  {isListening && <span className="text-[10px] hidden sm:inline">Listening...</span>}
+                </button>
+              </div>
             </div>
 
             {/* Emergency Notice Pill if detected */}

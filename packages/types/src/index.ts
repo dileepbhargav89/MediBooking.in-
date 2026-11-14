@@ -1348,7 +1348,7 @@ export interface ClinicalVitals {
 }
 
 export type MedicationDosageForm = 'TAB' | 'CAP' | 'SYP' | 'INJ' | 'DROPS' | 'OINTMENT' | 'INHALER';
-export type MedicationFrequency = '1-0-0' | '1-0-1' | '0-0-1' | '1-1-1' | 'SOS' | 'CUSTOM';
+export type MedicationFrequency = '1-0-0' | '1-0-1' | '0-0-1' | '1-1-1' | '0-1-0' | 'SOS' | 'CUSTOM';
 
 export interface PrescriptionMedication {
   drugName: string;
@@ -1506,9 +1506,11 @@ export interface DoctorRevenueShareRecord {
   clinicShare20: number;
   tdsDeductionSection194J: number; // 10% on professional fees
   netPayableToDoctor: number;
-  payoutStatus: 'PENDING' | 'DISBURSED';
+  payoutStatus: 'PENDING' | 'DISBURSED' | 'DISBURSED_UPI';
   bankAccountMasked: string;
   ifscCode: string;
+  vpa?: string;
+  payoutMethod?: 'NEFT' | 'UPI';
   disbursedAt?: string;
   utrReference?: string;
 }

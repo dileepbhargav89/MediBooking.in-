@@ -181,6 +181,13 @@ export default function UnifiedPatientDashboardPage() {
   const [selectedMemberForAbha, setSelectedMemberForAbha] = useState<PatientFamilyMember | null>(null);
   const [abhaGeneratedNotice, setAbhaGeneratedNotice] = useState<string | null>(null);
 
+  // Phase 12: WhatsApp Live Queue Pass State
+  const [whatsAppNotice, setWhatsAppNotice] = useState<boolean>(false);
+
+  const handleSendWhatsAppPass = () => {
+    setWhatsAppNotice(true);
+  };
+
   // Sync with API if reachable
   useEffect(() => {
     fetch('http://127.0.0.1:4000/api/v1/patients/pat-ramesh-38/family')
@@ -721,6 +728,49 @@ export default function UnifiedPatientDashboardPage() {
                 <span>📍 Get Clinic Directions on Google Maps</span>
                 <span>↗</span>
               </a>
+
+              {/* Phase 12: 1-Click WhatsApp Live Queue Pass */}
+              <div className="space-y-3 pt-2">
+                <button
+                  type="button"
+                  data-testid="btn-whatsapp-pass"
+                  onClick={handleSendWhatsAppPass}
+                  className="w-full py-3 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-500/20 transition-all active:scale-98"
+                >
+                  <span className="text-base">📲</span>
+                  <span>Send Live Token Pass to WhatsApp (+91 98260-11111)</span>
+                </button>
+
+                {whatsAppNotice && (
+                  <div
+                    data-testid="toast-whatsapp-sent"
+                    className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-semibold space-y-2 animate-fadeIn shadow-xs"
+                  >
+                    <div className="flex items-center justify-between font-bold text-emerald-950">
+                      <span className="flex items-center gap-1.5">
+                        <span>✓</span>
+                        <span>Live Queue Pass Sent to WhatsApp</span>
+                      </span>
+                      <span className="font-mono text-[10px] bg-emerald-200/80 px-2 py-0.5 rounded text-emerald-900">
+                        DELIVERED
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-emerald-800 leading-relaxed">
+                      Live tracking link sent to <strong className="font-mono">+91 98260-11111</strong>. Patient will receive real-time updates when Token #13 is called.
+                    </p>
+                    <div
+                      data-testid="card-whatsapp-pass-preview"
+                      className="p-2.5 rounded-lg bg-white border border-emerald-200 font-mono text-[10px] text-slate-700 whitespace-pre-line leading-relaxed shadow-xs"
+                    >
+                      {`🏥 *Bhopal City Care Polyclinic • Live Token Pass*
+Patient: Kailash Prasad | Token: #14
+Doctor: Dr. Rajesh Sharma (Cardiology • CH-1)
+Current Serving: Token #11 | Est. Wait: ~24 mins
+🔗 Live Queue TV: https://medibooking.in/tv/citycare-mpnagar-bhopal`}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

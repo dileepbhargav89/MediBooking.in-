@@ -158,7 +158,6 @@ export async function patientRoutes(fastify: FastifyInstance) {
     try {
       const result = await patientService.verifyAbhaOtp(parseResult.data);
       return reply.status(200).send({
-        success: true,
         ...result,
       });
     } catch (err: unknown) {

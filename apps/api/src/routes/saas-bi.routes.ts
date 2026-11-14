@@ -27,8 +27,17 @@ export const saasBiRoutes: FastifyPluginAsync = async (server: FastifyInstance) 
   server.post('/saas/doctor-ledger/batch-disburse', async (_request, reply) => {
     const result = saasBiService.disburseBatchPayouts();
     return reply.send({
-      success: true,
       message: 'HDFC/ICICI NEFT CMS batch payment executed successfully.',
+      ...result,
+    });
+  });
+
+  // 3b. Real-Time 24x7 Instant UPI Disbursal via RazorpayX / NPCI
+  server.post('/saas/doctor-ledger/instant-upi-payout', async (request, reply) => {
+    const body = (request.body as { recordId?: string }) || {};
+    const result = saasBiService.disburseInstantUpi(body.recordId);
+    return reply.send({
+      message: 'Instant UPI Payout via RazorpayX executed successfully.',
       ...result,
     });
   });
