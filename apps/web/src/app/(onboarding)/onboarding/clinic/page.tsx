@@ -12,7 +12,7 @@ interface ChamberItem {
   floor: string;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
 
 function generateQrMatrix(content: string, size = 21): boolean[][] {
   const matrix: boolean[][] = Array.from({ length: size }, () => Array(size).fill(false));

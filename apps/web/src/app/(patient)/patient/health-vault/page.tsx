@@ -5,10 +5,42 @@ import Link from 'next/link';
 import { Button, Card, Badge, Input } from '@medibooking/ui';
 import { HealthRecordDocument, FamilyMember } from '@medibooking/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
+
+const DEFAULT_INITIAL_RECORDS: HealthRecordDocument[] = [
+  {
+    id: 'rec-kailash-1-1111',
+    patientId: 'fam-fat-1111',
+    patientName: 'Kailash Prasad',
+    relationship: 'PARENT (Father)',
+    clinicId: 'c1010000-0000-4000-8000-000000000001',
+    clinicName: 'Bhopal City Care Polyclinic',
+    doctorId: 'doc-001',
+    doctorName: 'Dr. Rajesh Sharma',
+    specialty: 'Cardiology',
+    chamberNumber: 'CH-1',
+    recordType: 'PRESCRIPTION',
+    title: 'Quarterly Cardiovascular & Diabetes Management',
+    diagnoses: ['Essential Hypertension Stage-2', 'Type 2 Diabetes Mellitus'],
+    prescriptions: [
+      { medicine: 'Tab. Telmisartan 40mg', dosage: '1-0-0', duration: '30 Days', instructions: 'After Breakfast' },
+      { medicine: 'Tab. Metformin 500mg SR', dosage: '1-0-1', duration: '30 Days', instructions: 'After Meals' },
+    ],
+    vitals: {
+      bpSystolic: 138,
+      bpDiastolic: 86,
+      pulseRate: 74,
+      bloodSugar: 142,
+    },
+    documentUrl: '/patient/records/prescription-sample.pdf',
+    fhirBundleId: 'fhir-bundle-kailash-01',
+    isAbhaLinked: true,
+    date: '2026-10-24',
+  },
+];
 
 export default function DigitalHealthVaultPage() {
-  const [records, setRecords] = useState<HealthRecordDocument[]>([]);
+  const [records, setRecords] = useState<HealthRecordDocument[]>(DEFAULT_INITIAL_RECORDS);
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPatientId, setSelectedPatientId] = useState<string>('ALL');

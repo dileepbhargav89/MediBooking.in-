@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button, Input, Card, Badge, MedicalSpecialty } from '@medibooking/ui';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
 
 const MEDICAL_COUNCILS = [
   'Madhya Pradesh Medical Council',

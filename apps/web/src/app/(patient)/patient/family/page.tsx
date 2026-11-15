@@ -5,10 +5,55 @@ import Link from 'next/link';
 import { Button, Card, Badge, Input } from '@medibooking/ui';
 import { FamilyMember, AbhaProfile } from '@medibooking/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
+
+const DEFAULT_INITIAL_MEMBERS: FamilyMember[] = [
+  {
+    id: 'fam-self-1111',
+    primaryMobile: '9826011111',
+    fullName: 'Ramesh Kumar',
+    relationship: 'SELF',
+    gender: 'MALE',
+    age: 45,
+    bloodGroup: 'B+',
+    chronicConditions: ['Mild Hypertension'],
+    knownAllergies: ['None'],
+    abhaId: '91-2345-6789-0123',
+    abhaAddress: 'ramesh.kumar@abdm',
+    isAbhaLinked: true,
+  },
+  {
+    id: 'fam-fat-1111',
+    primaryMobile: '9826011111',
+    fullName: 'Kailash Prasad',
+    relationship: 'PARENT',
+    gender: 'MALE',
+    age: 74,
+    bloodGroup: 'O+',
+    chronicConditions: ['Type 2 Diabetes', 'Hypertension'],
+    knownAllergies: ['Penicillin'],
+    abhaId: '91-8765-4321-9876',
+    abhaAddress: 'kailash.prasad@abdm',
+    isAbhaLinked: true,
+  },
+  {
+    id: 'fam-mot-1111',
+    primaryMobile: '9826011111',
+    fullName: 'Savitri Devi',
+    relationship: 'PARENT',
+    gender: 'FEMALE',
+    age: 68,
+    bloodGroup: 'A+',
+    chronicConditions: ['Osteoarthritis'],
+    knownAllergies: ['None'],
+    abhaId: '91-5678-1234-9012',
+    abhaAddress: 'savitri.devi@abdm',
+    isAbhaLinked: true,
+  },
+];
 
 export default function FamilyProfilesPage() {
-  const [members, setMembers] = useState<FamilyMember[]>([]);
+  const [members, setMembers] = useState<FamilyMember[]>(DEFAULT_INITIAL_MEMBERS);
   const [loading, setLoading] = useState(true);
   const [primaryMobile, setPrimaryMobile] = useState('9826011111');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
