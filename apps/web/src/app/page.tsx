@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Button, StatCard, ChamberBadge } from '@medibooking/ui';
 import { COMMON_SYMPTOMS_TAXONOMY, searchDoctorsAndSymptoms } from '@/lib/symptom-search';
-import { BHOPAL_LOCALITIES } from '@/lib/doctor-directory';
+import { BHOPAL_LOCALITIES, getLocalitiesByCity } from '@/lib/doctor-directory';
+import { CitySwitcherModal } from '@/components/city-switcher-modal';
 
 interface ClinicDirectoryItem {
   id: string;
@@ -186,6 +187,8 @@ const FAQS = [
 ];
 
 export default function HomePage() {
+  const [selectedCity, setSelectedCity] = useState('Bhopal');
+  const [isCityModalOpen, setIsCityModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('ALL');
   const [selectedLocality, setSelectedLocality] = useState('ALL');
@@ -193,6 +196,33 @@ export default function HomePage() {
   const [voiceLang, setVoiceLang] = useState<'hi-IN' | 'en-IN'>('hi-IN');
   const [activeOsTab, setActiveOsTab] = useState<'reception' | 'doctor' | 'tv' | 'finance'>('reception');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const savedCity = localStorage.getItem('medibooking_selected_city');
+    if (savedCity) {
+      setSelectedCity(savedCity);
+    }
+    const handleCityChange = (e: any) => {
+      if (e.detail?.city) {
+        setSelectedCity(e.detail.city);
+      }
+    };
+    window.addEventListener('medibooking_city_change', handleCityChange);
+    return () => window.removeEventListener('medibooking_city_change', handleCityChange);
+  }, []);
+
+  const handleCitySelect = (cityName: string) => {
+    setSelectedCity(cityName);
+    setSelectedLocality('ALL');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('medibooking_selected_city', cityName);
+      window.dispatchEvent(
+        new CustomEvent('medibooking_city_change', { detail: { city: cityName } })
+      );
+    }
+  };
 
   const handleVoiceSearch = () => {
     if (isListening) {
@@ -348,12 +378,25 @@ export default function HomePage() {
                 </span>
               </div>
               <p className="text-[10px] text-slate-500 font-medium hidden md:block">
-                Bhopal Multi-Chamber Queue & Token Architecture
+                {selectedCity} Multi-Chamber Queue & Token Architecture
               </p>
             </div>
           </Link>
 
           <div className="flex items-center gap-1.5 sm:gap-3">
+            {/* Global Header City Selector Pill */}
+            <button
+              type="button"
+              data-testid="header-city-selector-btn"
+              onClick={() => setIsCityModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold rounded-xl text-emerald-950 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 transition-all shadow-xs cursor-pointer shrink-0"
+              title="Change Discovery City"
+            >
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span>📍 {selectedCity.toLowerCase() === 'bhopal' ? 'Bhopal (HQ)' : selectedCity}</span>
+              <span className="text-[10px] text-emerald-700">▾</span>
+            </button>
+
             <Link
               href="/doctors"
               data-testid="nav-btn-explore-doctors"
@@ -457,7 +500,7 @@ export default function HomePage() {
             <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
               Live Queue Tracking
             </span>{' '}
-            Across Bhopal
+            Across {selectedCity}
           </h1>
 
           <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto font-normal">
@@ -592,15 +635,9 @@ export default function HomePage() {
             {/* Locality Filter Strip */}
             <div className="mt-2.5 flex items-center justify-center gap-1.5 flex-wrap">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">
-                Locality:
+                {selectedCity} Locality:
               </span>
-              {[
-                { id: 'ALL', label: 'All Bhopal' },
-                { id: 'MP_NAGAR', label: 'MP Nagar' },
-                { id: 'ARERA', label: 'Arera Colony' },
-                { id: 'KOLAR', label: 'Kolar Road' },
-                { id: 'TT_NAGAR', label: 'TT Nagar' },
-              ].map((loc) => {
+              {getLocalitiesByCity(selectedCity).map((loc) => {
                 const isActive = selectedLocality === loc.id;
                 return (
                   <button
@@ -1248,6 +1285,14 @@ export default function HomePage() {
           <span className="text-slate-400">WCAG AAA Accessible • Sub-15ms Pharmacopoeia Search • Offline-First Resilient</span>
         </div>
       </footer>
+
+      {/* Global City Switcher Modal */}
+      <CitySwitcherModal
+        isOpen={isCityModalOpen}
+        onClose={() => setIsCityModalOpen(false)}
+        selectedCity={selectedCity}
+        onSelectCity={handleCitySelect}
+      />
     </main>
   );
 }

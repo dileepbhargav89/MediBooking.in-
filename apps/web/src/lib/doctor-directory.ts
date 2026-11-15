@@ -6,6 +6,7 @@ export interface PracticeVenue {
   clinicId: string;
   clinicName: string;
   locality: string;
+  city?: string;
   address: string;
   chamberNumber: string;
   feeRupees: number;
@@ -44,6 +45,29 @@ export const BHOPAL_LOCALITIES = [
   { id: 'AYODHYA', label: 'Ayodhya Bypass', matchQuery: 'ayodhya' },
 ];
 
+export const INDORE_LOCALITIES = [
+  { id: 'ALL', label: 'All Indore' },
+  { id: 'VIJAY_NAGAR', label: 'Vijay Nagar', matchQuery: 'vijay nagar' },
+  { id: 'PALASIA', label: 'Palasia', matchQuery: 'palasia' },
+  { id: 'BHAWARKUA', label: 'Bhawarkua', matchQuery: 'bhawarkua' },
+  { id: 'RAJWADA', label: 'Rajwada', matchQuery: 'rajwada' },
+  { id: 'ANNAPURNA', label: 'Annapurna', matchQuery: 'annapurna' },
+];
+
+export const GWALIOR_LOCALITIES = [
+  { id: 'ALL', label: 'All Gwalior' },
+  { id: 'LASHKAR', label: 'Lashkar', matchQuery: 'lashkar' },
+  { id: 'MORAR', label: 'Morar', matchQuery: 'morar' },
+  { id: 'CITY_CENTER', label: 'City Center', matchQuery: 'city center' },
+];
+
+export function getLocalitiesByCity(cityName?: string) {
+  const norm = (cityName || 'Bhopal').toLowerCase();
+  if (norm.includes('indore')) return INDORE_LOCALITIES;
+  if (norm.includes('gwalior')) return GWALIOR_LOCALITIES;
+  return BHOPAL_LOCALITIES;
+}
+
 export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
   {
     id: 'doc-001',
@@ -72,6 +96,7 @@ export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
         clinicId: 'c1010000-0000-4000-8000-000000000001',
         clinicName: 'Bhopal City Care Polyclinic',
         locality: 'MP Nagar Zone-II',
+        city: 'Bhopal',
         address: 'Plot 42, MP Nagar Zone II, Near Sargam Cinema, Bhopal',
         chamberNumber: 'CH-1',
         feeRupees: 600,
@@ -85,6 +110,7 @@ export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
         clinicId: 'c1010000-0000-4000-8000-000000000002',
         clinicName: 'Arera Super Specialty Polyclinic',
         locality: 'Arera Colony',
+        city: 'Bhopal',
         address: 'E-3 Commercial Complex, Arera Colony, Bhopal',
         chamberNumber: 'CH-3',
         feeRupees: 800,
@@ -93,6 +119,20 @@ export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
         tvSlug: 'narmada-health-arera-bhopal',
         currentStatus: 'ACTIVE',
         queueCount: 3,
+      },
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000011',
+        clinicName: 'Indore Premier Health Hub',
+        locality: 'Vijay Nagar',
+        city: 'Indore',
+        address: 'Scheme 54, Near Meghdoot Garden, Vijay Nagar, Indore',
+        chamberNumber: 'CH-1',
+        feeRupees: 700,
+        morningTiming: '11:00 AM – 02:00 PM',
+        eveningTiming: '06:00 PM – 09:00 PM',
+        tvSlug: 'indore-premier-health-hub',
+        currentStatus: 'ACTIVE',
+        queueCount: 4,
       },
     ],
   },
@@ -123,6 +163,7 @@ export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
         clinicId: 'c1010000-0000-4000-8000-000000000001',
         clinicName: 'CityCare Polyclinic & Diagnostic Centre',
         locality: 'MP Nagar Zone-II',
+        city: 'Bhopal',
         address: 'Plot 42, MP Nagar Zone II, Bhopal',
         chamberNumber: 'CH-2',
         feeRupees: 600,
@@ -131,6 +172,20 @@ export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
         tvSlug: 'citycare-mpnagar-bhopal',
         currentStatus: 'ACTIVE',
         queueCount: 4,
+      },
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000012',
+        clinicName: 'Aura Skin & Cosmetology Indore',
+        locality: 'Palasia',
+        city: 'Indore',
+        address: 'New Palasia, Near Industry House, AB Road, Indore',
+        chamberNumber: 'CH-2',
+        feeRupees: 700,
+        morningTiming: '10:00 AM – 01:00 PM',
+        eveningTiming: '05:30 PM – 08:30 PM',
+        tvSlug: 'aura-skin-palasia-indore',
+        currentStatus: 'ACTIVE',
+        queueCount: 5,
       },
     ],
   },
@@ -161,6 +216,7 @@ export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
         clinicId: 'c1010000-0000-4000-8000-000000000002',
         clinicName: 'Narmada Health & Specialty Polyclinic',
         locality: 'Arera Colony',
+        city: 'Bhopal',
         address: 'E-3/12, Near 10 No. Market, Arera Colony, Bhopal',
         chamberNumber: 'CH-1',
         feeRupees: 800,
@@ -169,6 +225,20 @@ export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
         tvSlug: 'narmada-health-arera-bhopal',
         currentStatus: 'ACTIVE',
         queueCount: 5,
+      },
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000015',
+        clinicName: 'Gwalior Neuro Care Center',
+        locality: 'Lashkar',
+        city: 'Gwalior',
+        address: 'Lashkar Central Market, Near Jayaji Chowk, Gwalior',
+        chamberNumber: 'CH-1',
+        feeRupees: 800,
+        morningTiming: '10:00 AM – 01:00 PM',
+        eveningTiming: '06:00 PM – 08:30 PM',
+        tvSlug: 'gwalior-neuro-care',
+        currentStatus: 'ACTIVE',
+        queueCount: 4,
       },
     ],
   },
@@ -199,6 +269,7 @@ export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
         clinicId: 'c1010000-0000-4000-8000-000000000003',
         clinicName: 'Kolar Prime MediChambers',
         locality: 'Kolar Road',
+        city: 'Bhopal',
         address: 'A-14, Sarvadharam C-Sector, Main Kolar Road, Bhopal',
         chamberNumber: 'CH-1',
         feeRupees: 500,
@@ -207,6 +278,20 @@ export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
         tvSlug: 'kolar-prime-sarvadharam-bhopal',
         currentStatus: 'ACTIVE',
         queueCount: 7,
+      },
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000013',
+        clinicName: 'Rajwada Family Medicare Indore',
+        locality: 'Rajwada',
+        city: 'Indore',
+        address: 'MG Road, Near Rajwada Palace, Indore',
+        chamberNumber: 'CH-1',
+        feeRupees: 500,
+        morningTiming: '09:00 AM – 12:00 PM',
+        eveningTiming: '05:00 PM – 08:00 PM',
+        tvSlug: 'rajwada-medicare-indore',
+        currentStatus: 'ACTIVE',
+        queueCount: 3,
       },
     ],
   },
@@ -237,6 +322,7 @@ export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
         clinicId: 'c1010000-0000-4000-8000-000000000004',
         clinicName: 'Bhopal Care Polyclinic & Daycare',
         locality: 'TT Nagar',
+        city: 'Bhopal',
         address: 'Unit 204, Platinum Plaza, TT Nagar, Bhopal',
         chamberNumber: 'CH-1',
         feeRupees: 750,
@@ -275,6 +361,7 @@ export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
         clinicId: 'c1010000-0000-4000-8000-000000000006',
         clinicName: 'Bhopal Ortho & Joint Center',
         locality: 'MP Nagar Zone-I',
+        city: 'Bhopal',
         address: 'Zone-I, Above Apollo Pharmacy, MP Nagar, Bhopal',
         chamberNumber: 'CH-4',
         feeRupees: 750,
@@ -283,6 +370,20 @@ export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
         tvSlug: 'citycare-mpnagar-bhopal',
         currentStatus: 'ACTIVE',
         queueCount: 4,
+      },
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000014',
+        clinicName: 'Apollo Ortho Joint Care Indore',
+        locality: 'Bhawarkua',
+        city: 'Indore',
+        address: 'Near Tower Square, Bhawarkua Main Road, Indore',
+        chamberNumber: 'CH-2',
+        feeRupees: 750,
+        morningTiming: '11:00 AM – 01:30 PM',
+        eveningTiming: '06:00 PM – 08:30 PM',
+        tvSlug: 'apollo-ortho-indore',
+        currentStatus: 'ACTIVE',
+        queueCount: 3,
       },
     ],
   },
@@ -313,6 +414,7 @@ export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
         clinicId: 'c1010000-0000-4000-8000-000000000008',
         clinicName: 'Little Angels Pediatric Hub',
         locality: 'Kolar Road',
+        city: 'Bhopal',
         address: 'Chuna Bhatti Main Road, Kolar, Bhopal',
         chamberNumber: 'CH-3',
         feeRupees: 500,
@@ -351,6 +453,7 @@ export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
         clinicId: 'c1010000-0000-4000-8000-000000000007',
         clinicName: 'Metro Care Women Clinic',
         locality: 'TT Nagar',
+        city: 'Bhopal',
         address: 'Near New Market, Malviya Nagar / TT Nagar, Bhopal',
         chamberNumber: 'CH-2',
         feeRupees: 600,
@@ -359,6 +462,20 @@ export const DOCTORS_MASTER_DIRECTORY: DoctorDirectoryItem[] = [
         tvSlug: 'citycare-mpnagar-bhopal',
         currentStatus: 'ACTIVE',
         queueCount: 5,
+      },
+      {
+        clinicId: 'c1010000-0000-4000-8000-000000000016',
+        clinicName: 'Annapurna Care Clinic Indore',
+        locality: 'Annapurna',
+        city: 'Indore',
+        address: 'Annapurna Road, Near Mahaveer Hospital, Indore',
+        chamberNumber: 'CH-1',
+        feeRupees: 650,
+        morningTiming: '10:30 AM – 01:00 PM',
+        eveningTiming: '05:30 PM – 08:30 PM',
+        tvSlug: 'annapurna-care-indore',
+        currentStatus: 'ACTIVE',
+        queueCount: 2,
       },
     ],
   },

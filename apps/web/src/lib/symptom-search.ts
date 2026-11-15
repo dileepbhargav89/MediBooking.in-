@@ -222,12 +222,13 @@ export interface SearchMatchResult {
 }
 
 /**
- * Searches the doctor directory using raw query, selected specialty, and selected locality
+ * Searches the doctor directory using raw query, selected specialty, selected locality, and selected city
  */
 export function searchDoctorsAndSymptoms(
   query: string,
   selectedSpecialty: string = 'ALL',
-  selectedLocality: string = 'ALL'
+  selectedLocality: string = 'ALL',
+  selectedCity: string = 'ALL'
 ): SearchMatchResult {
   const cleanQuery = query.toLowerCase().trim();
 
@@ -247,18 +248,48 @@ export function searchDoctorsAndSymptoms(
 
   // 2. Filter Doctors
   const filteredDoctors = DOCTORS_MASTER_DIRECTORY.filter((doc) => {
+    // City filter
+    const matchesCity =
+      selectedCity === 'ALL' ||
+      doc.venues.some((v) => {
+        const venueCity = (v.city || 'Bhopal').toLowerCase();
+        return venueCity === selectedCity.toLowerCase();
+      });
+
+    if (!matchesCity) return false;
+
     // Locality filter
     const matchesLocality =
       selectedLocality === 'ALL' ||
       doc.venues.some((v) => {
+        // If city is specified, only check localities in that city
+        if (selectedCity !== 'ALL') {
+          const venueCity = (v.city || 'Bhopal').toLowerCase();
+          if (venueCity !== selectedCity.toLowerCase()) return false;
+        }
+
         const locLower = v.locality.toLowerCase();
+        // Bhopal
         if (selectedLocality === 'MP_NAGAR') return locLower.includes('mp nagar');
         if (selectedLocality === 'ARERA') return locLower.includes('arera');
         if (selectedLocality === 'KOLAR') return locLower.includes('kolar');
         if (selectedLocality === 'TT_NAGAR') return locLower.includes('tt nagar') || locLower.includes('platinum');
         if (selectedLocality === 'SHAHPURA') return locLower.includes('shahpura');
         if (selectedLocality === 'AYODHYA') return locLower.includes('ayodhya') || locLower.includes('minal');
-        return true;
+        // Indore
+        if (selectedLocality === 'VIJAY_NAGAR') return locLower.includes('vijay nagar');
+        if (selectedLocality === 'PALASIA') return locLower.includes('palasia');
+        if (selectedLocality === 'BHAWARKUA') return locLower.includes('bhawarkua');
+        if (selectedLocality === 'RAJWADA') return locLower.includes('rajwada');
+        if (selectedLocality === 'ANNAPURNA') return locLower.includes('annapurna');
+        // Gwalior
+        if (selectedLocality === 'LASHKAR') return locLower.includes('lashkar');
+        if (selectedLocality === 'MORAR') return locLower.includes('morar');
+        if (selectedLocality === 'CITY_CENTER') return locLower.includes('city center');
+        
+        // Generic fallback
+        const formattedTarget = selectedLocality.toLowerCase().replace(/_/g, ' ');
+        return locLower.includes(formattedTarget);
       });
 
     // Specialty filter

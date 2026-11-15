@@ -1,17 +1,19 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Button, Badge } from '@medibooking/ui';
 import {
   DOCTORS_MASTER_DIRECTORY,
   BHOPAL_LOCALITIES,
+  getLocalitiesByCity,
   DoctorDirectoryItem,
 } from '@/lib/doctor-directory';
 import {
   COMMON_SYMPTOMS_TAXONOMY,
   searchDoctorsAndSymptoms,
 } from '@/lib/symptom-search';
+import { CitySwitcherModal } from '@/components/city-switcher-modal';
 
 const SPECIALTY_OPTIONS = [
   { label: 'All Specialties', value: 'ALL', icon: '🩺' },
@@ -26,24 +28,89 @@ const SPECIALTY_OPTIONS = [
 ];
 
 export default function DoctorsMarketplacePage() {
+  const [selectedCity, setSelectedCity] = useState('Bhopal');
+  const [isCityModalOpen, setIsCityModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('ALL');
   const [selectedLocality, setSelectedLocality] = useState('ALL');
   const [onlyAvailableToday, setOnlyAvailableToday] = useState(false);
   const [sortBy, setSortBy] = useState<'RECOMMENDED' | 'FEE_LOW' | 'EXPERIENCE'>('RECOMMENDED');
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const cityFromUrl = urlParams.get('city');
+    const savedCity = localStorage.getItem('medibooking_selected_city');
+
+    if (cityFromUrl) {
+      // Normalize capitalized: e.g. "indore" -> "Indore"
+      const formattedCity =
+        cityFromUrl.charAt(0).toUpperCase() + cityFromUrl.slice(1).toLowerCase();
+      setSelectedCity(formattedCity);
+      localStorage.setItem('medibooking_selected_city', formattedCity);
+    } else if (savedCity) {
+      setSelectedCity(savedCity);
+    }
+
+    const handleCityChange = (e: any) => {
+      if (e.detail?.city) {
+        setSelectedCity(e.detail.city);
+      }
+    };
+    window.addEventListener('medibooking_city_change', handleCityChange);
+    return () => window.removeEventListener('medibooking_city_change', handleCityChange);
+  }, []);
+
+  const handleCitySelect = (cityName: string) => {
+    setSelectedCity(cityName);
+    setSelectedLocality('ALL');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('medibooking_selected_city', cityName);
+      const url = new URL(window.location.href);
+      url.searchParams.set('city', cityName.toLowerCase());
+      window.history.replaceState({}, '', url.toString());
+      window.dispatchEvent(
+        new CustomEvent('medibooking_city_change', { detail: { city: cityName } })
+      );
+    }
+  };
+
   const searchResult = useMemo(() => {
-    const rawResult = searchDoctorsAndSymptoms(searchQuery, selectedSpecialty, selectedLocality);
+    const rawResult = searchDoctorsAndSymptoms(
+      searchQuery,
+      selectedSpecialty,
+      selectedLocality,
+      selectedCity
+    );
     let list = [...rawResult.filteredDoctors];
 
     // Filter by available today
     if (onlyAvailableToday) {
-      list = list.filter((doc) => doc.venues.some((v) => v.currentStatus === 'ACTIVE'));
+      list = list.filter((doc) =>
+        doc.venues.some(
+          (v) =>
+            v.currentStatus === 'ACTIVE' &&
+            (!selectedCity ||
+              selectedCity === 'ALL' ||
+              (v.city || 'Bhopal').toLowerCase() === selectedCity.toLowerCase())
+        )
+      );
     }
 
     // Sort
     if (sortBy === 'FEE_LOW') {
-      list.sort((a, b) => (a.venues[0]?.feeRupees || 0) - (b.venues[0]?.feeRupees || 0));
+      list.sort((a, b) => {
+        const feeA =
+          a.venues.find(
+            (v) => (v.city || 'Bhopal').toLowerCase() === selectedCity.toLowerCase()
+          )?.feeRupees || a.venues[0]?.feeRupees || 0;
+        const feeB =
+          b.venues.find(
+            (v) => (v.city || 'Bhopal').toLowerCase() === selectedCity.toLowerCase()
+          )?.feeRupees || b.venues[0]?.feeRupees || 0;
+        return feeA - feeB;
+      });
     } else if (sortBy === 'EXPERIENCE') {
       list.sort((a, b) => b.experienceYears - a.experienceYears);
     }
@@ -52,7 +119,7 @@ export default function DoctorsMarketplacePage() {
       ...rawResult,
       filteredDoctors: list,
     };
-  }, [searchQuery, selectedSpecialty, selectedLocality, onlyAvailableToday, sortBy]);
+  }, [searchQuery, selectedSpecialty, selectedLocality, selectedCity, onlyAvailableToday, sortBy]);
 
   const handleSymptomClick = (symptomKey: string, specialty: string, label: string) => {
     setSearchQuery(label);
@@ -90,6 +157,19 @@ export default function DoctorsMarketplacePage() {
             </div>
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Global City Switcher Pill in Marketplace Header */}
+            <button
+              type="button"
+              data-testid="header-city-selector-btn"
+              onClick={() => setIsCityModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-bold rounded-xl text-emerald-950 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 transition-all shadow-xs cursor-pointer shrink-0"
+              title="Change Discovery City"
+            >
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span>📍 {selectedCity.toLowerCase() === 'bhopal' ? 'Bhopal (HQ)' : selectedCity}</span>
+              <span className="text-[10px] text-emerald-700">▾</span>
+            </button>
+
             <Link href="/patient/dashboard">
               <Button variant="outline" size="sm" className="text-xs font-semibold rounded-xl text-emerald-900 border-emerald-200 hover:bg-emerald-50 px-2.5 sm:px-3">
                 <span>👤</span>
@@ -117,9 +197,23 @@ export default function DoctorsMarketplacePage() {
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/90 text-emerald-900 border border-emerald-200 text-xs font-bold shadow-xs">
             <span>🛡️ National Medical Commission (NMC) Verified Specialist Network</span>
+            <span className="text-slate-300">•</span>
+            <span data-testid="badge-active-city" className="text-emerald-700 font-extrabold">
+              📍 {selectedCity} Market
+            </span>
+            {selectedCity.toLowerCase() === 'indore' && (
+              <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 text-[10px]">
+                🎙️ Malwi Audio Rx
+              </span>
+            )}
+            {selectedCity.toLowerCase() === 'gwalior' && (
+              <span className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-[10px]">
+                🎙️ Bundeli Audio Rx
+              </span>
+            )}
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            Find & Book Bhopal Specialists
+            Find & Book {selectedCity} Specialists
           </h1>
           <p className="text-sm text-slate-600 leading-relaxed">
             Reserve chamber tokens for <strong>₹49</strong>. Your vitals and prescription sheet are pre-printed at the counter before you arrive. Settle consultation fees at the clinic.
@@ -224,7 +318,7 @@ export default function DoctorsMarketplacePage() {
             {/* Locality Selector */}
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
-                Bhopal Locality:
+                {selectedCity} Locality:
               </label>
               <select
                 value={selectedLocality}
@@ -232,7 +326,7 @@ export default function DoctorsMarketplacePage() {
                 onChange={(e) => setSelectedLocality(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
               >
-                {BHOPAL_LOCALITIES.map((loc) => (
+                {getLocalitiesByCity(selectedCity).map((loc) => (
                   <option key={loc.id} value={loc.id}>
                     📍 {loc.label}
                   </option>
@@ -280,7 +374,7 @@ export default function DoctorsMarketplacePage() {
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold text-slate-900">
               Showing {searchResult.filteredDoctors.length} Verified Specialist
-              {searchResult.filteredDoctors.length === 1 ? '' : 's'} in Bhopal
+              {searchResult.filteredDoctors.length === 1 ? '' : 's'} in {selectedCity}
             </span>
             {searchResult.matchedSpecialty && (
               <Badge variant="mint" size="sm">
@@ -309,24 +403,46 @@ export default function DoctorsMarketplacePage() {
           <div className="p-12 text-center rounded-3xl bg-white/80 border border-slate-200 shadow-sm space-y-3">
             <div className="text-3xl">🔍</div>
             <h3 className="text-base font-bold text-slate-900">
-              No doctors found matching your search criteria
+              No doctors found in {selectedCity} matching your search criteria
             </h3>
             <p className="text-xs text-slate-500 max-w-md mx-auto">
-              Try searching a broader symptom (e.g. &apos;chest&apos;, &apos;fever&apos;, &apos;skin&apos;) or selecting &apos;All Bhopal&apos;.
+              {selectedCity.toLowerCase() !== 'bhopal'
+                ? `MediBooking is actively onboarding verified polyclinics and doctors in ${selectedCity}. Try selecting All ${selectedCity} or switch to Bhopal HQ.`
+                : 'Try searching a broader symptom (e.g. \'chest\', \'fever\', \'skin\') or selecting \'All Bhopal\'.'
+              }
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleClearFilters}
-              className="mt-2 text-xs font-bold"
-            >
-              Clear Search Filters
-            </Button>
+            <div className="flex items-center justify-center gap-2 pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearFilters}
+                className="text-xs font-bold"
+              >
+                Clear Search Filters
+              </Button>
+              {selectedCity.toLowerCase() !== 'bhopal' && (
+                <button
+                  type="button"
+                  onClick={() => handleCitySelect('Bhopal')}
+                  className="px-3 py-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-xl border border-emerald-200 transition-colors cursor-pointer"
+                >
+                  Switch to Bhopal HQ
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {searchResult.filteredDoctors.map((doc) => {
-              const primaryVenue = doc.venues[0];
+              const cityVenues = doc.venues.filter(
+                (v) =>
+                  !selectedCity ||
+                  selectedCity === 'ALL' ||
+                  (v.city || 'Bhopal').toLowerCase() === selectedCity.toLowerCase()
+              );
+              const primaryVenue = cityVenues[0] || doc.venues[0];
+              const displayVenues = cityVenues.length > 0 ? cityVenues : doc.venues;
+
               return (
                 <div
                   key={doc.id}
@@ -383,7 +499,7 @@ export default function DoctorsMarketplacePage() {
                       </div>
                       <a
                         href={`https://wa.me/?text=${encodeURIComponent(
-                          `Check out ${doc.fullName} (${doc.specialtyLabel}) in Bhopal on MediBooking: http://localhost:3000/dr/${doc.slug}`
+                          `Check out ${doc.fullName} (${doc.specialtyLabel}) in ${selectedCity} on MediBooking: http://localhost:3000/dr/${doc.slug}`
                         )}`}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -419,9 +535,9 @@ export default function DoctorsMarketplacePage() {
                     {/* Practice Venues / Chambers */}
                     <div className="mt-3.5 space-y-1.5">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                        Affiliated Polyclinic Chambers in Bhopal:
+                        Affiliated Polyclinic Chambers in {selectedCity}:
                       </span>
-                      {doc.venues.map((venue) => (
+                      {displayVenues.map((venue) => (
                         <div
                           key={venue.clinicId}
                           className="p-2.5 rounded-xl bg-slate-50/90 border border-slate-200/80 flex items-center justify-between text-xs"
@@ -476,7 +592,7 @@ export default function DoctorsMarketplacePage() {
             <div>
               <span className="font-bold text-slate-900 text-xs">MediBooking<span className="text-emerald-600">.in</span></span>
               <span className="text-slate-400 mx-1.5">•</span>
-              <span className="text-slate-600">Bhopal Polyclinic OS & Specialist Directory</span>
+              <span className="text-slate-600">Central India Polyclinic OS & Specialist Directory</span>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] text-slate-500">
@@ -486,9 +602,17 @@ export default function DoctorsMarketplacePage() {
             <span>•</span>
             <span>🔒 DPDP Act 2023 Compliant</span>
           </div>
-          <span className="text-[11px] text-slate-400">© 2026 MediBooking.in. MP Nagar Zone-II, Bhopal</span>
+          <span className="text-[11px] text-slate-400">© 2026 MediBooking.in. Central India Healthcare Grid</span>
         </div>
       </footer>
+
+      {/* Global City Switcher Modal */}
+      <CitySwitcherModal
+        isOpen={isCityModalOpen}
+        onClose={() => setIsCityModalOpen(false)}
+        selectedCity={selectedCity}
+        onSelectCity={handleCitySelect}
+      />
     </div>
   );
 }
