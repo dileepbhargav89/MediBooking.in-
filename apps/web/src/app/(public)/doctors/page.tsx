@@ -74,10 +74,10 @@ export default function DoctorsMarketplacePage() {
       <div className="absolute top-1/2 left-0 -ml-40 w-96 h-96 rounded-full bg-teal-400/10 blur-3xl pointer-events-none" />
 
       {/* Top Navbar */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-emerald-100/80 px-6 py-3.5 sticky top-0 z-40 shadow-xs">
+      <header className="bg-white/90 backdrop-blur-xl border-b border-emerald-100/90 px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 sticky top-0 z-40 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-xl shadow-md shadow-emerald-600/20">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-xl shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform">
               M
             </div>
             <div>
@@ -89,19 +89,21 @@ export default function DoctorsMarketplacePage() {
               </span>
             </div>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link href="/patient/dashboard">
-              <Button variant="outline" size="sm" className="text-xs font-semibold rounded-xl text-emerald-900 border-emerald-200 hover:bg-emerald-50">
-                👤 Patient Portal
+              <Button variant="outline" size="sm" className="text-xs font-semibold rounded-xl text-emerald-900 border-emerald-200 hover:bg-emerald-50 px-2.5 sm:px-3">
+                <span>👤</span>
+                <span className="hidden sm:inline"> Patient Portal</span>
+                <span className="sm:hidden"> Portal</span>
               </Button>
             </Link>
             <Link href="/register">
-              <Button variant="outline" size="sm" className="text-xs font-semibold rounded-xl">
+              <Button variant="outline" size="sm" className="text-xs font-semibold rounded-xl px-2.5 sm:px-3 hidden md:inline-flex">
                 Patient Register
               </Button>
             </Link>
             <Link href="/login">
-              <Button variant="ghost" size="sm" className="text-xs font-semibold text-slate-700 hover:text-emerald-700">
+              <Button variant="ghost" size="sm" className="text-xs font-semibold text-slate-700 hover:text-emerald-700 px-2 sm:px-3">
                 Staff Login
               </Button>
             </Link>
@@ -110,7 +112,7 @@ export default function DoctorsMarketplacePage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full space-y-6 relative z-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full space-y-6 relative z-10 flex-1">
         {/* Marketplace Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/90 text-emerald-900 border border-emerald-200 text-xs font-bold shadow-xs">
@@ -465,17 +467,26 @@ export default function DoctorsMarketplacePage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white/80 backdrop-blur-md border-t border-emerald-100/70 py-6 px-6 text-center text-xs text-slate-500 mt-12">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center justify-center">
+      <footer className="bg-white/90 backdrop-blur-md border-t border-emerald-100/80 py-8 px-4 sm:px-6 lg:px-8 text-xs text-slate-500 mt-12">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+          <div className="flex items-center gap-2.5">
+            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-emerald-600 to-teal-700 text-white font-black text-xs flex items-center justify-center shadow-xs">
               M
             </div>
-            <span className="font-semibold text-slate-700">© 2026 MediBooking.in</span>
-            <span>—</span>
-            <span>Bhopal Polyclinic OS & Specialist Directory</span>
+            <div>
+              <span className="font-bold text-slate-900 text-xs">MediBooking<span className="text-emerald-600">.in</span></span>
+              <span className="text-slate-400 mx-1.5">•</span>
+              <span className="text-slate-600">Bhopal Polyclinic OS & Specialist Directory</span>
+            </div>
           </div>
-          <span>NMC Verified Practitioners • Section 194J Automated Payouts • DPDP Act 2023 Compliant</span>
+          <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] text-slate-500">
+            <span>🛡️ 100% NMC Verified Specialists</span>
+            <span>•</span>
+            <span>🏛️ Section 194J Automated TDS</span>
+            <span>•</span>
+            <span>🔒 DPDP Act 2023 Compliant</span>
+          </div>
+          <span className="text-[11px] text-slate-400">© 2026 MediBooking.in. MP Nagar Zone-II, Bhopal</span>
         </div>
       </footer>
     </div>

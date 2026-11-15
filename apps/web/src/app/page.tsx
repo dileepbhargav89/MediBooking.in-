@@ -332,7 +332,7 @@ export default function HomePage() {
       <div className="absolute bottom-10 right-1/4 w-[30rem] h-[30rem] rounded-full bg-emerald-300/10 blur-3xl pointer-events-none" />
 
       {/* Top Navbar: High-Frosted Glass */}
-      <header className="bg-white/85 backdrop-blur-2xl border-b border-emerald-100/90 px-6 py-3.5 sticky top-0 z-40 shadow-xs">
+      <header className="bg-white/90 backdrop-blur-2xl border-b border-emerald-100/90 px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 sticky top-0 z-40 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-xl shadow-md shadow-emerald-600/25 group-hover:scale-105 transition-transform">
@@ -443,7 +443,7 @@ export default function HomePage() {
       </header>
 
       {/* 1. HERO SECTION: HIGH-CONVERTING PATIENT & DOCTOR PLATFORM */}
-      <section className="max-w-7xl mx-auto px-6 py-10 lg:py-16 w-full relative z-10">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-18 w-full relative z-10">
         <div className="text-center max-w-4xl mx-auto">
           {/* Healthcare Trust Pill */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 text-emerald-900 border border-emerald-200/90 text-xs font-bold mb-6 shadow-xs backdrop-blur-md">
@@ -1198,7 +1198,7 @@ export default function HomePage() {
       </section>
 
       {/* 10. REFINED COMPREHENSIVE FOOTER */}
-      <footer className="bg-white/85 backdrop-blur-md border-t border-emerald-100/80 py-8 px-6 text-xs text-slate-500">
+      <footer className="bg-white/90 backdrop-blur-md border-t border-emerald-100/80 py-10 sm:py-12 px-4 sm:px-6 lg:px-8 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 text-left">
           <div className="space-y-2">
             <div className="flex items-center gap-2">

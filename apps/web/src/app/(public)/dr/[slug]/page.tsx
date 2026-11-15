@@ -198,10 +198,10 @@ export default function DoctorPublicProfilePage({
       <div className="absolute top-1/3 left-0 -ml-40 w-96 h-96 rounded-full bg-teal-400/10 blur-3xl pointer-events-none" />
 
       {/* Top Navbar: Frosted Glass */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-emerald-100/70 px-6 py-3.5 sticky top-0 z-30 shadow-xs">
+      <header className="bg-white/90 backdrop-blur-xl border-b border-emerald-100/80 px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 sticky top-0 z-30 shadow-xs">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-xl shadow-md shadow-emerald-600/20">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-xl shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform">
               M
             </div>
             <span className="text-lg font-black tracking-tight text-slate-900">
@@ -211,14 +211,14 @@ export default function DoctorPublicProfilePage({
               ✓ Verified Clinic Booking
             </span>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link href="/doctors">
-              <Button variant="ghost" size="sm" className="text-xs font-semibold text-emerald-800 hover:text-emerald-900">
+              <Button variant="ghost" size="sm" className="text-xs font-semibold text-emerald-800 hover:text-emerald-900 px-2.5 sm:px-3">
                 ← All Doctors
               </Button>
             </Link>
             <Link href="/login">
-              <Button variant="ghost" size="sm" className="text-xs font-semibold text-slate-700 hover:text-emerald-700">
+              <Button variant="ghost" size="sm" className="text-xs font-semibold text-slate-700 hover:text-emerald-700 px-2.5 sm:px-3">
                 Staff Login
               </Button>
             </Link>
@@ -1015,10 +1015,20 @@ export default function DoctorPublicProfilePage({
       </Modal>
 
       {/* Footer: Frosted Glass */}
-      <footer className="bg-white/70 backdrop-blur-md border-t border-emerald-100/60 py-6 px-6 text-center text-xs text-slate-500">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>{doctorInfo.fullName} • MediBooking.in Verified Practice</span>
-          <span>Bhopal, MP, India • National Medical Commission (NMC: {doctorInfo.nmcNumber})</span>
+      <footer className="bg-white/90 backdrop-blur-md border-t border-emerald-100/80 py-6 px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500 mt-8">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left text-[11px]">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-slate-800">{doctorInfo.fullName}</span>
+            <span className="text-slate-300">•</span>
+            <span className="text-slate-600 font-mono">NMC: {doctorInfo.nmcNumber}</span>
+          </div>
+          <div className="text-slate-500 flex items-center gap-2">
+            <span>Bhopal, MP, India</span>
+            <span>•</span>
+            <span className="text-emerald-700 font-semibold">MediBooking.in Verified Practice</span>
+            <span>•</span>
+            <span>DPDP Act 2023 Compliant</span>
+          </div>
         </div>
       </footer>
     </div>

@@ -489,7 +489,7 @@ export default function ClinicAdministratorPortal() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50/40 via-slate-50 to-teal-50/30 flex flex-col justify-between">
       {/* Top Admin Navbar */}
-      <header className="bg-white/90 backdrop-blur-xl border-b border-emerald-100/80 px-6 py-3.5 sticky top-0 z-30 shadow-xs">
+      <header className="bg-white/90 backdrop-blur-xl border-b border-emerald-100/80 px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 sticky top-0 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 group">
@@ -1968,10 +1968,20 @@ export default function ClinicAdministratorPortal() {
       </Modal>
 
       {/* Footer */}
-      <footer className="bg-white/80 backdrop-blur-md border-t border-emerald-100 py-4 px-6 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>MediBooking.in • Polyclinic Admin Console</span>
-          <span>Bhopal, MP, India</span>
+      <footer className="bg-white/90 backdrop-blur-md border-t border-emerald-100/80 py-3.5 px-4 sm:px-6 lg:px-8 text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-[11px]">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-slate-800">CityCare Polyclinic Admin Console</span>
+            <span className="text-slate-300">•</span>
+            <span className="text-emerald-700 font-semibold">Tier: Growth (4/4 Chambers Provisioned)</span>
+          </div>
+          <div className="flex items-center gap-3 text-slate-400">
+            <span>Section 194J Automated TDS</span>
+            <span>•</span>
+            <span>Daily 80/20 Payouts</span>
+            <span>•</span>
+            <span>MP Nagar Zone-II, Bhopal</span>
+          </div>
         </div>
       </footer>
     </div>

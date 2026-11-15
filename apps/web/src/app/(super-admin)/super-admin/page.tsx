@@ -517,7 +517,7 @@ export default function SuperAdminPortalPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between">
       {/* Top Super Admin Navbar */}
-      <header className="bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 px-6 py-3.5 sticky top-0 z-30 shadow-md">
+      <header className="bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 sticky top-0 z-30 shadow-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 group">
@@ -1743,10 +1743,20 @@ export default function SuperAdminPortalPage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-slate-950 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>MediBooking.in • Super Administrator Command Portal</span>
-          <span>Bhopal, MP, India • DPDP Act 2023 Compliant</span>
+      <footer className="bg-slate-950/95 backdrop-blur-md border-t border-slate-800/90 py-3.5 px-4 sm:px-6 lg:px-8 text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-[11px]">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-slate-200">MediBooking.in Super Administrator Console</span>
+            <span className="text-slate-600">•</span>
+            <span className="text-emerald-400 font-semibold">10 Bhopal Polyclinics Live • 40 Chambers Operational</span>
+          </div>
+          <div className="flex items-center gap-3 text-slate-500">
+            <span>DLT Route 1A AirTel Active</span>
+            <span>•</span>
+            <span>ABDM FHIR R4 Production</span>
+            <span>•</span>
+            <span>DPDP Act 2023 Shield</span>
+          </div>
         </div>
       </footer>
     </div>

@@ -1277,7 +1277,7 @@ export default function DoctorPrescriptionComposerPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-between text-slate-800">
       {/* Top Header & Chamber Identity */}
-      <header className="bg-white border-b border-slate-200 px-6 py-3.5 sticky top-0 z-30 shadow-xs">
+      <header className="bg-white/95 backdrop-blur-xl border-b border-slate-200/90 px-4 sm:px-6 lg:px-8 py-3 sticky top-0 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/doctor" className="flex items-center gap-2">
@@ -3231,8 +3231,21 @@ export default function DoctorPrescriptionComposerPage() {
       </Modal>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-3 px-6 text-center text-xs text-slate-500">
-        MediBooking.in Clinical EMR • NMC 2023 Compliant • Sub-15ms Pharmacopoeia Search
+      <footer className="bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-3 px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-[11px]">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-slate-800">MediBooking.in Clinical EMR</span>
+            <span className="text-slate-300">•</span>
+            <span className="text-emerald-700 font-semibold">Chamber CH-1 (Dr. Rajesh Sharma, MD)</span>
+          </div>
+          <div className="flex items-center gap-3 text-slate-400">
+            <span>NMC 2023 Compliant</span>
+            <span>•</span>
+            <span>Sub-15ms Pharmacopoeia Search</span>
+            <span>•</span>
+            <span>Offline DDI Shield Active</span>
+          </div>
+        </div>
       </footer>
     </div>
   );

@@ -286,17 +286,17 @@ export default function DoctorOnboardingPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-between">
       {/* Top Header */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-40">
+      <header className="bg-white/95 backdrop-blur-xl border-b border-slate-200/90 px-4 sm:px-6 lg:px-8 py-3.5 sticky top-0 z-40 shadow-xs">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xl shadow-sm">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-xl shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform">
               M
             </div>
             <div>
               <span className="text-lg font-black tracking-tight text-slate-900">
-                MediBooking<span className="text-blue-600">.in</span>
+                MediBooking<span className="text-emerald-600">.in</span>
               </span>
-              <span className="ml-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-blue-50 text-blue-700 border border-blue-200">
+              <span className="ml-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
                 Doctor Registration
               </span>
             </div>
@@ -937,8 +937,21 @@ export default function DoctorOnboardingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500">
-        MediBooking.in Clinical Network • National Medical Commission Compliance • Bhopal & MP Doctors
+      <footer className="bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-3.5 px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-[11px]">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-slate-800">MediBooking.in Clinical Network</span>
+            <span className="text-slate-300">•</span>
+            <span className="text-emerald-700 font-semibold">Doctor Credential & Onboarding</span>
+          </div>
+          <div className="flex items-center gap-3 text-slate-400">
+            <span>National Medical Commission Verified</span>
+            <span>•</span>
+            <span>Bhopal & MP Doctors</span>
+            <span>•</span>
+            <span>DPDP Act 2023 Compliant</span>
+          </div>
+        </div>
       </footer>
     </div>
   );

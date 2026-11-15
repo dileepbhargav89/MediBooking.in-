@@ -279,10 +279,10 @@ export default function UnifiedPatientDashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-teal-50/40 text-slate-900 flex flex-col justify-between pb-20 md:pb-8">
       {/* Top Navbar */}
-      <header className="bg-white/90 backdrop-blur-2xl border-b border-emerald-100/90 px-6 py-3.5 sticky top-0 z-40 shadow-xs">
+      <header className="bg-white/90 backdrop-blur-2xl border-b border-emerald-100/90 px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 sticky top-0 z-40 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-xl shadow-md shadow-emerald-600/20">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-xl shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform">
               M
             </div>
             <div>
@@ -300,10 +300,11 @@ export default function UnifiedPatientDashboardPage() {
             </div>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link href="/doctors">
-              <Button variant="outline" size="sm" className="text-xs font-bold rounded-xl border-emerald-200 text-emerald-900 hover:bg-emerald-50">
-                🩺 Find Doctors
+              <Button variant="outline" size="sm" className="text-xs font-bold rounded-xl border-emerald-200 text-emerald-900 hover:bg-emerald-50 px-2.5 sm:px-3">
+                <span>🩺</span>
+                <span className="hidden sm:inline"> Find Doctors</span>
               </Button>
             </Link>
             <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
@@ -320,7 +321,7 @@ export default function UnifiedPatientDashboardPage() {
       </header>
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full space-y-6 flex-1">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full space-y-6 flex-1">
         {/* Caregiver Account Overview Strip */}
         <div className="p-5 rounded-3xl bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-900 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
@@ -1191,6 +1192,30 @@ Current Serving: Token #11 | Est. Wait: ~24 mins
           </div>
         </div>
       </Modal>
+
+      {/* Patient Portal Footer */}
+      <footer className="bg-white/90 backdrop-blur-md border-t border-emerald-100/80 py-8 px-4 sm:px-6 lg:px-8 text-xs text-slate-500 mt-10">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left text-[11px]">
+          <div className="flex items-center gap-2.5">
+            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-emerald-600 to-teal-700 text-white font-black text-xs flex items-center justify-center shadow-xs">
+              M
+            </div>
+            <div>
+              <span className="font-bold text-slate-900 text-xs">MediBooking<span className="text-emerald-600">.in</span> Patient Portal</span>
+              <span className="text-slate-400 mx-1.5">•</span>
+              <span className="text-slate-600">Family Health & ABHA Records</span>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 text-slate-500">
+            <span>🔒 DPDP Act 2023 Cryptographic Vault</span>
+            <span>•</span>
+            <span>🇮🇳 ABDM Milestone M1/M2 Verified</span>
+            <span>•</span>
+            <span>🚑 Emergency Triage: Dial 108</span>
+          </div>
+          <span className="text-slate-400">© 2026 MediBooking.in • Bhopal, Madhya Pradesh</span>
+        </div>
+      </footer>
     </div>
   );
 }

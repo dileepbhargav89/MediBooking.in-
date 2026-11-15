@@ -194,10 +194,10 @@ export default function PatientQueueTrackerPage() {
       <div className="absolute top-1/2 left-0 -ml-32 w-80 h-80 rounded-full bg-teal-400/10 blur-3xl pointer-events-none" />
 
       {/* Top Navbar: Frosted Glass */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-emerald-100/70 px-6 py-3.5 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-xl shadow-md shadow-emerald-600/20">
+      <header className="bg-white/90 backdrop-blur-xl border-b border-emerald-100/80 px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 sticky top-0 z-30 shadow-xs">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-xl shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform">
               M
             </div>
             <div>
@@ -546,10 +546,18 @@ export default function PatientQueueTrackerPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 px-6 text-center text-xs text-slate-500">
-        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>MediBooking.in • Live Patient Portal</span>
-          <span>Bhopal, MP, India</span>
+      <footer className="bg-white/90 backdrop-blur-md border-t border-emerald-100/80 py-6 px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500">
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left text-[11px]">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-slate-800">MediBooking.in Live Patient Portal</span>
+            <span className="text-slate-300">•</span>
+            <span className="text-emerald-700 font-semibold">Real-Time Queue Telemetry</span>
+          </div>
+          <div className="text-slate-500 flex items-center gap-2">
+            <span>Bhopal, MP, India</span>
+            <span>•</span>
+            <span>DPDP Act 2023 Cryptographic Privacy</span>
+          </div>
         </div>
       </footer>
     </div>

@@ -690,15 +690,15 @@ export default function ReceptionDeskDashboardPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-between">
       {/* Top Reception Header */}
-      <header className="bg-white border-b border-slate-200 px-6 py-3.5 sticky top-0 z-30">
+      <header className="bg-white/95 backdrop-blur-xl border-b border-slate-200/90 px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 sticky top-0 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-base shadow-sm">
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-base shadow-sm shadow-emerald-600/20 group-hover:scale-105 transition-transform">
                 M
               </div>
               <span className="font-bold text-slate-900 text-sm hidden sm:inline">
-                MediBooking<span className="text-blue-600">.in</span>
+                MediBooking<span className="text-emerald-600">.in</span>
               </span>
             </Link>
             <span className="text-slate-300">/</span>
@@ -2185,10 +2185,20 @@ export default function ReceptionDeskDashboardPage() {
       )}
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>MediBooking.in • Receptionist Desk Operations Engine</span>
-          <span>Bhopal, MP, India • Sub-15s Walk-In Intake Guaranteed</span>
+      <footer className="bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-3.5 px-4 sm:px-6 lg:px-8 text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-[11px]">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-slate-800">Bhopal CityCare Polyclinic</span>
+            <span className="text-slate-300">•</span>
+            <span className="text-emerald-700 font-semibold">Front-Desk Operations Engine v2.4</span>
+          </div>
+          <div className="flex items-center gap-3 text-slate-400">
+            <span>F2 Quick-Intake Active</span>
+            <span>•</span>
+            <span>Thermal 80mm ESC/POS Ready</span>
+            <span>•</span>
+            <span>ABDM Milestone M2/M3</span>
+          </div>
         </div>
       </footer>
     </div>
