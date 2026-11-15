@@ -10,6 +10,8 @@ import {
   DoctorRevenueShareRecord,
   ChamberUtilizationHeatmap,
   Section194JQuarterlySummary,
+  CityRecord,
+  CityLaunchStatus,
 } from '@medibooking/types';
 
 interface PendingDoctorReview {
@@ -372,7 +374,47 @@ const INITIAL_SECTION194J_SUMMARY: Section194JQuarterlySummary = {
   filingDueDate: '2027-01-31',
 };
 
-type SuperAdminTab = 'OVERVIEW' | 'SAAS_BI' | 'NMC_DESK' | 'TENANTS' | 'PATIENTS_DIRECTORY' | 'DPDP_AUDIT' | 'TELEMETRY';
+const INITIAL_CITIES_FALLBACK: CityRecord[] = [
+  {
+    id: 'city-bhopal-hq',
+    name: 'Bhopal',
+    slug: 'bhopal',
+    state: 'Madhya Pradesh',
+    stateCode: 'MP',
+    gstStateCode: '23',
+    centerLat: 23.259933,
+    centerLng: 77.412613,
+    radiusKm: 30,
+    regionalDialects: ['Hindi', 'Urdu'],
+    launchStatus: CityLaunchStatus.GA_ACTIVE,
+    isHq: true,
+    clinicsCount: 10,
+    doctorsCount: 38,
+    chambersCount: 37,
+    todayConsultations: 248,
+    localities: [
+      { id: 'loc-bhopal-1', cityId: 'city-bhopal-hq', name: 'MP Nagar', slug: 'mp-nagar', pincode: '462011', isActive: true },
+      { id: 'loc-bhopal-2', cityId: 'city-bhopal-hq', name: 'Arera Colony', slug: 'arera-colony', pincode: '462016', isActive: true },
+      { id: 'loc-bhopal-3', cityId: 'city-bhopal-hq', name: 'Kolar Road', slug: 'kolar-road', pincode: '462042', isActive: true },
+      { id: 'loc-bhopal-4', cityId: 'city-bhopal-hq', name: 'TT Nagar', slug: 'tt-nagar', pincode: '462003', isActive: true },
+      { id: 'loc-bhopal-5', cityId: 'city-bhopal-hq', name: 'Shahpura', slug: 'shahpura', pincode: '462039', isActive: true },
+      { id: 'loc-bhopal-6', cityId: 'city-bhopal-hq', name: 'Indrapuri', slug: 'indrapuri', pincode: '462022', isActive: true },
+      { id: 'loc-bhopal-7', cityId: 'city-bhopal-hq', name: 'Ayodhya Bypass', slug: 'ayodhya-bypass', pincode: '462041', isActive: true },
+    ],
+    specialtyCoverage: [
+      { specialty: 'General Medicine', doctorCount: 12, status: 'READY' },
+      { specialty: 'Cardiology', doctorCount: 8, status: 'READY' },
+      { specialty: 'Pediatrics', doctorCount: 6, status: 'READY' },
+      { specialty: 'Orthopedics', doctorCount: 5, status: 'READY' },
+      { specialty: 'Gynecology', doctorCount: 4, status: 'READY' },
+      { specialty: 'Dermatology', doctorCount: 3, status: 'READY' },
+    ],
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+type SuperAdminTab = 'OVERVIEW' | 'CITIES' | 'SAAS_BI' | 'NMC_DESK' | 'TENANTS' | 'PATIENTS_DIRECTORY' | 'DPDP_AUDIT' | 'TELEMETRY';
 
 export default function SuperAdminPortalPage() {
   const router = useRouter();
@@ -393,11 +435,35 @@ export default function SuperAdminPortalPage() {
   const [isGeneratingTax, setIsGeneratingTax] = useState(false);
   const [taxGeneratedNotice, setTaxGeneratedNotice] = useState<string | null>(null);
 
+  // Multi-City Management States
+  const [cities, setCities] = useState<CityRecord[]>(INITIAL_CITIES_FALLBACK);
+  const [isLaunchModalOpen, setIsLaunchModalOpen] = useState(false);
+  const [newCityName, setNewCityName] = useState('');
+  const [newCitySlug, setNewCitySlug] = useState('');
+  const [newCityState, setNewCityState] = useState('Madhya Pradesh');
+  const [newCityGstCode, setNewCityGstCode] = useState('23');
+  const [newCityLat, setNewCityLat] = useState('22.7196');
+  const [newCityLng, setNewCityLng] = useState('75.8577');
+  const [newCityRadius, setNewCityRadius] = useState('25');
+  const [newCityLocalities, setNewCityLocalities] = useState('Vijay Nagar, Palasia, Bhawarkua, Rajwada, Annapurna');
+  const [newCityDialects, setNewCityDialects] = useState<string[]>(['Hindi', 'Malwi']);
+  const [newCityLaunchStatus, setNewCityLaunchStatus] = useState<CityLaunchStatus>(CityLaunchStatus.PILOT_ACTIVE);
+  const [isProvisioningCity, setIsProvisioningCity] = useState(false);
+  const [cityActionNotice, setCityActionNotice] = useState<string | null>(null);
+  const [cityErrorMessage, setCityErrorMessage] = useState<string | null>(null);
+
   useEffect(() => {
     fetch('http://127.0.0.1:4000/api/v1/saas/network-metrics')
       .then((res) => res.json())
       .then((d) => {
         if (d.success && d.metrics) setNetworkMetrics(d.metrics);
+      })
+      .catch((e) => console.error(e));
+
+    fetch('http://127.0.0.1:4000/api/v1/saas/cities')
+      .then((res) => res.json())
+      .then((d) => {
+        if (d.success && d.cities) setCities(d.cities);
       })
       .catch((e) => console.error(e));
 
@@ -422,6 +488,74 @@ export default function SuperAdminPortalPage() {
       })
       .catch((e) => console.error(e));
   }, []);
+
+  const handleCreateCity = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCityName.trim()) {
+      setCityErrorMessage('Please enter a valid city name.');
+      return;
+    }
+    setIsProvisioningCity(true);
+    setCityErrorMessage(null);
+    try {
+      const localitiesArray = newCityLocalities
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const payload = {
+        name: newCityName.trim(),
+        slug: newCitySlug.trim() || undefined,
+        state: newCityState.trim(),
+        stateCode: 'MP',
+        gstStateCode: newCityGstCode.trim(),
+        centerLat: parseFloat(newCityLat) || 22.7196,
+        centerLng: parseFloat(newCityLng) || 75.8577,
+        radiusKm: parseInt(newCityRadius, 10) || 25,
+        regionalDialects: newCityDialects,
+        launchStatus: newCityLaunchStatus,
+        initialLocalities: localitiesArray.length > 0 ? localitiesArray : ['Central ' + newCityName],
+      };
+
+      const res = await fetch('http://127.0.0.1:4000/api/v1/saas/cities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success && data.city) {
+        setCities((prev) => [...prev.filter((c) => c.slug !== data.city.slug), data.city]);
+        setCityActionNotice(`✓ Market '${data.city.name}' provisioned successfully in ${data.city.launchStatus} stage!`);
+        setIsLaunchModalOpen(false);
+        setNewCityName('');
+        setNewCitySlug('');
+      } else {
+        setCityErrorMessage(data.message || 'Failed to provision city cluster.');
+      }
+    } catch (err: any) {
+      setCityErrorMessage(err.message || 'Network error while provisioning city.');
+    } finally {
+      setIsProvisioningCity(false);
+    }
+  };
+
+  const handlePromoteCityStatus = async (cityId: string, targetStatus: CityLaunchStatus) => {
+    try {
+      const res = await fetch(`http://127.0.0.1:4000/api/v1/saas/cities/${cityId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ launchStatus: targetStatus }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.city) {
+        setCities((prev) => prev.map((c) => (c.id === cityId ? data.city : c)));
+        setCityActionNotice(`✓ City '${data.city.name}' promoted to ${targetStatus}!`);
+      }
+    } catch (err: any) {
+      console.error(err);
+    }
+  };
 
   const handleBatchDisburse = async () => {
     setIsDisbursing(true);
@@ -613,6 +747,33 @@ export default function SuperAdminPortalPage() {
                   }`}
                 >
                   Live
+                </span>
+              </button>
+
+              {/* Tab: Multi-City & Market Expansion Grid */}
+              <button
+                type="button"
+                data-testid="sidebar-btn-cities"
+                onClick={() => setActiveTab('CITIES')}
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                  activeTab === 'CITIES'
+                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30 font-bold'
+                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="text-base">🏙️</span>
+                  <span>City & Market Expansion</span>
+                </div>
+                <span
+                  className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                    activeTab === 'CITIES'
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-indigo-950 text-indigo-300 border border-indigo-800'
+                  }`}
+                  data-testid="badge-cities-count"
+                >
+                  {cities.length} Cities
                 </span>
               </button>
 
@@ -945,6 +1106,526 @@ export default function SuperAdminPortalPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* VIEW: Multi-City & Market Expansion Grid */}
+          {activeTab === 'CITIES' && (
+            <div className="space-y-6" data-testid="cities-management-command-center">
+              {/* Header Strip */}
+              <div className="p-5 rounded-2xl bg-gradient-to-r from-indigo-950/80 via-slate-900 to-emerald-950/70 border border-indigo-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
+                <div className="flex items-center gap-3.5">
+                  <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-indigo-500 to-teal-700 text-white flex items-center justify-center font-black text-xl shadow-md shadow-indigo-500/20">
+                    🏙️
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-extrabold text-white text-base">
+                        Central India Multi-City Expansion & Market Governance
+                      </h3>
+                      <span className="px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800 text-[10px] font-bold font-mono">
+                        MP GST CODE 23
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-300 mt-0.5">
+                      Super-Admin City Provisioning, PIN-Code Auto-Resolution & Specialty Liquidity Tracking across Central India.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    data-testid="btn-open-launch-city-modal"
+                    onClick={() => {
+                      setCityErrorMessage(null);
+                      setIsLaunchModalOpen(true);
+                    }}
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 shrink-0"
+                  >
+                    ➕ Launch New City Cluster
+                  </Button>
+                </div>
+              </div>
+
+              {/* City Action Notice */}
+              {cityActionNotice && (
+                <div
+                  className="p-4 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-semibold flex items-center justify-between shadow-md"
+                  data-testid="city-action-notice"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">✓</span>
+                    <span>{cityActionNotice}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCityActionNotice(null)}
+                    className="text-emerald-400 hover:text-white font-bold text-sm px-2 py-0.5"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+
+              {/* KPI Strip */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Active Markets
+                  </span>
+                  <span className="text-2xl font-black font-mono text-white mt-1 block" data-testid="kpi-active-cities-count">
+                    {cities.length}
+                  </span>
+                  <span className="text-[10px] text-indigo-400 font-semibold block mt-0.5">
+                    {cities.filter((c) => c.launchStatus === 'GA_ACTIVE').length} GA • {cities.filter((c) => c.launchStatus === 'PILOT_ACTIVE').length} Pilot
+                  </span>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Total Network Clinics
+                  </span>
+                  <span className="text-2xl font-black font-mono text-white mt-1 block">
+                    {cities.reduce((sum, c) => sum + c.clinicsCount, 0)}
+                  </span>
+                  <span className="text-[10px] text-emerald-400 font-semibold block mt-0.5">
+                    100% Isolated by clinicId RLS
+                  </span>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Total Localities Mapped
+                  </span>
+                  <span className="text-2xl font-black font-mono text-white mt-1 block">
+                    {cities.reduce((sum, c) => sum + (c.localities?.length || 0), 0)}
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">
+                    PIN Reverse-Resolved
+                  </span>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Central India Hub
+                  </span>
+                  <span className="text-2xl font-black font-mono text-white mt-1 block">
+                    MP Code 23
+                  </span>
+                  <span className="text-[10px] text-teal-400 font-semibold block mt-0.5">
+                    CGST 9% + SGST 9% Intrastate
+                  </span>
+                </div>
+              </div>
+
+              {/* Cities Telemetry Table */}
+              <div className="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-sm" data-testid="cities-telemetry-table">
+                <div className="px-6 py-4 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h3 className="font-bold text-white text-sm">
+                      Multi-City Provisioning & Market Telemetry Registry
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Real-time status of central HQ and satellite market expansion clusters.
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono font-bold text-indigo-400 bg-indigo-950/60 px-2.5 py-1 rounded-lg border border-indigo-800">
+                    {cities.length} Central India Hubs Registered
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-800 bg-slate-950/50 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                        <th className="py-3 px-4">Market / City</th>
+                        <th className="py-3 px-4">State & GST Code</th>
+                        <th className="py-3 px-4">Geo Center & Dialects</th>
+                        <th className="py-3 px-4">Localities</th>
+                        <th className="py-3 px-4">Live Clinics</th>
+                        <th className="py-3 px-4">Specialty Liquidity</th>
+                        <th className="py-3 px-4">Launch Stage</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800 text-slate-300">
+                      {cities.map((city) => (
+                        <tr key={city.id} className="hover:bg-slate-800/40 transition-colors" data-testid={`city-row-${city.slug}`}>
+                          {/* City Name & HQ pill */}
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-white text-sm">{city.name}</span>
+                              {city.isHq && (
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-emerald-950 text-emerald-400 border border-emerald-800">
+                                  HQ
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[10px] font-mono text-slate-400 block mt-0.5">
+                              /{city.slug}
+                            </span>
+                          </td>
+
+                          {/* State & GST Code */}
+                          <td className="py-3 px-4">
+                            <span className="font-semibold text-slate-200 block">{city.state}</span>
+                            <span className="text-[10px] font-mono text-indigo-400 block">
+                              Code {city.gstStateCode} ({city.stateCode})
+                            </span>
+                          </td>
+
+                          {/* Geo Center & Dialects */}
+                          <td className="py-3 px-4">
+                            <span className="text-[10px] font-mono text-slate-300 block">
+                              {city.centerLat.toFixed(2)}°N, {city.centerLng.toFixed(2)}°E ({city.radiusKm}km)
+                            </span>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {city.regionalDialects.map((d) => (
+                                <span key={d} className="px-1.5 py-0.2 rounded bg-slate-800 text-[9px] text-slate-300 font-medium">
+                                  {d}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+
+                          {/* Localities */}
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-mono font-bold text-white">{city.localities?.length || 0}</span>
+                              <span className="text-[11px] text-slate-400">Areas</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1 mt-1 max-w-xs">
+                              {(city.localities || []).slice(0, 3).map((loc) => (
+                                <span key={loc.id} className="px-1.5 py-0.5 rounded bg-slate-950 text-[9px] text-slate-400 border border-slate-800">
+                                  {loc.name}
+                                </span>
+                              ))}
+                              {(city.localities || []).length > 3 && (
+                                <span className="text-[9px] text-slate-400">
+                                  +{city.localities.length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Live Clinics */}
+                          <td className="py-3 px-4">
+                            <span className="font-bold text-white block">
+                              {city.clinicsCount} Polyclinics
+                            </span>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">
+                              {city.doctorsCount} Doctors Affiliated
+                            </span>
+                          </td>
+
+                          {/* Specialty Liquidity */}
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-1">
+                              {city.specialtyCoverage?.slice(0, 4).map((spec) => (
+                                <span
+                                  key={spec.specialty}
+                                  title={`${spec.specialty}: ${spec.doctorCount} Doctors (${spec.status})`}
+                                  className={`h-2 w-2 rounded-full ${
+                                    spec.status === 'READY'
+                                      ? 'bg-emerald-400'
+                                      : spec.status === 'SPARSE'
+                                      ? 'bg-amber-400'
+                                      : 'bg-rose-400'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-[10px] text-slate-400 block mt-1 font-mono">
+                              {city.specialtyCoverage?.filter((s) => s.status === 'READY').length || 0}/6 Ready
+                            </span>
+                          </td>
+
+                          {/* Launch Stage */}
+                          <td className="py-3 px-4">
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-mono inline-block ${
+                                city.launchStatus === 'GA_ACTIVE'
+                                  ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                                  : city.launchStatus === 'PILOT_ACTIVE'
+                                  ? 'bg-amber-950 text-amber-400 border border-amber-800'
+                                  : city.launchStatus === 'COMING_SOON'
+                                  ? 'bg-blue-950 text-blue-400 border border-blue-800'
+                                  : 'bg-rose-950 text-rose-400 border border-rose-800'
+                              }`}
+                              data-testid={`badge-city-status-${city.slug}`}
+                            >
+                              ● {city.launchStatus}
+                            </span>
+                          </td>
+
+                          {/* Actions */}
+                          <td className="py-3 px-4 text-right">
+                            {city.launchStatus === 'PILOT_ACTIVE' ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                data-testid={`btn-promote-ga-${city.slug}`}
+                                onClick={() => handlePromoteCityStatus(city.id, CityLaunchStatus.GA_ACTIVE)}
+                                className="text-[11px] py-1 px-2.5 border-emerald-700 text-emerald-300 hover:bg-emerald-950"
+                              >
+                                🚀 Promote to GA
+                              </Button>
+                            ) : city.launchStatus === 'GA_ACTIVE' ? (
+                              <span className="text-[10px] font-bold text-emerald-400 font-mono">
+                                ✓ LIVE ON AIR
+                              </span>
+                            ) : (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handlePromoteCityStatus(city.id, CityLaunchStatus.PILOT_ACTIVE)}
+                                className="text-[11px] py-1 px-2.5 border-slate-700 text-slate-300 hover:bg-slate-800"
+                              >
+                                Activate Pilot
+                              </Button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* "➕ Launch New City Cluster" Modal */}
+              {isLaunchModalOpen && (
+                <div
+                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+                  data-testid="modal-launch-city"
+                >
+                  <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-xl p-6 shadow-2xl space-y-5 overflow-y-auto max-h-[90vh]">
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                      <div>
+                        <h3 className="font-extrabold text-white text-base flex items-center gap-2">
+                          <span>🏙️</span> Launch New City Cluster
+                        </h3>
+                        <p className="text-xs text-slate-400 mt-0.5">
+                          Configure geographic boundary, regional dialects, and locality presets.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        data-testid="btn-close-modal-x"
+                        onClick={() => setIsLaunchModalOpen(false)}
+                        className="text-slate-400 hover:text-white font-bold text-lg p-1"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    {cityErrorMessage && (
+                      <div className="p-3 rounded-xl bg-rose-950/80 border border-rose-500/40 text-rose-300 text-xs font-semibold">
+                        ⚠️ {cityErrorMessage}
+                      </div>
+                    )}
+
+                    <form onSubmit={handleCreateCity} className="space-y-4">
+                      {/* Step 1: Basic City Details */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                            City Name *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. Indore"
+                            value={newCityName}
+                            onChange={(e) => {
+                              setNewCityName(e.target.value);
+                              if (!newCitySlug) {
+                                setNewCitySlug(
+                                  e.target.value
+                                    .toLowerCase()
+                                    .replace(/[^a-z0-9]+/g, '-')
+                                    .replace(/^-|-$/g, '')
+                                );
+                              }
+                            }}
+                            className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-indigo-500 font-semibold"
+                            data-testid="input-new-city-name"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                            URL Slug *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. indore"
+                            value={newCitySlug}
+                            onChange={(e) => setNewCitySlug(e.target.value.toLowerCase())}
+                            className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                            data-testid="input-new-city-slug"
+                          />
+                        </div>
+                      </div>
+
+                      {/* State & GST Code */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                            State
+                          </label>
+                          <input
+                            type="text"
+                            value={newCityState}
+                            onChange={(e) => setNewCityState(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-indigo-500"
+                            data-testid="input-new-city-state"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                            GST State Code (2-Digit)
+                          </label>
+                          <input
+                            type="text"
+                            maxLength={2}
+                            value={newCityGstCode}
+                            onChange={(e) => setNewCityGstCode(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                            data-testid="input-new-city-gst"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Coordinates & Radius */}
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+                            Latitude *
+                          </label>
+                          <input
+                            type="text"
+                            value={newCityLat}
+                            onChange={(e) => setNewCityLat(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                            data-testid="input-new-city-lat"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+                            Longitude *
+                          </label>
+                          <input
+                            type="text"
+                            value={newCityLng}
+                            onChange={(e) => setNewCityLng(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                            data-testid="input-new-city-lng"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+                            Radius (KM)
+                          </label>
+                          <input
+                            type="number"
+                            value={newCityRadius}
+                            onChange={(e) => setNewCityRadius(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                            data-testid="input-new-city-radius"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Locality Presets */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                          Initial Locality Presets (Comma-separated) *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={newCityLocalities}
+                          onChange={(e) => setNewCityLocalities(e.target.value)}
+                          placeholder="e.g. Vijay Nagar, Palasia, Bhawarkua, Rajwada"
+                          className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-indigo-500"
+                          data-testid="input-new-city-localities"
+                        />
+                        <span className="text-[10px] text-slate-400 mt-1 block">
+                          These presets will appear as instant 1-click chips during clinic onboarding in this city.
+                        </span>
+                      </div>
+
+                      {/* Launch Stage */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                          Launch Stage
+                        </label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { value: CityLaunchStatus.PILOT_ACTIVE, label: 'Pilot Active', desc: 'Invite-only clinics' },
+                            { value: CityLaunchStatus.COMING_SOON, label: 'Coming Soon', desc: 'Waitlist only' },
+                            { value: CityLaunchStatus.GA_ACTIVE, label: 'General Avail.', desc: 'Public discovery' },
+                          ].map((st) => (
+                            <button
+                              key={st.value}
+                              type="button"
+                              onClick={() => setNewCityLaunchStatus(st.value)}
+                              className={`p-2.5 rounded-xl border text-left transition-all ${
+                                newCityLaunchStatus === st.value
+                                  ? 'bg-indigo-950/80 border-indigo-500 text-white shadow-sm'
+                                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                              }`}
+                              data-testid={`btn-select-stage-${st.value.toLowerCase()}`}
+                            >
+                              <span className="text-xs font-bold block">{st.label}</span>
+                              <span className="text-[10px] opacity-70 block mt-0.5">{st.desc}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Liquidity Gate Notice */}
+                      <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-400 flex items-start gap-2">
+                        <span className="text-base leading-none">🛡️</span>
+                        <span>
+                          <strong className="text-slate-200">Ghost Town Safeguard:</strong> Recommends launching in <strong className="text-amber-300">PILOT_ACTIVE</strong> to seed 3–5 initial polyclinics before promoting to <strong className="text-emerald-300">GA_ACTIVE</strong> for open patient booking.
+                        </span>
+                      </div>
+
+                      {/* Footer Actions */}
+                      <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          type="button"
+                          data-testid="btn-cancel-launch-city"
+                          onClick={() => setIsLaunchModalOpen(false)}
+                          className="text-slate-400 hover:text-white"
+                        >
+                          Cancel
+                        </Button>
+
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          type="submit"
+                          disabled={isProvisioningCity}
+                          data-testid="btn-submit-launch-city"
+                          className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30"
+                        >
+                          {isProvisioningCity ? 'Provisioning Market...' : '🚀 Launch City Cluster'}
+                        </Button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

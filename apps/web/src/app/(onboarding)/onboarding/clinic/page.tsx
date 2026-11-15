@@ -86,6 +86,43 @@ export default function PolyclinicOnboardingPage() {
   const [panNumber, setPanNumber] = useState('ABCDE1234F');
   const [gstin, setGstin] = useState('');
 
+  // Dynamic Cities & Localities
+  const [availableCities, setAvailableCities] = useState<Array<{ id: string; name: string; slug: string; isHq?: boolean; localities?: Array<{ name: string; slug: string }> }>>([
+    {
+      id: 'city-bhopal-hq',
+      name: 'Bhopal',
+      slug: 'bhopal',
+      isHq: true,
+      localities: [
+        { name: 'MP Nagar', slug: 'mp-nagar' },
+        { name: 'Arera Colony', slug: 'arera-colony' },
+        { name: 'Kolar Road', slug: 'kolar-road' },
+        { name: 'Shahpura', slug: 'shahpura' },
+        { name: 'TT Nagar', slug: 'tt-nagar' },
+        { name: 'Indrapuri', slug: 'indrapuri' },
+      ],
+    },
+  ]);
+
+  React.useEffect(() => {
+    fetch(`${API_BASE_URL}/api/v1/saas/cities`)
+      .then((res) => res.json())
+      .then((d) => {
+        if (d.success && d.cities && d.cities.length > 0) {
+          setAvailableCities(d.cities);
+        }
+      })
+      .catch((e) => console.error(e));
+  }, []);
+
+  const currentCityObj = availableCities.find(
+    (c) => c.name.toLowerCase() === city.toLowerCase() || c.slug === city.toLowerCase()
+  );
+  const currentLocalityChips =
+    currentCityObj && currentCityObj.localities && currentCityObj.localities.length > 0
+      ? currentCityObj.localities.map((l) => l.name)
+      : ['MP Nagar', 'Arera Colony', 'Kolar Road', 'Shahpura', 'TT Nagar', 'Indrapuri'];
+
   // Step 2: Chambers Configuration
   const [chambers, setChambers] = useState<ChamberItem[]>([
     { id: '1', chamberNumber: 'CH-1', chamberName: 'Cardiology & General Medicine', floor: 'Ground Floor' },
@@ -488,7 +525,7 @@ export default function PolyclinicOnboardingPage() {
                   data-testid="input-clinic-locality"
                 />
                 <div className="flex flex-wrap gap-1.5 mt-2" data-testid="bhopal-locality-chips">
-                  {['MP Nagar', 'Arera Colony', 'Kolar Road', 'Shahpura', 'TT Nagar', 'Indrapuri'].map((loc) => (
+                  {currentLocalityChips.map((loc) => (
                     <button
                       key={loc}
                       type="button"
@@ -511,7 +548,27 @@ export default function PolyclinicOnboardingPage() {
                   City & State
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" />
+                  <select
+                    value={city}
+                    onChange={(e) => {
+                      const newCityName = e.target.value;
+                      setCity(newCityName);
+                      const matched = availableCities.find(
+                        (c) => c.name.toLowerCase() === newCityName.toLowerCase() || c.slug === newCityName.toLowerCase()
+                      );
+                      if (matched && matched.localities && matched.localities.length > 0 && matched.localities[0]) {
+                        setLocality(matched.localities[0].name);
+                      }
+                    }}
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
+                    data-testid="select-clinic-city"
+                  >
+                    {availableCities.map((c) => (
+                      <option key={c.id || c.slug} value={c.name}>
+                        {c.name} {c.isHq ? '(HQ)' : ''}
+                      </option>
+                    ))}
+                  </select>
                   <Input value={state} onChange={(e) => setState(e.target.value)} placeholder="State" />
                 </div>
               </div>
@@ -522,7 +579,22 @@ export default function PolyclinicOnboardingPage() {
                 </label>
                 <Input
                   value={pincode}
-                  onChange={(e) => setPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  onChange={(e) => {
+                    const clean = e.target.value.replace(/\D/g, '').slice(0, 6);
+                    setPincode(clean);
+                    if (clean.length === 6) {
+                      fetch(`${API_BASE_URL}/api/v1/saas/cities/resolve-pincode/${clean}`)
+                        .then((res) => res.json())
+                        .then((data) => {
+                          if (data.success && data.resolution && data.resolution.matched) {
+                            setCity(data.resolution.city);
+                            setLocality(data.resolution.locality);
+                            setState(data.resolution.state);
+                          }
+                        })
+                        .catch((err) => console.error(err));
+                    }
+                  }}
                   placeholder="e.g. 462011"
                   maxLength={6}
                   data-testid="input-clinic-pincode"

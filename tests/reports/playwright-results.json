@@ -4,8 +4,8 @@
       "C:\\Program Files\\nodejs\\node.exe",
       "D:\\Projects\\Startup Project\\MediBooking.in\\node_modules\\@playwright\\test\\cli.js",
       "test",
-      "tests/e2e/50-phase19-phase20-offline-sync-ddi.spec.ts",
-      "--project=webkit"
+      "tests/e2e/51-high-volume-500-users-load-and-rbac.spec.ts",
+      "--project=chromium"
     ],
     "configFile": "D:\\Projects\\Startup Project\\MediBooking.in\\playwright.config.ts",
     "rootDir": "D:/Projects/Startup Project/MediBooking.in/tests/e2e",
@@ -98,7 +98,7 @@
         "metadata": {
           "actualWorkers": 1
         },
-        "name": "webkit",
+        "name": "chromium",
         "testDir": "D:\\Projects\\Startup Project\\MediBooking.in\\tests\\e2e",
         "snapshotDir": "D:\\Projects\\Startup Project\\MediBooking.in\\tests\\e2e",
         "testIgnore": [],
@@ -109,23 +109,23 @@
           "trace": "on-first-retry",
           "screenshot": "only-on-failure",
           "video": "retain-on-failure",
-          "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
           "viewport": {
             "width": 1280,
             "height": 720
           },
           "screen": {
-            "width": 1792,
-            "height": 1120
+            "width": 1920,
+            "height": 1080
           },
-          "deviceScaleFactor": 2,
+          "deviceScaleFactor": 1,
           "isMobile": false,
           "hasTouch": false,
-          "defaultBrowserType": "webkit"
+          "defaultBrowserType": "chromium"
         },
         "dependencies": [],
         "ignoreSnapshots": false,
-        "__projectId": "webkit"
+        "__projectId": "chromium"
       }
     ],
     "quiet": false,
@@ -162,20 +162,20 @@
   },
   "suites": [
     {
-      "title": "50-phase19-phase20-offline-sync-ddi.spec.ts",
-      "file": "50-phase19-phase20-offline-sync-ddi.spec.ts",
+      "title": "51-high-volume-500-users-load-and-rbac.spec.ts",
+      "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Phase 19 & Phase 20: Offline-First Local Sync Engine & Real-Time DDI / Pediatric Dosage Safety Shield",
-          "file": "50-phase19-phase20-offline-sync-ddi.spec.ts",
-          "line": 6,
+          "title": "Senior QA & Lead Debugger: 500 High-Volume Demo Users & End-to-End Multi-Role Audit",
+          "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
+          "line": 4,
           "column": 6,
           "specs": [
             {
-              "title": "50.1 Doctor Chamber: Offline-First Local Storage Engine & Simulated Network Drop Recovery",
+              "title": "51.1 High-Volume 500 Demo Users Batch Authentication & RBAC Verification (100 per role)",
               "ok": true,
               "tags": [],
               "tests": [
@@ -183,19 +183,19 @@
                   "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
                   "results": [
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5061,
+                      "duration": 556,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T17:43:58.580Z",
+                      "startTime": "2026-11-15T13:51:57.669Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -203,13 +203,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "6884f7427a5ee2715109-26705a9af70d7a5696c0",
-              "file": "50-phase19-phase20-offline-sync-ddi.spec.ts",
-              "line": 14,
+              "id": "4fc074e47c250bbd7bf3-b7834605f7028ae30837",
+              "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
+              "line": 8,
               "column": 7
             },
             {
-              "title": "50.2 Doctor Chamber: Real-Time Drug-Drug Interaction (DDI) Detection & 1-Click Safe Substitution",
+              "title": "51.2 Super Admin Portal: Network Telemetry, 80/20 Ledger, Section 194J TDS & Review Shield",
               "ok": true,
               "tags": [],
               "tests": [
@@ -217,19 +217,19 @@
                   "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
                   "results": [
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5585,
+                      "duration": 4070,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T17:44:03.924Z",
+                      "startTime": "2026-11-15T13:51:58.269Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -237,13 +237,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "6884f7427a5ee2715109-5140cee331619420960f",
-              "file": "50-phase19-phase20-offline-sync-ddi.spec.ts",
-              "line": 75,
+              "id": "4fc074e47c250bbd7bf3-356df576179fea9d4a46",
+              "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
+              "line": 54,
               "column": 7
             },
             {
-              "title": "50.3 Doctor Chamber: Pediatric Weight-Based Dosage Safety Window Verification",
+              "title": "51.3 Clinic Admin Portal: Multi-Chamber Quota, 80/20 Settlements & Staff Pin Security",
               "ok": true,
               "tags": [],
               "tests": [
@@ -251,19 +251,19 @@
                   "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
                   "results": [
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6971,
+                      "duration": 3612,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T17:44:09.522Z",
+                      "startTime": "2026-11-15T13:52:02.494Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -271,13 +271,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "6884f7427a5ee2715109-63b6230f31865f0f6a50",
-              "file": "50-phase19-phase20-offline-sync-ddi.spec.ts",
-              "line": 129,
+              "id": "4fc074e47c250bbd7bf3-578b581df1a380b0d516",
+              "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
+              "line": 93,
               "column": 7
             },
             {
-              "title": "50.4 Doctor Chamber: Complete & Sign Consultation with Full Clinical Safety Governance",
+              "title": "51.4 Receptionist Desk: Sub-15s Intake, Thermal Printing & Two-Witness Cashier Transfer",
               "ok": true,
               "tags": [],
               "tests": [
@@ -285,19 +285,19 @@
                   "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
                   "results": [
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6632,
+                      "duration": 3362,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-14T17:44:16.508Z",
+                      "startTime": "2026-11-15T13:52:06.124Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -305,9 +305,77 @@
                   "status": "expected"
                 }
               ],
-              "id": "6884f7427a5ee2715109-537573d31c424541c0f6",
-              "file": "50-phase19-phase20-offline-sync-ddi.spec.ts",
-              "line": 168,
+              "id": "4fc074e47c250bbd7bf3-0db23bf18eff420f78e9",
+              "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
+              "line": 114,
+              "column": 7
+            },
+            {
+              "title": "51.5 Doctor Chamber Desk: Patient Dossier, ICD-10 Emergency Triage, DDI Safety & Audio Rx",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7419,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-15T13:52:09.502Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4fc074e47c250bbd7bf3-6e83da414df3ddd84f0b",
+              "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
+              "line": 146,
+              "column": 7
+            },
+            {
+              "title": "51.6 Patient Unified Experience: Family Health Vault, ABHA ID Link & Live Queue Tracking",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9126,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-15T13:52:16.941Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4fc074e47c250bbd7bf3-efb0906a1e6830cd4693",
+              "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
+              "line": 183,
               "column": 7
             }
           ]
@@ -317,9 +385,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-14T17:43:57.997Z",
-    "duration": 25218.607,
-    "expected": 4,
+    "startTime": "2026-11-15T13:51:56.885Z",
+    "duration": 29402.34,
+    "expected": 6,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

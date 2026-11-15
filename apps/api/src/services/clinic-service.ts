@@ -8,6 +8,7 @@ import crypto from 'crypto';
 import { Clinic, Chamber, UserRole, StaffScope, UserContext } from '@medibooking/types';
 import { SEED_DATA, BHOPAL_10_CLINICS } from '@medibooking/database';
 import { authService } from './auth-service';
+import { cityService } from './city-service';
 
 export interface CreateClinicDTO {
   name: string;
@@ -170,6 +171,7 @@ export class ClinicService {
     };
 
     this.clinics.set(clinicId, clinic);
+    cityService.registerClinicInCity(clinic.city);
 
     // Automatically provision initial physical chambers (e.g. CH-1..CH-4)
     const initialCount = dto.initialChambersCount ?? 4;
@@ -245,6 +247,7 @@ export class ClinicService {
     };
 
     this.clinics.set(clinicId, clinic);
+    cityService.registerClinicInCity(clinic.city);
 
     // Provision custom chambers
     const chamberList: Chamber[] = (dto.chambers && dto.chambers.length > 0 ? dto.chambers : [

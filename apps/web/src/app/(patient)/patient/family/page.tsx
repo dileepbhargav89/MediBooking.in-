@@ -21,6 +21,7 @@ const DEFAULT_INITIAL_MEMBERS: FamilyMember[] = [
     abhaId: '91-2345-6789-0123',
     abhaAddress: 'ramesh.kumar@abdm',
     isAbhaLinked: true,
+    createdAt: '2026-11-01T00:00:00.000Z',
   },
   {
     id: 'fam-fat-1111',
@@ -35,6 +36,7 @@ const DEFAULT_INITIAL_MEMBERS: FamilyMember[] = [
     abhaId: '91-8765-4321-9876',
     abhaAddress: 'kailash.prasad@abdm',
     isAbhaLinked: true,
+    createdAt: '2026-11-01T00:00:00.000Z',
   },
   {
     id: 'fam-mot-1111',
@@ -49,6 +51,7 @@ const DEFAULT_INITIAL_MEMBERS: FamilyMember[] = [
     abhaId: '91-5678-1234-9012',
     abhaAddress: 'savitri.devi@abdm',
     isAbhaLinked: true,
+    createdAt: '2026-11-01T00:00:00.000Z',
   },
 ];
 

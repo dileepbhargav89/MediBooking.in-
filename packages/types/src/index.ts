@@ -1610,6 +1610,78 @@ export interface MedicationSafetyAuditResult {
   pediatricDosing?: PediatricDosingCalculation;
 }
 
+// ==========================================
+// 21. MULTI-CITY EXPANSION & MARKET GOVERNANCE
+// ==========================================
+
+export enum CityLaunchStatus {
+  COMING_SOON = 'COMING_SOON',
+  PILOT_ACTIVE = 'PILOT_ACTIVE',
+  GA_ACTIVE = 'GA_ACTIVE',
+  PAUSED = 'PAUSED',
+}
+
+export interface LocalityRecord {
+  id: string;
+  cityId: string;
+  name: string;
+  slug: string;
+  pincode?: string;
+  isActive: boolean;
+}
+
+export interface SpecialtyCoverageItem {
+  specialty: string;
+  doctorCount: number;
+  status: 'READY' | 'SPARSE' | 'GAP';
+}
+
+export interface CityRecord {
+  id: string;
+  name: string;
+  slug: string;
+  state: string;
+  stateCode: string;
+  gstStateCode: string; // "23" for MP
+  centerLat: number;
+  centerLng: number;
+  radiusKm: number;
+  regionalDialects: string[];
+  launchStatus: CityLaunchStatus;
+  isHq: boolean;
+  localities: LocalityRecord[];
+  clinicsCount: number;
+  doctorsCount: number;
+  chambersCount: number;
+  todayConsultations: number;
+  specialtyCoverage?: SpecialtyCoverageItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCityPayload {
+  name: string;
+  slug?: string;
+  state?: string;
+  stateCode?: string;
+  gstStateCode?: string;
+  centerLat: number;
+  centerLng: number;
+  radiusKm?: number;
+  regionalDialects?: string[];
+  launchStatus?: CityLaunchStatus;
+  initialLocalities: string[];
+}
+
+export interface PincodeResolutionResult {
+  pincode: string;
+  city: string;
+  locality: string;
+  state: string;
+  gstStateCode: string;
+  matched: boolean;
+}
+
 export * from './auth-edge';
 
 
