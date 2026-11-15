@@ -4,8 +4,9 @@
       "C:\\Program Files\\nodejs\\node.exe",
       "D:\\Projects\\Startup Project\\MediBooking.in\\node_modules\\@playwright\\test\\cli.js",
       "test",
-      "tests/e2e/51-high-volume-500-users-load-and-rbac.spec.ts",
-      "--project=chromium"
+      "--project=chromium",
+      "tests/e2e/53-patient-discovery-city-selector.spec.ts",
+      "tests/e2e/54-complete-demo-data-e2e-journey.spec.ts"
     ],
     "configFile": "D:\\Projects\\Startup Project\\MediBooking.in\\playwright.config.ts",
     "rootDir": "D:/Projects/Startup Project/MediBooking.in/tests/e2e",
@@ -162,25 +163,25 @@
   },
   "suites": [
     {
-      "title": "51-high-volume-500-users-load-and-rbac.spec.ts",
-      "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
+      "title": "53-patient-discovery-city-selector.spec.ts",
+      "file": "53-patient-discovery-city-selector.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Senior QA & Lead Debugger: 500 High-Volume Demo Users & End-to-End Multi-Role Audit",
-          "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
-          "line": 4,
+          "title": "E2E Test Suite 53: Unified Patient Discovery & Global City Switcher",
+          "file": "53-patient-discovery-city-selector.spec.ts",
+          "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "51.1 High-Volume 500 Demo Users Batch Authentication & RBAC Verification (100 per role)",
+              "title": "53.1 Landing page renders Header City Selector pill with default Bhopal (HQ)",
               "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 60000,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -190,12 +191,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 556,
+                      "duration": 4636,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-15T13:51:57.669Z",
+                      "startTime": "2026-11-15T18:23:50.698Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -203,18 +204,18 @@
                   "status": "expected"
                 }
               ],
-              "id": "4fc074e47c250bbd7bf3-b7834605f7028ae30837",
-              "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
-              "line": 8,
+              "id": "5651b135a302ccf0339c-926718a3734001e5e6a7",
+              "file": "53-patient-discovery-city-selector.spec.ts",
+              "line": 14,
               "column": 7
             },
             {
-              "title": "51.2 Super Admin Portal: Network Telemetry, 80/20 Ledger, Section 194J TDS & Review Shield",
+              "title": "53.2 Clicking pill opens the City Switcher modal displaying Bhopal, Indore, Gwalior, Jabalpur",
               "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 60000,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -224,12 +225,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4070,
+                      "duration": 7649,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-15T13:51:58.269Z",
+                      "startTime": "2026-11-15T18:23:55.529Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -237,18 +238,18 @@
                   "status": "expected"
                 }
               ],
-              "id": "4fc074e47c250bbd7bf3-356df576179fea9d4a46",
-              "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
-              "line": 54,
+              "id": "5651b135a302ccf0339c-9a3dec218e9cac71cbeb",
+              "file": "53-patient-discovery-city-selector.spec.ts",
+              "line": 30,
               "column": 7
             },
             {
-              "title": "51.3 Clinic Admin Portal: Multi-Chamber Quota, 80/20 Settlements & Staff Pin Security",
+              "title": "53.3 Selecting Indore updates header pill to Indore and persists to localStorage",
               "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 60000,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -258,12 +259,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3612,
+                      "duration": 5440,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-15T13:52:02.494Z",
+                      "startTime": "2026-11-15T18:24:03.205Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -271,18 +272,18 @@
                   "status": "expected"
                 }
               ],
-              "id": "4fc074e47c250bbd7bf3-578b581df1a380b0d516",
-              "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
-              "line": 93,
+              "id": "5651b135a302ccf0339c-8f781f404ad15eb69faa",
+              "file": "53-patient-discovery-city-selector.spec.ts",
+              "line": 57,
               "column": 7
             },
             {
-              "title": "51.4 Receptionist Desk: Sub-15s Intake, Thermal Printing & Two-Witness Cashier Transfer",
+              "title": "53.4 Doctor Marketplace (/doctors) filters listings strictly to Indore polyclinics",
               "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 60000,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -292,12 +293,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3362,
+                      "duration": 7352,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-15T13:52:06.124Z",
+                      "startTime": "2026-11-15T18:24:08.664Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -305,18 +306,18 @@
                   "status": "expected"
                 }
               ],
-              "id": "4fc074e47c250bbd7bf3-0db23bf18eff420f78e9",
-              "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
-              "line": 114,
+              "id": "5651b135a302ccf0339c-99d1fe7260ced4466d05",
+              "file": "53-patient-discovery-city-selector.spec.ts",
+              "line": 84,
               "column": 7
             },
             {
-              "title": "51.5 Doctor Chamber Desk: Patient Dossier, ICD-10 Emergency Triage, DDI Safety & Audio Rx",
+              "title": "53.5 Switching locality to Palasia filters doctors practicing in Palasia",
               "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 60000,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -326,12 +327,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 7419,
+                      "duration": 4795,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-15T13:52:09.502Z",
+                      "startTime": "2026-11-15T18:24:16.040Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -339,18 +340,69 @@
                   "status": "expected"
                 }
               ],
-              "id": "4fc074e47c250bbd7bf3-6e83da414df3ddd84f0b",
-              "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
-              "line": 146,
+              "id": "5651b135a302ccf0339c-957cb27857366d2796bf",
+              "file": "53-patient-discovery-city-selector.spec.ts",
+              "line": 139,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "54-complete-demo-data-e2e-journey.spec.ts",
+      "file": "54-complete-demo-data-e2e-journey.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "E2E Test Suite 54: Comprehensive Multi-Role Demo Data Creation & Platform Verification",
+          "file": "54-complete-demo-data-e2e-journey.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "54.1 Patient Journey: Multi-City Discovery, Indore Switch, and Confirmed Token Booking",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8648,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-15T18:24:20.889Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "21454d8ca376cd397306-67cb6d354e4dda417905",
+              "file": "54-complete-demo-data-e2e-journey.spec.ts",
+              "line": 7,
               "column": 7
             },
             {
-              "title": "51.6 Patient Unified Experience: Family Health Vault, ABHA ID Link & Live Queue Tracking",
+              "title": "54.2 Receptionist Desk: Rapid Walk-In Intake, Vitals Capture, and Thermal Receipt Modal",
               "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 60000,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -360,12 +412,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 9126,
+                      "duration": 5305,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-15T13:52:16.941Z",
+                      "startTime": "2026-11-15T18:24:29.557Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -373,9 +425,145 @@
                   "status": "expected"
                 }
               ],
-              "id": "4fc074e47c250bbd7bf3-efb0906a1e6830cd4693",
-              "file": "51-high-volume-500-users-load-and-rbac.spec.ts",
+              "id": "21454d8ca376cd397306-b3ef500752e02a03daa8",
+              "file": "54-complete-demo-data-e2e-journey.spec.ts",
+              "line": 77,
+              "column": 7
+            },
+            {
+              "title": "54.3 Waiting Room TV: Synchronized Live Screen & Audio Chime Display",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2419,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-15T18:24:34.881Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "21454d8ca376cd397306-a987e2c9bdd9f15e0546",
+              "file": "54-complete-demo-data-e2e-journey.spec.ts",
+              "line": 117,
+              "column": 7
+            },
+            {
+              "title": "54.4 Doctor Chamber Desk: Glance Portal, Clinical Notes, and Consultation Completion",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2867,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-15T18:24:37.325Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "21454d8ca376cd397306-b8ae5763e01e03d1a3c7",
+              "file": "54-complete-demo-data-e2e-journey.spec.ts",
+              "line": 145,
+              "column": 7
+            },
+            {
+              "title": "54.5 Clinic Onboarding: Self-Serve Provisioning of New Polyclinic in Indore",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6286,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-15T18:24:40.212Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "21454d8ca376cd397306-e5945d6c06e5fd9d8a3f",
+              "file": "54-complete-demo-data-e2e-journey.spec.ts",
               "line": 183,
+              "column": 7
+            },
+            {
+              "title": "54.6 Super Admin Platform Console: Multi-Market Telemetry, Revenue Split, and City Catalog",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5349,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-15T18:24:46.517Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "21454d8ca376cd397306-57ed814067c11861fc21",
+              "file": "54-complete-demo-data-e2e-journey.spec.ts",
+              "line": 225,
               "column": 7
             }
           ]
@@ -385,9 +573,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-15T13:51:56.885Z",
-    "duration": 29402.34,
-    "expected": 6,
+    "startTime": "2026-11-15T18:23:49.869Z",
+    "duration": 62162.551,
+    "expected": 11,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

@@ -400,7 +400,7 @@ export default function DoctorsMarketplacePage() {
 
         {/* Doctors Grid */}
         {searchResult.filteredDoctors.length === 0 ? (
-          <div className="p-12 text-center rounded-3xl bg-white/80 border border-slate-200 shadow-sm space-y-3">
+          <div data-testid="empty-doctors-state" className="p-12 text-center rounded-3xl bg-white/80 border border-slate-200 shadow-sm space-y-3">
             <div className="text-3xl">🔍</div>
             <h3 className="text-base font-bold text-slate-900">
               No doctors found in {selectedCity} matching your search criteria
@@ -423,6 +423,7 @@ export default function DoctorsMarketplacePage() {
               {selectedCity.toLowerCase() !== 'bhopal' && (
                 <button
                   type="button"
+                  data-testid="btn-empty-switch-bhopal"
                   onClick={() => handleCitySelect('Bhopal')}
                   className="px-3 py-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-xl border border-emerald-200 transition-colors cursor-pointer"
                 >

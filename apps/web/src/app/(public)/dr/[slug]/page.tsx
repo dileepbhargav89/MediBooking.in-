@@ -46,11 +46,13 @@ export default function DoctorPublicProfilePage({
     DOCTORS_MASTER_DIRECTORY.find((d) => d.slug === slug) ||
     DOCTORS_MASTER_DIRECTORY[0]!;
 
+  const [selectedCity, setSelectedCity] = useState<string>('Bhopal');
   const [selectedVenue, setSelectedVenue] = useState<PracticeVenue>(
     doctorInfo.venues[0] || {
       clinicId: 'c1010000-0000-4000-8000-000000000001',
       clinicName: 'Bhopal City Care Polyclinic',
       locality: 'MP Nagar Zone-II',
+      city: 'Bhopal',
       address: 'Plot 42, MP Nagar Zone II, Bhopal',
       chamberNumber: 'CH-1',
       feeRupees: 600,
@@ -61,7 +63,22 @@ export default function DoctorPublicProfilePage({
   );
 
   useEffect(() => {
-    if (doctorInfo.venues[0]) {
+    if (typeof window === 'undefined') return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const cityFromUrl = urlParams.get('city');
+    const savedCity = localStorage.getItem('medibooking_selected_city');
+    const activeCity = cityFromUrl || savedCity || 'Bhopal';
+    setSelectedCity(activeCity);
+
+    // Auto-match doctor venue in the active city
+    const matchedVenue = doctorInfo.venues.find(
+      (v) => (v.city || 'Bhopal').toLowerCase() === activeCity.toLowerCase()
+    );
+
+    if (matchedVenue) {
+      setSelectedVenue(matchedVenue);
+    } else if (doctorInfo.venues[0]) {
       setSelectedVenue(doctorInfo.venues[0]);
     }
   }, [slug, doctorInfo]);
@@ -231,7 +248,9 @@ export default function DoctorPublicProfilePage({
         <nav className="text-xs text-slate-500 flex items-center gap-2 font-medium">
           <Link href="/" className="hover:text-emerald-700 transition-colors">Home</Link>
           <span>/</span>
-          <Link href="/doctors" className="hover:text-emerald-700 transition-colors">Bhopal Specialists</Link>
+          <Link href={`/doctors?city=${selectedCity.toLowerCase()}`} className="hover:text-emerald-700 transition-colors">
+            {selectedCity} Specialists
+          </Link>
           <span>/</span>
           <span className="text-slate-900 font-bold">{doctorInfo.fullName}</span>
         </nav>
@@ -271,7 +290,7 @@ export default function DoctorPublicProfilePage({
                   <span>•</span>
                   <span>{doctorInfo.languages}</span>
                   <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-bold text-[11px]">
-                    ⭐ {doctorInfo.rating} ({doctorInfo.reviewCount}+ Bhopal Reviews)
+                    ⭐ {doctorInfo.rating} ({doctorInfo.reviewCount}+ {selectedVenue.city || selectedCity} Reviews)
                   </span>
                 </div>
                 <p className="text-xs text-slate-600 mt-2 line-clamp-2 max-w-xl">
@@ -280,17 +299,36 @@ export default function DoctorPublicProfilePage({
               </div>
             </div>
 
-            {/* Transparent Commercial Fee Card */}
-            <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 sm:text-right backdrop-blur-sm shadow-xs shrink-0">
-              <span className="text-[11px] text-emerald-900 font-bold uppercase tracking-wider block">
-                Chamber Consultation Fee
-              </span>
-              <span className="text-3xl font-black text-slate-900 font-mono tabular-nums block my-0.5">
-                ₹{selectedVenue.feeRupees}
-              </span>
-              <span className="text-xs text-emerald-700 font-bold flex items-center sm:justify-end gap-1">
-                <span>🏥</span> Pay at Clinic Desk
-              </span>
+            {/* Transparent Commercial Fee Card & Chamber Live Wait */}
+            <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 sm:text-right backdrop-blur-sm shadow-xs shrink-0 flex flex-col items-start sm:items-end justify-between">
+              <div>
+                <span className="text-[11px] text-emerald-900 font-bold uppercase tracking-wider block">
+                  Chamber Consultation Fee
+                </span>
+                <span className="text-3xl font-black text-slate-900 font-mono tabular-nums block my-0.5" data-testid="doctor-fee-display">
+                  ₹{selectedVenue.feeRupees}
+                </span>
+                <span className="text-xs text-emerald-700 font-bold flex items-center sm:justify-end gap-1">
+                  <span>🏥</span> Pay at Clinic Desk
+                </span>
+              </div>
+              <div
+                data-testid="chamber-live-status-pill"
+                className="flex items-center gap-2 mt-3 px-3 py-1.5 rounded-xl bg-white/90 border border-emerald-200 text-xs shadow-2xs"
+              >
+                <span
+                  className={`h-2.5 w-2.5 rounded-full ${
+                    selectedVenue.currentStatus === 'DELAYED'
+                      ? 'bg-rose-500'
+                      : 'bg-emerald-500 animate-pulse'
+                  }`}
+                />
+                <span className="font-semibold text-slate-800">
+                  {selectedVenue.currentStatus === 'DELAYED' ? 'Delayed (+15m)' : 'Chamber Active'}
+                </span>
+                <span className="text-slate-400">•</span>
+                <span className="text-slate-600 font-medium">{selectedVenue.queueCount ?? 4} waiting</span>
+              </div>
             </div>
           </div>
 
@@ -360,9 +398,9 @@ export default function DoctorPublicProfilePage({
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
               <span className="h-6 w-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">1</span>
-              Select Practice Location in Bhopal
+              Select Practice Location in {selectedVenue.city || selectedCity || 'Central India'}
             </h2>
-            <span className="text-xs text-slate-500 font-medium">{doctorInfo.venues[0]?.clinicName || 'Bhopal City Care'} Affiliate</span>
+            <span className="text-xs text-slate-500 font-medium">{selectedVenue.clinicName} Affiliate</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {doctorInfo.venues.map((venue) => {
@@ -370,7 +408,10 @@ export default function DoctorPublicProfilePage({
               return (
                 <div
                   key={venue.clinicId}
-                  onClick={() => setSelectedVenue(venue)}
+                  onClick={() => {
+                    setSelectedVenue(venue);
+                    if (venue.city) setSelectedCity(venue.city);
+                  }}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer backdrop-blur-md ${
                     isSelected
                       ? 'border-emerald-600 bg-emerald-50/80 ring-2 ring-emerald-600/20 shadow-md shadow-emerald-600/10'
@@ -891,7 +932,9 @@ export default function DoctorPublicProfilePage({
                   <span className="text-xl">📲</span>
                 </div>
                 <div>
-                  <div className="font-mono text-xs font-bold text-emerald-400">BHARAT UPI QR: bhopalcare@icici</div>
+                  <div className="font-mono text-xs font-bold text-emerald-400">
+                    BHARAT UPI QR: {selectedVenue.tvSlug || 'bhopalcare'}@icici
+                  </div>
                   <div className="text-[11px] text-slate-300">Fast 1-Click Secure Payment • ₹49.00</div>
                 </div>
               </div>
