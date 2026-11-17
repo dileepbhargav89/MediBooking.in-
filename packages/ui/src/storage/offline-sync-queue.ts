@@ -12,6 +12,11 @@ export interface OfflineIntakeRecord {
   tokenNumber: number;
   patientName: string;
   patientMobile: string;
+  patientAge?: number;
+  patientGender?: string;
+  bloodGroup?: string;
+  village?: string;
+  symptoms?: string;
   chamberNumber: string;
   doctorName: string;
   paymentMode: 'PAID_CASH' | 'PAID_UPI_QR' | 'PENDING';

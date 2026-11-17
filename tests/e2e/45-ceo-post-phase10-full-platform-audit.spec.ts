@@ -81,7 +81,11 @@ test.describe('CEO Post-Phase 10 Comprehensive Platform Audit & Verification', (
     await expect(page.locator('text=Bhopal City Care Polyclinic • 4 Chambers Active')).toBeVisible();
     await expect(page.getByTestId('btn-walkin-intake')).toBeVisible();
 
-    // Step C: Execute Two-Witness Shift Cashier Handover
+    // Step C: Execute Two-Witness Shift Cashier Handover via Shift Drawer
+    const shiftDrawerBtn = page.getByTestId('btn-open-shift-drawer');
+    await expect(shiftDrawerBtn).toBeVisible();
+    await shiftDrawerBtn.click();
+
     const handoverBtn = page.getByTestId('btn-open-cashier-handover');
     await expect(handoverBtn).toBeVisible();
     await handoverBtn.click();

@@ -42,6 +42,8 @@ interface ReceptionTokenItem {
   patientMobile: string;
   patientAge?: number;
   patientGender?: 'MALE' | 'FEMALE' | 'OTHER';
+  bloodGroup?: string;
+  village?: string;
   symptoms?: string;
   chamberNumber: string;
   doctorName: string;
@@ -53,6 +55,7 @@ interface ReceptionTokenItem {
   feePaidRupees: number;
   bookingFeeRupees?: number;
   consultationFeeDue?: number;
+  completedAt?: string;
 }
 
 const INITIAL_CHAMBERS: ChamberDeskInfo[] = [
@@ -104,6 +107,8 @@ const INITIAL_TOKENS: ReceptionTokenItem[] = [
     patientMobile: '9826011111',
     patientAge: 48,
     patientGender: 'MALE',
+    bloodGroup: 'B+',
+    village: 'Mandideep',
     symptoms: 'Routine checkup & chest discomfort',
     chamberNumber: 'CH-1',
     doctorName: 'Rajesh Sharma',
@@ -122,6 +127,8 @@ const INITIAL_TOKENS: ReceptionTokenItem[] = [
     patientMobile: '9826022222',
     patientAge: 35,
     patientGender: 'MALE',
+    bloodGroup: 'O+',
+    village: 'Kolar Road',
     symptoms: 'High blood pressure monitoring',
     chamberNumber: 'CH-1',
     doctorName: 'Rajesh Sharma',
@@ -141,6 +148,8 @@ const INITIAL_TOKENS: ReceptionTokenItem[] = [
     patientMobile: '9826033333',
     patientAge: 29,
     patientGender: 'FEMALE',
+    bloodGroup: 'A+',
+    village: 'Berasia',
     symptoms: 'Skin rash & allergy',
     chamberNumber: 'CH-2',
     doctorName: 'Priya Patel',
@@ -159,6 +168,8 @@ const INITIAL_TOKENS: ReceptionTokenItem[] = [
     patientMobile: '9826044444',
     patientAge: 4,
     patientGender: 'FEMALE',
+    bloodGroup: 'B+',
+    village: 'Sehore',
     symptoms: 'Fever & viral cough',
     chamberNumber: 'CH-3',
     doctorName: 'Amit Verma',
@@ -177,6 +188,8 @@ const INITIAL_TOKENS: ReceptionTokenItem[] = [
     patientMobile: '9826055555',
     patientAge: 52,
     patientGender: 'FEMALE',
+    bloodGroup: 'AB+',
+    village: 'MP Nagar Zone-II',
     symptoms: 'Diabetes & hypertension review',
     chamberNumber: 'CH-1',
     doctorName: 'Rajesh Sharma',
@@ -187,6 +200,100 @@ const INITIAL_TOKENS: ReceptionTokenItem[] = [
     feePaidRupees: 600,
     bookingFeeRupees: 49,
     consultationFeeDue: 600,
+  },
+];
+
+const INITIAL_HISTORY_TOKENS: ReceptionTokenItem[] = [
+  {
+    id: 'hist-1',
+    tokenNumber: 14,
+    patientName: 'Kailash Nath Sharma',
+    patientMobile: '9826010001',
+    patientAge: 72,
+    patientGender: 'MALE',
+    bloodGroup: 'O+',
+    village: 'Berasia',
+    symptoms: 'Senior cardiac review & 12-lead ECG completed',
+    chamberNumber: 'CH-1',
+    doctorName: 'Rajesh Sharma',
+    status: 'COMPLETED',
+    paymentStatus: 'PAID_CASH',
+    source: 'WALK_IN',
+    feePaidRupees: 600,
+    completedAt: '11:45 AM',
+  },
+  {
+    id: 'hist-2',
+    tokenNumber: 9,
+    patientName: 'Pooja Vishwakarma',
+    patientMobile: '9826010002',
+    patientAge: 26,
+    patientGender: 'FEMALE',
+    bloodGroup: 'A+',
+    village: 'Kolar Road',
+    symptoms: 'Acne vulgaris & skin allergy consultation',
+    chamberNumber: 'CH-2',
+    doctorName: 'Priya Patel',
+    status: 'COMPLETED',
+    paymentStatus: 'PAID_UPI_QR',
+    source: 'ONLINE_PORTAL',
+    feePaidRupees: 500,
+    bookingFeeRupees: 49,
+    completedAt: '12:10 PM',
+  },
+  {
+    id: 'hist-3',
+    tokenNumber: 22,
+    patientName: 'Master Aarav Jain',
+    patientMobile: '9826010003',
+    patientAge: 5,
+    patientGender: 'MALE',
+    bloodGroup: 'B+',
+    village: 'Sehore',
+    symptoms: 'Acute bronchitis & Duolin nebulization',
+    chamberNumber: 'CH-3',
+    doctorName: 'Amit Verma',
+    status: 'COMPLETED',
+    paymentStatus: 'PAID_CASH',
+    source: 'WALK_IN',
+    feePaidRupees: 700,
+    completedAt: '12:35 PM',
+  },
+  {
+    id: 'hist-4',
+    tokenNumber: 7,
+    patientName: 'Bhagwandas Lodhi',
+    patientMobile: '9826010004',
+    patientAge: 58,
+    patientGender: 'MALE',
+    bloodGroup: 'AB+',
+    village: 'Raisen',
+    symptoms: 'Knee joint effusion & intra-articular steroid',
+    chamberNumber: 'CH-4',
+    doctorName: 'Sunita Rao',
+    status: 'COMPLETED',
+    paymentStatus: 'PAID_CASH',
+    source: 'WALK_IN',
+    feePaidRupees: 850,
+    completedAt: '01:05 PM',
+  },
+  {
+    id: 'hist-5',
+    tokenNumber: 13,
+    patientName: 'Meenakshi Saxena',
+    patientMobile: '9826010005',
+    patientAge: 44,
+    patientGender: 'FEMALE',
+    bloodGroup: 'O-',
+    village: 'MP Nagar Zone-I',
+    symptoms: 'Routine preventive lipid profile consultation',
+    chamberNumber: 'CH-1',
+    doctorName: 'Rajesh Sharma',
+    status: 'COMPLETED',
+    paymentStatus: 'PAID_UPI_QR',
+    source: 'WALK_IN',
+    feePaidRupees: 600,
+    completedAt: '01:20 PM',
   },
 ];
 
@@ -339,13 +446,146 @@ export default function ReceptionDeskDashboardPage() {
       .catch((err) => console.error(err));
   }, []);
 
-  // Intake Form State
+  // Patient Visit History View State
+  const [receptionView, setReceptionView] = useState<'QUEUE' | 'HISTORY'>('QUEUE');
+  const [historyTokens, setHistoryTokens] = useState<ReceptionTokenItem[]>(INITIAL_HISTORY_TOKENS);
+  const [historySearchQuery, setHistorySearchQuery] = useState('');
+  const [historyDoctorFilter, setHistoryDoctorFilter] = useState('ALL');
+
+  // Shift & Cash Drawer Modal State (De-cluttered from front UI)
+  const [isShiftDrawerOpen, setIsShiftDrawerOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+  // Operational Action Feedback Toast
+  const [actionFeedbackNotice, setActionFeedbackNotice] = useState<string | null>(null);
+  const showActionFeedback = (msg: string) => {
+    setActionFeedbackNotice(msg);
+    setTimeout(() => setActionFeedbackNotice(null), 5000);
+  };
+
+  // Edit Patient Modal State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingToken, setEditingToken] = useState<ReceptionTokenItem | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editMobile, setEditMobile] = useState('');
+  const [editAge, setEditAge] = useState('');
+  const [editGender, setEditGender] = useState<'MALE' | 'FEMALE' | 'OTHER'>('MALE');
+  const [editBloodGroup, setEditBloodGroup] = useState('B+');
+  const [editVillage, setEditVillage] = useState('');
+  const [editSymptoms, setEditSymptoms] = useState('');
+
+  // Chamber Transfer Modal State
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [transferringToken, setTransferringToken] = useState<ReceptionTokenItem | null>(null);
+  const [transferTargetChamber, setTransferTargetChamber] = useState('CH-2');
+
+  // Intake Form State - Comprehensive Demographics
   const [mobile, setMobile] = useState('');
   const [patientName, setPatientName] = useState('');
+  const [patientAge, setPatientAge] = useState('48');
+  const [patientGender, setPatientGender] = useState<'MALE' | 'FEMALE' | 'OTHER'>('MALE');
+  const [bloodGroup, setBloodGroup] = useState('B+');
+  const [village, setVillage] = useState('Mandideep');
+  const [symptoms, setSymptoms] = useState('Routine checkup & chest discomfort');
   const [selectedChamber, setSelectedChamber] = useState('CH-1');
   const [isUrgent, setIsUrgent] = useState(false);
   const [paymentMode, setPaymentMode] = useState<'PAID_CASH' | 'PAID_UPI_QR' | 'PENDING'>('PAID_CASH');
   const [formError, setFormError] = useState<string | null>(null);
+
+  const handleOpenEditModal = (token: ReceptionTokenItem) => {
+    setEditingToken(token);
+    setEditName(token.patientName);
+    setEditMobile(token.patientMobile);
+    setEditAge(token.patientAge ? String(token.patientAge) : '48');
+    setEditGender(token.patientGender || 'MALE');
+    setEditBloodGroup(token.bloodGroup || 'B+');
+    setEditVillage(token.village || 'Mandideep');
+    setEditSymptoms(token.symptoms || '');
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEditPatient = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingToken) return;
+    const updatedAge = parseInt(editAge) || undefined;
+    setTokens((prev) =>
+      prev.map((t) =>
+        t.id === editingToken.id
+          ? {
+              ...t,
+              patientName: editName.trim() || t.patientName,
+              patientMobile: editMobile.trim() || t.patientMobile,
+              patientAge: updatedAge,
+              patientGender: editGender,
+              bloodGroup: editBloodGroup,
+              village: editVillage.trim(),
+              symptoms: editSymptoms.trim(),
+            }
+          : t
+      )
+    );
+    setIsEditModalOpen(false);
+    showActionFeedback(`✓ Patient details updated successfully for Token #${editingToken.tokenNumber} (${editName}).`);
+  };
+
+  const handleRevertToken = (token: ReceptionTokenItem) => {
+    setTokens((prev) =>
+      prev.map((t) =>
+        t.id === token.id
+          ? {
+              ...t,
+              status: 'WAITING',
+              estimatedTime: '5 mins',
+            }
+          : t
+      )
+    );
+    showActionFeedback(`↩️ Token #${token.tokenNumber} (${token.patientName}) reverted to Waiting Area. Doctor chamber notified.`);
+  };
+
+  const handleOpenTransferModal = (token: ReceptionTokenItem) => {
+    setTransferringToken(token);
+    const altChamber = INITIAL_CHAMBERS.find((c) => c.chamberNumber !== token.chamberNumber)?.chamberNumber || 'CH-2';
+    setTransferTargetChamber(altChamber);
+    setIsTransferModalOpen(true);
+  };
+
+  const handleConfirmTransfer = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!transferringToken) return;
+    const targetDoc = INITIAL_CHAMBERS.find((c) => c.chamberNumber === transferTargetChamber);
+    if (!targetDoc) return;
+
+    setTokens((prev) =>
+      prev.map((t) =>
+        t.id === transferringToken.id
+          ? {
+              ...t,
+              chamberNumber: transferTargetChamber,
+              doctorName: targetDoc.doctorName.replace(/^Dr\.\s*/i, ''),
+              consultationFeeDue: targetDoc.consultationFee,
+            }
+          : t
+      )
+    );
+    setIsTransferModalOpen(false);
+    showActionFeedback(
+      `🔀 Token #${transferringToken.tokenNumber} (${transferringToken.patientName}) transferred to ${transferTargetChamber} (${targetDoc.doctorName}).`
+    );
+  };
+
+  const handleRevertHistoryToken = (historyItem: ReceptionTokenItem) => {
+    const revertedToken: ReceptionTokenItem = {
+      ...historyItem,
+      id: `tok-rev-${Date.now()}`,
+      status: 'WAITING',
+      estimatedTime: 'Next in Queue',
+    };
+    setHistoryTokens((prev) => prev.filter((h) => h.id !== historyItem.id));
+    setTokens((prev) => [revertedToken, ...prev]);
+    setReceptionView('QUEUE');
+    showActionFeedback(`↩️ Patient ${historyItem.patientName} (Token #${historyItem.tokenNumber}) re-opened into Active Queue.`);
+  };
 
   const mobileInputRef = useRef<HTMLInputElement>(null);
 
@@ -578,18 +818,21 @@ export default function ReceptionDeskDashboardPage() {
         assignedDoctor.callingToken || 10
       ) + 1;
 
-    const maskedName =
-      patientName.length > 2
-        ? `${patientName[0]}*** ${patientName.split(' ')[1] || ''}`.trim()
-        : `${patientName}***`;
-
     const isEffectivelyOffline = !isOnline || simulatedOffline;
+
+    const parsedAge = parseInt(patientAge) || 48;
+    const cleanPatientName = patientName.trim();
 
     const newToken: ReceptionTokenItem = {
       id: `tok-${Date.now()}`,
       tokenNumber: nextTokenNum,
-      patientName: maskedName,
+      patientName: cleanPatientName,
       patientMobile: mobile,
+      patientAge: parsedAge,
+      patientGender,
+      bloodGroup,
+      village: village.trim() || 'Mandideep',
+      symptoms: symptoms.trim() || 'Routine OPD Examination',
       chamberNumber: selectedChamber,
       doctorName: assignedDoctor.doctorName.replace(/^Dr\.\s*/i, ''),
       status: 'WAITING',
@@ -606,6 +849,11 @@ export default function ReceptionDeskDashboardPage() {
         tokenNumber: nextTokenNum,
         patientName,
         patientMobile: mobile,
+        patientAge: parsedAge,
+        patientGender,
+        bloodGroup,
+        village: village.trim() || 'Mandideep',
+        symptoms: symptoms.trim() || 'Routine OPD Examination',
         chamberNumber: selectedChamber,
         doctorName: assignedDoctor.doctorName.replace(/^Dr\.\s*/i, ''),
         paymentMode,
@@ -637,6 +885,11 @@ export default function ReceptionDeskDashboardPage() {
     // Reset Form
     setMobile('');
     setPatientName('');
+    setPatientAge('48');
+    setPatientGender('MALE');
+    setBloodGroup('B+');
+    setVillage('Mandideep');
+    setSymptoms('Routine checkup & chest discomfort');
     setIsUrgent(false);
     setPaymentMode('PAID_CASH');
     setFormError(null);
@@ -676,6 +929,11 @@ export default function ReceptionDeskDashboardPage() {
       chamberNumber: latestIssuedToken.chamberNumber,
       patientName: latestIssuedToken.patientName,
       patientMobile: latestIssuedToken.patientMobile,
+      patientAge: latestIssuedToken.patientAge,
+      patientGender: latestIssuedToken.patientGender,
+      bloodGroup: latestIssuedToken.bloodGroup,
+      village: latestIssuedToken.village,
+      symptoms: latestIssuedToken.symptoms,
       doctorName: latestIssuedToken.doctorName,
       specialty: assignedDoctor?.specialty || 'General Practice',
       paymentStatus: latestIssuedToken.paymentStatus,
@@ -748,7 +1006,7 @@ export default function ReceptionDeskDashboardPage() {
               </button>
             </div>
 
-            {/* Secondary Tools Cluster (Tour, Diagnostics, TV) */}
+            {/* Secondary Tools Cluster (Tour, Diagnostics, TV, Shift Drawer) */}
             <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/80">
               <button
                 type="button"
@@ -784,6 +1042,21 @@ export default function ReceptionDeskDashboardPage() {
                   <span className="hidden lg:inline">TV Screen</span>
                 </button>
               </Link>
+
+              {/* Shift Handover & Cash Drawer Tool (De-cluttered from front UI) */}
+              <button
+                type="button"
+                data-testid="btn-open-shift-drawer"
+                onClick={() => setIsShiftDrawerOpen(true)}
+                className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 shadow-2xs border border-slate-200/50 flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="Open Shift Handover & Cash Drawer Ledger"
+              >
+                <span>💼</span>
+                <span className="hidden lg:inline">Shift & Drawer</span>
+                {handoverReceipt && (
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" title="Handover Verified" />
+                )}
+              </button>
             </div>
 
             {/* Global F2 Trigger Button */}
@@ -800,15 +1073,68 @@ export default function ReceptionDeskDashboardPage() {
               </Button>
             </div>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              data-testid="btn-receptionist-logout"
-              onClick={() => logout(router)}
-              className="text-xs font-semibold text-slate-500 hover:text-slate-900 rounded-xl"
-            >
-              Sign Out
-            </Button>
+            {/* Receptionist Profile & Shift Menu (De-clutter bare Sign Out from front UI) */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
+                title="Reception Staff Profile & Session Actions"
+              >
+                <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
+                  SV
+                </div>
+                <div className="text-left hidden xl:block">
+                  <span className="text-xs font-bold text-slate-800 block leading-tight">Sunita V.</span>
+                  <span className="text-[10px] text-slate-500 font-medium leading-none">Shift #1 (Morning)</span>
+                </div>
+                <span className="text-slate-400 text-[10px]">▼</span>
+              </button>
+
+              {isProfileMenuOpen && (
+                <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-fadeIn">
+                  <div className="p-2 border-b border-slate-100">
+                    <p className="font-bold text-xs text-slate-900">Sunita Verma</p>
+                    <p className="text-[10px] text-slate-500">Reception Desk Staff #REC-102</p>
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      ● Morning Shift (08:30 - 14:30)
+                    </span>
+                  </div>
+                  <div className="py-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProfileMenuOpen(false);
+                        setIsShiftDrawerOpen(true);
+                      }}
+                      className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-100 rounded-lg flex items-center gap-2 font-medium cursor-pointer"
+                    >
+                      <span>💼</span> Shift Handover & Cashier Ledger
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProfileMenuOpen(false);
+                        setIsDiagnosticModalOpen(true);
+                      }}
+                      className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-100 rounded-lg flex items-center gap-2 font-medium cursor-pointer"
+                    >
+                      <span>⚡</span> Hardware Self-Test
+                    </button>
+                  </div>
+                  <div className="pt-1 border-t border-slate-100">
+                    <button
+                      type="button"
+                      data-testid="btn-receptionist-logout"
+                      onClick={() => logout(router)}
+                      className="w-full text-left px-2.5 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg flex items-center gap-2 cursor-pointer"
+                    >
+                      <span>🚪</span> Sign Out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -832,15 +1158,38 @@ export default function ReceptionDeskDashboardPage() {
           </div>
         )}
 
-        {/* Cash Drawer & Shift Summary Stats */}
+        {/* Operational Action Feedback Toast (Updates, Reverts, Transfers) */}
+        {actionFeedbackNotice && (
+          <div className="bg-emerald-50 border border-emerald-300 text-emerald-950 px-4 py-3 rounded-xl flex items-center justify-between text-xs font-bold shadow-sm transition-all animate-fadeIn">
+            <div className="flex items-center gap-2">
+              <span className="text-base">✨</span>
+              <span>{actionFeedbackNotice}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActionFeedbackNotice(null)}
+              className="text-emerald-600 hover:text-emerald-950 font-bold ml-4"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {/* Cash Drawer & Shift Summary Stats (Cash In Drawer triggers Shift Ledger Drawer) */}
         <div data-testid="tour-cashier-step" className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <StatCard
-            title="Cash In Drawer"
-            value="₹12,400"
-            subtitle="Counted physical cash"
-            accentColor="#10B981"
-            badge={{ label: 'BALANCED', variant: 'mint' }}
-          />
+          <div
+            onClick={() => setIsShiftDrawerOpen(true)}
+            className="cursor-pointer group transition-transform active:scale-[0.99]"
+            title="Click to view Cash Denomination Tally & Shift Handover"
+          >
+            <StatCard
+              title="Cash In Drawer"
+              value="₹12,400"
+              subtitle="Counted physical cash • Click to reconcile"
+              accentColor="#10B981"
+              badge={{ label: 'BALANCED', variant: 'mint' }}
+            />
+          </div>
           <StatCard
             title="UPI Collections"
             value={`₹${upiCollectionsRupees.toLocaleString('en-IN')}`}
@@ -857,7 +1206,7 @@ export default function ReceptionDeskDashboardPage() {
           />
           <StatCard
             title="Completed Today"
-            value="64"
+            value={String(64 + historyTokens.length)}
             subtitle="Settled consultations"
             accentColor="#10B981"
             badge={{ label: 'ON TRACK', variant: 'mint' }}
@@ -904,102 +1253,7 @@ export default function ReceptionDeskDashboardPage() {
           </div>
         )}
 
-        {/* Fast Cash Drawer Denomination Tally (Anti-Pilferage) */}
-        <div className="bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-2xl p-4 shadow-xs space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <span className="h-8 w-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-sm shadow-2xs">🧮</span>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-slate-900">
-                    Front-Desk Physical Cash Denomination Tally
-                  </span>
-                  <span className="text-[10px] text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">
-                    Anti-Pilferage Verified
-                  </span>
-                </div>
-                <span className="text-[11px] text-slate-500 font-medium">Physical drawer count & 2-witness handover ledger</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {handoverReceipt ? (
-                <div
-                  data-testid="badge-handover-verified"
-                  className="text-xs bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-2xs"
-                  title={`Full Audit Hash: ${handoverReceipt.receiptHash}`}
-                >
-                  <span>✓ 2-Witness Handover Verified</span>
-                  <span className="font-mono text-[10px] opacity-80">
-                    ({handoverReceipt.receiptHash.length > 28 ? `${handoverReceipt.receiptHash.slice(0, 18)}...` : handoverReceipt.receiptHash})
-                  </span>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  data-testid="btn-open-cashier-handover"
-                  onClick={() => setIsHandoverModalOpen(true)}
-                  className="text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
-                >
-                  <span>🤝 2-Witness Shift Handover</span>
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setIsDenominationOpen(!isDenominationOpen)}
-                className="text-xs text-blue-600 hover:text-blue-800 font-bold px-2 py-1 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer"
-              >
-                {isDenominationOpen ? '▲ Hide Keypad' : '▼ Quick Cash Counter (₹500 / ₹200 / ₹100)'}
-              </button>
-            </div>
-          </div>
-
-          {isDenominationOpen && (
-            <div className="mt-3 pt-3 border-t border-slate-100 space-y-3">
-              <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 text-xs">
-                {[500, 200, 100, 50, 20, 10].map((denom) => (
-                  <div key={denom} className="p-2 rounded-lg bg-slate-50 border border-slate-200 text-center">
-                    <span className="font-mono font-bold text-slate-700 block text-xs">₹{denom} Notes</span>
-                    <input
-                      type="number"
-                      min="0"
-                      value={denominations[denom] || ''}
-                      onChange={(e) =>
-                        setDenominations({
-                          ...denominations,
-                          [denom]: Math.max(0, parseInt(e.target.value) || 0),
-                        })
-                      }
-                      className="w-full mt-1 px-1.5 py-1 text-center font-mono font-bold text-slate-900 border border-slate-300 rounded bg-white text-xs focus:ring-1 focus:ring-blue-500"
-                    />
-                    <span className="text-[10px] text-slate-500 font-mono block mt-1">
-                      = ₹{((denominations[denom] || 0) * denom).toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className="flex flex-wrap items-center justify-between p-2.5 bg-emerald-50/70 border border-emerald-200 rounded-lg text-xs gap-2">
-                <div className="flex flex-wrap items-center gap-4">
-                  <span>Counted Cash: <span className="font-mono font-black text-slate-900 text-sm">₹{calculateDenominationTotal().toLocaleString('en-IN')}</span></span>
-                  <span>System Expected: <span className="font-mono font-semibold text-slate-700">₹12,400</span></span>
-                  <span className={`px-2 py-0.5 rounded font-bold font-mono text-[10px] ${
-                    calculateDenominationTotal() === 12400 ? 'bg-emerald-600 text-white' : 'bg-rose-100 text-rose-800'
-                  }`}>
-                    Variance: {calculateDenominationTotal() - 12400 >= 0 ? `+₹${calculateDenominationTotal() - 12400}` : `-₹${12400 - calculateDenominationTotal()}`} {calculateDenominationTotal() === 12400 ? '✓ (100% BALANCED)' : '⚠️ (DISCREPANCY)'}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsDenominationOpen(false)}
-                  className="px-2.5 py-1 text-[11px] font-bold bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors"
-                >
-                  Confirm Drawer Count
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* 4 Chambers Status Strip */}
+        {/* 4 Chambers Status Strip (Enhanced UI: Clean border radius, zero overlap, redundant buttons removed) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {INITIAL_CHAMBERS.map((ch) => (
             <div key={ch.chamberNumber} className="flex flex-col">
@@ -1007,190 +1261,400 @@ export default function ReceptionDeskDashboardPage() {
                 chamberNumber={ch.chamberNumber}
                 doctorName={ch.doctorName}
                 specialty={ch.specialty}
+                consultationFee={ch.consultationFee}
+                waitingCount={tokens.filter((t) => t.chamberNumber === ch.chamberNumber && t.status === 'WAITING').length}
                 status={ch.status}
                 delayMinutes={ch.delayMinutes}
                 currentCallingToken={ch.callingToken}
-              />
-              <button
-                type="button"
-                data-testid={`btn-add-patient-${ch.chamberNumber.toLowerCase()}`}
                 onClick={() => {
-                  setSelectedChamber(ch.chamberNumber);
-                  setIsIntakeModalOpen(true);
+                  setSelectedChamberTab(ch.chamberNumber);
+                  setReceptionView('QUEUE');
                 }}
-                className="mt-2 py-1.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
-                title={`Add new walk-in patient directly to ${ch.chamberNumber} (${ch.doctorName})`}
-              >
-                <span>➕</span>
-                <span>Add Walk-In to {ch.chamberNumber}</span>
-              </button>
+              />
             </div>
           ))}
         </div>
 
-        {/* Chamber Tab Bar & Quick Add Patient Button */}
-        <div data-testid="tour-chambers-step" className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-2">
-          <div className="flex items-center gap-2 overflow-x-auto">
+        {/* Main Workspace Navigation: Live Queue vs Patient Visit History */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setSelectedChamberTab('ALL')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${selectedChamberTab === 'ALL'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                }`}
-            >
-              All Chambers ({tokens.length})
-            </button>
-            {INITIAL_CHAMBERS.map((ch) => (
-              <button
-                key={ch.chamberNumber}
-                onClick={() => setSelectedChamberTab(ch.chamberNumber)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all ${selectedChamberTab === ch.chamberNumber
+              type="button"
+              data-testid="tab-live-queue"
+              onClick={() => setReceptionView('QUEUE')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                receptionView === 'QUEUE'
                   ? 'bg-blue-600 text-white shadow-xs'
                   : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                  }`}
-              >
-                {ch.chamberNumber} ({tokens.filter((t) => t.chamberNumber === ch.chamberNumber).length})
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <span className="text-xs text-slate-500 font-medium hidden md:inline">
-              Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 font-mono text-[10px]">F2</kbd> for rapid intake
-            </span>
-            <Button
-              variant="urgent"
-              size="sm"
-              data-testid="btn-add-patient-queue-bar"
-              onClick={() => {
-                if (selectedChamberTab !== 'ALL') {
-                  setSelectedChamber(selectedChamberTab);
-                }
-                setIsIntakeModalOpen(true);
-              }}
-              className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-sm flex items-center gap-1.5"
+              }`}
             >
-              <span>+ Add New Patient {selectedChamberTab !== 'ALL' ? `(${selectedChamberTab})` : ''}</span>
-              <span className="text-[10px] opacity-80 font-mono font-normal">(F2)</span>
-            </Button>
+              <span>📋 Live Queue</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
+                receptionView === 'QUEUE' ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-700 font-bold'
+              }`}>
+                {tokens.filter((t) => t.status === 'WAITING' || t.status === 'IN_CONSULTATION').length} Active
+              </span>
+            </button>
+
+            <button
+              type="button"
+              data-testid="tab-patient-history"
+              onClick={() => setReceptionView('HISTORY')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                receptionView === 'HISTORY'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              <span>📜 Patient Visit History</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
+                receptionView === 'HISTORY' ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-700 font-bold'
+              }`}>
+                {historyTokens.length} Completed Today
+              </span>
+            </button>
           </div>
-        </div>
 
-        {/* Multi-Chamber Live Token Queue */}
-        <div className="space-y-3">
-          {filteredTokens.length > 0 ? (
-            filteredTokens.map((t) => (
-              <div key={t.id} className="relative group">
-                <TokenCard
-                  tokenNumber={t.tokenNumber}
-                  patientName={`${t.patientName}${t.patientAge ? ` (${t.patientAge}${t.patientGender === 'FEMALE' ? 'F' : 'M'})` : ''}`}
-                  status={t.status}
-                  chamberNumber={t.chamberNumber}
-                  doctorName={t.doctorName}
-                  isUrgent={t.isUrgent}
-                  triageUrgency={t.isUrgent ? 'URGENT' : 'NORMAL'}
-                  estimatedTime={t.estimatedTime}
-                  source={t.source}
-                  paymentStatus={t.paymentStatus}
-                  onAction={(action) => {
-                    if (action === 'CALL') {
-                      setTokens((prev) =>
-                        prev.map((item) =>
-                          item.id === t.id ? { ...item, status: 'IN_CONSULTATION' } : item
-                        )
-                      );
-                    }
-                  }}
-                />
-
-                {/* Phase 61: Pre-Consultation Sheet & Custom Counter Charges Bar */}
-                <div className="mt-2 px-4 py-2.5 bg-slate-50/90 border border-slate-200/80 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {t.bookingFeeRupees && t.bookingFeeRupees > 0 ? (
-                      <span
-                        data-testid="badge-booking-paid"
-                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-mono font-bold text-[11px] bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs"
-                      >
-                        ✓ ₹{t.bookingFeeRupees} Booking Paid
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-mono text-[11px] bg-slate-200/80 text-slate-700 font-semibold">
-                        Counter Token
-                      </span>
-                    )}
-
-                    {t.symptoms && (
-                      <span className="text-slate-600 truncate max-w-sm text-[11px]">
-                        <span className="font-bold text-slate-700">Symptoms:</span> {t.symptoms}
-                      </span>
-                    )}
-
-                    {((t.patientAge && t.patientAge >= 70) || t.patientName.includes('Kailash')) && (
-                      <span
-                        data-testid="badge-reception-senior-priority"
-                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[11px] bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs"
-                      >
-                        👴 Senior 70+ Priority
-                      </span>
-                    )}
-
-                    {((t.patientAge && t.patientAge <= 6) || t.patientName.toLowerCase().includes('baby') || t.patientName.toLowerCase().includes('aarav')) && (
-                      <span
-                        data-testid="badge-reception-infant-priority"
-                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[11px] bg-pink-100 text-pink-900 border border-pink-300 shadow-2xs"
-                      >
-                        👶 Infant Triage Priority
-                      </span>
-                    )}
-
-                    {escalatedTokens.includes(t.tokenNumber) && (
-                      <span
-                        data-testid="badge-reception-escalated"
-                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[11px] bg-red-100 text-red-900 border border-red-300 animate-pulse shadow-2xs"
-                      >
-                        ⚡ STAT Priority
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      data-testid={`btn-reception-triage-escalate-${t.tokenNumber}`}
-                      onClick={() => handleReceptionTriageEscalate(t.tokenNumber, t.patientAge)}
-                      className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 font-bold text-xs shadow-2xs flex items-center gap-1.5 transition-all cursor-pointer"
-                      title="Promote patient to front of chamber queue (Geriatric / Pediatric Triage)"
-                    >
-                      ⚡ Priority Triage
-                    </button>
-
-                    <button
-                      type="button"
-                      data-testid="btn-print-rx-sheet"
-                      onClick={() => handleOpenRxModal(t)}
-                      className="px-3 py-1.5 rounded-xl bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 font-bold text-xs shadow-2xs flex items-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      🖨️ Prescription Sheet
-                    </button>
-
-                    <button
-                      type="button"
-                      data-testid="btn-settle-custom-charges"
-                      onClick={() => handleOpenSettleModal(t)}
-                      className="px-3 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-xs shadow-2xs flex items-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      ⚡ Settle Custom Charges
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="bg-white border border-slate-200 rounded-xl p-8 text-center text-slate-400 text-xs">
-              No patients currently waiting in this chamber.
+          {receptionView === 'QUEUE' && (
+            <div className="flex items-center gap-2.5">
+              <span className="text-xs text-slate-500 font-medium hidden md:inline">
+                Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 font-mono text-[10px]">F2</kbd> for rapid intake
+              </span>
+              <Button
+                variant="urgent"
+                size="sm"
+                data-testid="btn-add-patient-queue-bar"
+                onClick={() => {
+                  if (selectedChamberTab !== 'ALL') {
+                    setSelectedChamber(selectedChamberTab);
+                  }
+                  setIsIntakeModalOpen(true);
+                }}
+                className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-sm flex items-center gap-1.5"
+              >
+                <span>+ Add New Patient {selectedChamberTab !== 'ALL' ? `(${selectedChamberTab})` : ''}</span>
+                <span className="text-[10px] opacity-80 font-mono font-normal">(F2)</span>
+              </Button>
             </div>
           )}
         </div>
+
+        {/* View Mode 1: Live Multi-Chamber Queue */}
+        {receptionView === 'QUEUE' && (
+          <div className="space-y-4">
+            {/* Chamber Tab Bar */}
+            <div data-testid="tour-chambers-step" className="flex items-center gap-2 overflow-x-auto pb-1">
+              <button
+                onClick={() => setSelectedChamberTab('ALL')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  selectedChamberTab === 'ALL'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                All Chambers ({tokens.length})
+              </button>
+              {INITIAL_CHAMBERS.map((ch) => (
+                <button
+                  key={ch.chamberNumber}
+                  onClick={() => setSelectedChamberTab(ch.chamberNumber)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
+                    selectedChamberTab === ch.chamberNumber
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  {ch.chamberNumber} ({tokens.filter((t) => t.chamberNumber === ch.chamberNumber).length})
+                </button>
+              ))}
+            </div>
+
+            {/* Tokens Cards List */}
+            <div className="space-y-3">
+              {filteredTokens.length > 0 ? (
+                filteredTokens.map((t) => (
+                  <div key={t.id} className="relative group">
+                    <TokenCard
+                      tokenNumber={t.tokenNumber}
+                      patientName={t.patientName}
+                      patientAge={t.patientAge}
+                      patientGender={t.patientGender}
+                      bloodGroup={t.bloodGroup}
+                      village={t.village}
+                      symptoms={t.symptoms}
+                      status={t.status}
+                      chamberNumber={t.chamberNumber}
+                      doctorName={t.doctorName}
+                      isUrgent={t.isUrgent}
+                      triageUrgency={t.isUrgent ? 'URGENT' : 'NORMAL'}
+                      estimatedTime={t.estimatedTime}
+                      source={t.source}
+                      paymentStatus={t.paymentStatus}
+                      onEdit={() => handleOpenEditModal(t)}
+                      onRevert={() => handleRevertToken(t)}
+                      onTransfer={() => handleOpenTransferModal(t)}
+                      onAction={(action) => {
+                        if (action === 'CALL') {
+                          setTokens((prev) =>
+                            prev.map((item) =>
+                              item.id === t.id ? { ...item, status: 'IN_CONSULTATION' } : item
+                            )
+                          );
+                        } else if (action === 'COMPLETE') {
+                          // Move to Completed History
+                          const completedItem: ReceptionTokenItem = {
+                            ...t,
+                            status: 'COMPLETED',
+                            completedAt: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+                          };
+                          setTokens((prev) => prev.filter((item) => item.id !== t.id));
+                          setHistoryTokens((prev) => [completedItem, ...prev]);
+                          showActionFeedback(`✓ Token #${t.tokenNumber} (${t.patientName}) completed consultation and moved to History.`);
+                        }
+                      }}
+                    />
+
+                    {/* Pre-Consultation Sheet & Custom Counter Charges Bar */}
+                    <div className="mt-2 px-4 py-2.5 bg-slate-50/90 border border-slate-200/80 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {t.bookingFeeRupees && t.bookingFeeRupees > 0 ? (
+                          <span
+                            data-testid="badge-booking-paid"
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-mono font-bold text-[11px] bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs"
+                          >
+                            ✓ ₹{t.bookingFeeRupees} Booking Paid
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-mono text-[11px] bg-slate-200/80 text-slate-700 font-semibold">
+                            Counter Token
+                          </span>
+                        )}
+
+                        {t.village && (
+                          <span className="text-slate-600 text-[11px]">
+                            <span className="font-bold text-slate-700">Area:</span> {t.village}
+                          </span>
+                        )}
+
+                        {((t.patientAge && t.patientAge >= 70) || t.patientName.includes('Kailash')) && (
+                          <span
+                            data-testid="badge-reception-senior-priority"
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[11px] bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs"
+                          >
+                            👴 Senior 70+ Priority
+                          </span>
+                        )}
+
+                        {((t.patientAge && t.patientAge <= 6) || t.patientName.toLowerCase().includes('baby') || t.patientName.toLowerCase().includes('aarav')) && (
+                          <span
+                            data-testid="badge-reception-infant-priority"
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[11px] bg-pink-100 text-pink-900 border border-pink-300 shadow-2xs"
+                          >
+                            👶 Infant Triage Priority
+                          </span>
+                        )}
+
+                        {escalatedTokens.includes(t.tokenNumber) && (
+                          <span
+                            data-testid="badge-reception-escalated"
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[11px] bg-red-100 text-red-900 border border-red-300 animate-pulse shadow-2xs"
+                          >
+                            ⚡ STAT Priority
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          data-testid={`btn-reception-triage-escalate-${t.tokenNumber}`}
+                          onClick={() => handleReceptionTriageEscalate(t.tokenNumber, t.patientAge)}
+                          className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 font-bold text-xs shadow-2xs flex items-center gap-1.5 transition-all cursor-pointer"
+                          title="Promote patient to front of chamber queue (Geriatric / Pediatric Triage)"
+                        >
+                          ⚡ Priority Triage
+                        </button>
+
+                        <button
+                          type="button"
+                          data-testid="btn-print-rx-sheet"
+                          onClick={() => handleOpenRxModal(t)}
+                          className="px-3 py-1.5 rounded-xl bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 font-bold text-xs shadow-2xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          🖨️ Prescription Sheet
+                        </button>
+
+                        <button
+                          type="button"
+                          data-testid="btn-settle-custom-charges"
+                          onClick={() => handleOpenSettleModal(t)}
+                          className="px-3 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-xs shadow-2xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          ⚡ Settle Custom Charges
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="bg-white border border-slate-200 rounded-xl p-8 text-center text-slate-400 text-xs">
+                  No patients currently waiting in this chamber.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* View Mode 2: Patient Visit History & Lookup */}
+        {receptionView === 'HISTORY' && (
+          <div className="space-y-4">
+            {/* Search & Doctor Filter Controls */}
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="sm:col-span-2 relative">
+                  <span className="absolute left-3 top-2.5 text-slate-400">🔍</span>
+                  <input
+                    type="text"
+                    data-testid="input-history-search"
+                    value={historySearchQuery}
+                    onChange={(e) => setHistorySearchQuery(e.target.value)}
+                    placeholder="Search past patient by Name, Mobile (+91), Village, Symptoms, or Token #..."
+                    className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-xl text-xs bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                  {historySearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setHistorySearchQuery('')}
+                      className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-xs font-bold"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                <div>
+                  <select
+                    data-testid="select-history-doctor-filter"
+                    value={historyDoctorFilter}
+                    onChange={(e) => setHistoryDoctorFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none font-semibold text-slate-700"
+                  >
+                    <option value="ALL">All Doctor Chambers</option>
+                    {INITIAL_CHAMBERS.map((ch) => (
+                      <option key={ch.chamberNumber} value={ch.chamberNumber}>
+                        {ch.chamberNumber}: {ch.doctorName} ({ch.specialty})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* History Records Table / Cards */}
+            <div className="space-y-3">
+              {historyTokens
+                .filter((h) => {
+                  const matchSearch =
+                    !historySearchQuery ||
+                    h.patientName.toLowerCase().includes(historySearchQuery.toLowerCase()) ||
+                    h.patientMobile.includes(historySearchQuery) ||
+                    (h.village && h.village.toLowerCase().includes(historySearchQuery.toLowerCase())) ||
+                    (h.symptoms && h.symptoms.toLowerCase().includes(historySearchQuery.toLowerCase())) ||
+                    String(h.tokenNumber).includes(historySearchQuery);
+                  const matchChamber =
+                    historyDoctorFilter === 'ALL' || h.chamberNumber === historyDoctorFilter;
+                  return matchSearch && matchChamber;
+                })
+                .map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4.5 bg-white border border-slate-200/90 rounded-2xl shadow-xs hover:shadow-md transition-shadow flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                  >
+                    <div className="flex items-start gap-3.5">
+                      <div className="flex items-center justify-center min-w-12 h-11 px-2.5 rounded-xl font-mono tabular-nums font-black text-xl bg-slate-800 text-white shadow-inner">
+                        #{item.tokenNumber}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="font-bold text-slate-900 text-sm">{item.patientName}</h4>
+                          {item.patientAge && (
+                            <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">
+                              {item.patientAge} Yrs ({item.patientGender === 'FEMALE' ? 'F' : 'M'})
+                            </span>
+                          )}
+                          {item.bloodGroup && (
+                            <span className="font-mono font-bold text-xs text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">
+                              {item.bloodGroup}
+                            </span>
+                          )}
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            ✓ {item.status} {item.completedAt ? `at ${item.completedAt}` : ''}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1 text-xs text-slate-500 flex-wrap">
+                          <span>Mobile: +91 {item.patientMobile}</span>
+                          {item.village && (
+                            <>
+                              <span>•</span>
+                              <span>📍 {item.village}</span>
+                            </>
+                          )}
+                          <span>•</span>
+                          <span className="font-semibold text-blue-700">
+                            {item.chamberNumber}: Dr. {item.doctorName}
+                          </span>
+                          <span>•</span>
+                          <span className="font-bold text-slate-700 font-mono">
+                            Paid: ₹{item.feePaidRupees} ({item.paymentStatus === 'PAID_UPI_QR' ? 'UPI' : 'Cash'})
+                          </span>
+                        </div>
+                        {item.symptoms && (
+                          <p className="text-[11px] text-slate-600 mt-1 line-clamp-1">
+                            <span className="font-semibold text-slate-700">Diagnosis/Summary:</span> {item.symptoms}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                      <button
+                        type="button"
+                        data-testid="btn-history-reprint-slip"
+                        onClick={() => {
+                          setLatestIssuedToken(item);
+                          setIsReceiptModalOpen(true);
+                        }}
+                        className="px-2.5 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl transition-colors cursor-pointer"
+                        title="Re-print thermal 80mm consultation receipt"
+                      >
+                        🖨️ Re-Print Slip
+                      </button>
+
+                      <button
+                        type="button"
+                        data-testid="btn-history-rx-sheet"
+                        onClick={() => handleOpenRxModal(item)}
+                        className="px-2.5 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl transition-colors cursor-pointer"
+                        title="View Pre-Consultation Prescription Letterhead"
+                      >
+                        📋 Rx Sheet
+                      </button>
+
+                      <button
+                        type="button"
+                        data-testid="btn-history-revert-to-queue"
+                        onClick={() => handleRevertHistoryToken(item)}
+                        className="px-2.5 py-1.5 text-xs font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded-xl transition-colors cursor-pointer"
+                        title="Re-open consultation and move back to Active Waiting Queue"
+                      >
+                        ↩️ Revert to Queue
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Rapid 15-Second Walk-In Intake Modal (Triggered by F2) */}
@@ -1199,7 +1663,7 @@ export default function ReceptionDeskDashboardPage() {
         onClose={() => setIsIntakeModalOpen(false)}
         maxWidth="lg"
         title="⚡ Rapid Walk-In Patient Intake"
-        subtitle="15-Second Direct Reception Registration • Press F2 anytime"
+        subtitle="Comprehensive Clinical & Demographic Registration • Press F2 anytime"
       >
         <form onSubmit={handleSubmitIntake} className="space-y-4">
           {formError && (
@@ -1208,6 +1672,7 @@ export default function ReceptionDeskDashboardPage() {
             </div>
           )}
 
+          {/* Row 1: Mobile Number & Patient Full Name */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               ref={mobileInputRef}
@@ -1234,6 +1699,146 @@ export default function ReceptionDeskDashboardPage() {
             />
           </div>
 
+          {/* Row 2: Age, Gender (Sex), Blood Group */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                Age (Years)
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="125"
+                data-testid="input-intake-age"
+                value={patientAge}
+                onChange={(e) => setPatientAge(e.target.value)}
+                placeholder="e.g. 48"
+                className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-mono font-bold text-slate-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                Sex / Gender
+              </label>
+              <div className="flex gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                {(['MALE', 'FEMALE', 'OTHER'] as const).map((g) => (
+                  <button
+                    key={g}
+                    type="button"
+                    onClick={() => setPatientGender(g)}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                      patientGender === g
+                        ? 'bg-blue-600 text-white shadow-2xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    {g === 'MALE' ? 'Male' : g === 'FEMALE' ? 'Female' : 'Other'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                Blood Group
+              </label>
+              <select
+                data-testid="select-intake-blood-group"
+                value={bloodGroup}
+                onChange={(e) => setBloodGroup(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
+              >
+                <option value="A+">A+ (Positive)</option>
+                <option value="B+">B+ (Positive)</option>
+                <option value="O+">O+ (Positive)</option>
+                <option value="AB+">AB+ (Positive)</option>
+                <option value="A-">A- (Negative)</option>
+                <option value="B-">B- (Negative)</option>
+                <option value="O-">O- (Negative)</option>
+                <option value="AB-">AB- (Negative)</option>
+                <option value="Unknown">Unknown / Not Tested</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Row 3: Village / Town / Locality with Quick Chips */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">
+                Village / Town / Locality
+              </label>
+              <span className="text-[11px] text-slate-400">Quick Select:</span>
+            </div>
+            <input
+              type="text"
+              data-testid="input-intake-village"
+              value={village}
+              onChange={(e) => setVillage(e.target.value)}
+              placeholder="e.g. Mandideep, Kolar Road, Berasia, Sehore..."
+              className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              required
+            />
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {['Mandideep', 'Kolar Road', 'Berasia', 'Sehore', 'MP Nagar', 'Raisen', 'Hoshangabad'].map((loc) => (
+                <button
+                  key={loc}
+                  type="button"
+                  onClick={() => setVillage(loc)}
+                  className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold border transition-colors cursor-pointer ${
+                    village === loc
+                      ? 'bg-blue-50 border-blue-300 text-blue-700 font-bold'
+                      : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  📍 {loc}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Row 4: Presenting Symptoms / Chief Complaints with Quick Chips */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">
+                Presenting Symptoms / Chief Complaints
+              </label>
+              <span className="text-[11px] text-slate-400">Common Complaints:</span>
+            </div>
+            <input
+              type="text"
+              data-testid="input-intake-symptoms"
+              value={symptoms}
+              onChange={(e) => setSymptoms(e.target.value)}
+              placeholder="e.g. Routine checkup & chest discomfort, skin rash, fever..."
+              className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {[
+                'Routine checkup & chest discomfort',
+                'High fever & persistent cough',
+                'Severe joint pain / knee stiffness',
+                'Allergic skin rash & itching',
+                'Pediatric fever & vomiting',
+                'Hypertension review & ECG',
+              ].map((sym) => (
+                <button
+                  key={sym}
+                  type="button"
+                  onClick={() => setSymptoms(sym)}
+                  className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold border transition-colors cursor-pointer ${
+                    symptoms === sym
+                      ? 'bg-blue-50 border-blue-300 text-blue-700 font-bold'
+                      : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  🩺 {sym}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Chamber & Doctor Selector */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
@@ -1245,10 +1850,11 @@ export default function ReceptionDeskDashboardPage() {
                   key={ch.chamberNumber}
                   type="button"
                   onClick={() => setSelectedChamber(ch.chamberNumber)}
-                  className={`p-3 rounded-xl border text-left transition-all ${selectedChamber === ch.chamberNumber
-                    ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-600/20'
-                    : 'border-slate-200 bg-white hover:bg-slate-50'
-                    }`}
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                    selectedChamber === ch.chamberNumber
+                      ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-600/20'
+                      : 'border-slate-200 bg-white hover:bg-slate-50'
+                  }`}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-bold text-xs font-mono text-blue-700">
@@ -1276,20 +1882,22 @@ export default function ReceptionDeskDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setIsUrgent(false)}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${!isUrgent
-                    ? 'border-slate-400 bg-slate-100 text-slate-800'
-                    : 'border-slate-200 bg-white text-slate-500'
-                    }`}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                    !isUrgent
+                      ? 'border-slate-400 bg-slate-100 text-slate-800'
+                      : 'border-slate-200 bg-white text-slate-500'
+                  }`}
                 >
                   Normal
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsUrgent(true)}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${isUrgent
-                    ? 'border-amber-400 bg-amber-50 text-amber-700 ring-2 ring-amber-400/20'
-                    : 'border-slate-200 bg-white text-slate-500'
-                    }`}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                    isUrgent
+                      ? 'border-amber-400 bg-amber-50 text-amber-700 ring-2 ring-amber-400/20'
+                      : 'border-slate-200 bg-white text-slate-500'
+                  }`}
                 >
                   🚨 Urgent Priority
                 </button>
@@ -1305,30 +1913,33 @@ export default function ReceptionDeskDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setPaymentMode('PAID_CASH')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${paymentMode === 'PAID_CASH'
-                    ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
-                    : 'border-slate-200 bg-white text-slate-600'
-                    }`}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                    paymentMode === 'PAID_CASH'
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
+                      : 'border-slate-200 bg-white text-slate-600'
+                  }`}
                 >
                   💵 Cash
                 </button>
                 <button
                   type="button"
                   onClick={() => setPaymentMode('PAID_UPI_QR')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${paymentMode === 'PAID_UPI_QR'
-                    ? 'border-blue-500 bg-blue-50 text-blue-800'
-                    : 'border-slate-200 bg-white text-slate-600'
-                    }`}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                    paymentMode === 'PAID_UPI_QR'
+                      ? 'border-blue-500 bg-blue-50 text-blue-800'
+                      : 'border-slate-200 bg-white text-slate-600'
+                  }`}
                 >
                   📱 UPI QR
                 </button>
                 <button
                   type="button"
                   onClick={() => setPaymentMode('PENDING')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${paymentMode === 'PENDING'
-                    ? 'border-amber-500 bg-amber-50 text-amber-800'
-                    : 'border-slate-200 bg-white text-slate-600'
-                    }`}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                    paymentMode === 'PENDING'
+                      ? 'border-amber-500 bg-amber-50 text-amber-800'
+                      : 'border-slate-200 bg-white text-slate-600'
+                  }`}
                 >
                   ⏳ Pay Later
                 </button>
@@ -1340,6 +1951,321 @@ export default function ReceptionDeskDashboardPage() {
             Allocate Token & Generate Receipt [Enter]
           </Button>
         </form>
+      </Modal>
+
+      {/* Edit Patient Information Modal (Update Action) */}
+      {editingToken && (
+        <Modal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          maxWidth="lg"
+          title={`✏️ Update Patient Demographics (#${editingToken.tokenNumber})`}
+          subtitle={`Editing active record for ${editingToken.chamberNumber} • Dr. ${editingToken.doctorName}`}
+        >
+          <form onSubmit={handleSaveEditPatient} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input
+                label="Patient Mobile Number"
+                prefixText="+91"
+                data-testid="input-edit-mobile"
+                value={editMobile}
+                onChange={(e) => setEditMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                required
+              />
+              <Input
+                label="Patient Full Name"
+                data-testid="input-edit-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Age (Years)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="125"
+                  data-testid="input-edit-age"
+                  value={editAge}
+                  onChange={(e) => setEditAge(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-mono font-bold text-slate-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Sex / Gender
+                </label>
+                <div className="flex gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                  {(['MALE', 'FEMALE', 'OTHER'] as const).map((g) => (
+                    <button
+                      key={g}
+                      type="button"
+                      onClick={() => setEditGender(g)}
+                      className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                        editGender === g
+                          ? 'bg-blue-600 text-white shadow-2xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      {g === 'MALE' ? 'Male' : g === 'FEMALE' ? 'Female' : 'Other'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Blood Group
+                </label>
+                <select
+                  data-testid="select-edit-blood-group"
+                  value={editBloodGroup}
+                  onChange={(e) => setEditBloodGroup(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
+                >
+                  <option value="A+">A+ (Positive)</option>
+                  <option value="B+">B+ (Positive)</option>
+                  <option value="O+">O+ (Positive)</option>
+                  <option value="AB+">AB+ (Positive)</option>
+                  <option value="A-">A- (Negative)</option>
+                  <option value="B-">B- (Negative)</option>
+                  <option value="O-">O- (Negative)</option>
+                  <option value="AB-">AB- (Negative)</option>
+                  <option value="Unknown">Unknown / Not Tested</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                Village / Town / Locality
+              </label>
+              <input
+                type="text"
+                data-testid="input-edit-village"
+                value={editVillage}
+                onChange={(e) => setEditVillage(e.target.value)}
+                placeholder="e.g. Mandideep, Kolar, Berasia, Sehore..."
+                className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                Presenting Symptoms / Chief Complaints
+              </label>
+              <input
+                type="text"
+                data-testid="input-edit-symptoms"
+                value={editSymptoms}
+                onChange={(e) => setEditSymptoms(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => setIsEditModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" data-testid="btn-save-edit-patient" variant="primary" size="md">
+                Save Patient Information
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* Chamber Transfer Modal */}
+      {transferringToken && (
+        <Modal
+          isOpen={isTransferModalOpen}
+          onClose={() => setIsTransferModalOpen(false)}
+          maxWidth="md"
+          title={`🔀 Transfer Patient to Another Chamber (#${transferringToken.tokenNumber})`}
+          subtitle={`Currently in ${transferringToken.chamberNumber} (Dr. ${transferringToken.doctorName})`}
+        >
+          <form onSubmit={handleConfirmTransfer} className="space-y-4">
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700">
+              <span className="font-bold text-slate-900 block">{transferringToken.patientName}</span>
+              <span>Select the destination doctor chamber. Queue position and fee ledger will be automatically adjusted.</span>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">
+                Target Doctor Chamber
+              </label>
+              <div className="grid grid-cols-1 gap-2">
+                {INITIAL_CHAMBERS.map((ch) => (
+                  <button
+                    key={ch.chamberNumber}
+                    type="button"
+                    onClick={() => setTransferTargetChamber(ch.chamberNumber)}
+                    className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${
+                      transferTargetChamber === ch.chamberNumber
+                        ? 'border-indigo-600 bg-indigo-50/60 ring-2 ring-indigo-600/20'
+                        : 'border-slate-200 bg-white hover:bg-slate-50'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-xs font-mono text-indigo-700">{ch.chamberNumber}</span>
+                        <span className="font-bold text-xs text-slate-900">{ch.doctorName}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-500">{ch.specialty}</span>
+                    </div>
+                    <span className="font-mono font-bold text-xs text-slate-800">₹{ch.consultationFee}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => setIsTransferModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" data-testid="btn-confirm-transfer" variant="primary" size="md">
+                Confirm Chamber Transfer
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* Shift Operations & Physical Cash Drawer Modal (De-cluttered from front UI) */}
+      <Modal
+        isOpen={isShiftDrawerOpen}
+        onClose={() => setIsShiftDrawerOpen(false)}
+        maxWidth="lg"
+        title="💼 Shift Operations & Physical Cash Drawer"
+        subtitle="End-of-Shift Reconciliation • Cash Denomination Tally & Dual-Witness Handover"
+      >
+        <div className="space-y-4">
+          {/* Shift Details Banner */}
+          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-slate-900 text-sm">Sunita Verma</span>
+                <span className="text-[10px] font-mono text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full font-bold">
+                  Staff #REC-102
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                Active Shift (08:30 AM - 02:30 PM) • Bhopal City Care Polyclinic
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
+                ● Shift In Progress
+              </span>
+            </div>
+          </div>
+
+          {/* Front-Desk Physical Cash Denomination Tally (Anti-Pilferage) */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <span className="h-8 w-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-sm shadow-2xs">🧮</span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-900">
+                      Front-Desk Physical Cash Denomination Tally
+                    </span>
+                    <span className="text-[10px] text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">
+                      Anti-Pilferage Verified
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-slate-500 font-medium">Physical drawer count & 2-witness handover ledger</span>
+                </div>
+              </div>
+
+              {handoverReceipt ? (
+                <div
+                  data-testid="badge-handover-verified"
+                  className="text-xs bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-2xs"
+                  title={`Full Audit Hash: ${handoverReceipt.receiptHash}`}
+                >
+                  <span>✓ 2-Witness Handover Verified</span>
+                  <span className="font-mono text-[10px] opacity-80">
+                    ({handoverReceipt.receiptHash})
+                  </span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="btn-open-cashier-handover"
+                  onClick={() => setIsHandoverModalOpen(true)}
+                  className="text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                >
+                  <span>🤝 2-Witness Shift Handover</span>
+                </button>
+              )}
+            </div>
+
+            {/* Denomination Counter Inputs */}
+            <div className="mt-3 pt-3 border-t border-slate-100 space-y-3">
+              <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 text-xs">
+                {[500, 200, 100, 50, 20, 10].map((denom) => (
+                  <div key={denom} className="p-2 rounded-lg bg-slate-50 border border-slate-200 text-center">
+                    <span className="font-mono font-bold text-slate-700 block text-xs">₹{denom} Notes</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={denominations[denom] || ''}
+                      onChange={(e) =>
+                        setDenominations({
+                          ...denominations,
+                          [denom]: Math.max(0, parseInt(e.target.value) || 0),
+                        })
+                      }
+                      className="w-full mt-1 px-1.5 py-1 text-center font-mono font-bold text-slate-900 border border-slate-300 rounded bg-white text-xs focus:ring-1 focus:ring-blue-500"
+                    />
+                    <span className="text-[10px] text-slate-500 font-mono block mt-1">
+                      = ₹{((denominations[denom] || 0) * denom).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-wrap items-center justify-between p-2.5 bg-emerald-50/70 border border-emerald-200 rounded-xl text-xs gap-2">
+                <div className="flex flex-wrap items-center gap-4">
+                  <span>Counted Cash: <span className="font-mono font-black text-slate-900 text-sm">₹{calculateDenominationTotal().toLocaleString('en-IN')}</span></span>
+                  <span>System Expected: <span className="font-mono font-semibold text-slate-700">₹12,400</span></span>
+                  <span className={`px-2 py-0.5 rounded font-bold font-mono text-[10px] ${
+                    calculateDenominationTotal() === 12400 ? 'bg-emerald-600 text-white' : 'bg-rose-100 text-rose-800'
+                  }`}>
+                    Variance: {calculateDenominationTotal() - 12400 >= 0 ? `+₹${calculateDenominationTotal() - 12400}` : `-₹${12400 - calculateDenominationTotal()}`} {calculateDenominationTotal() === 12400 ? '✓ (100% BALANCED)' : '⚠️ (DISCREPANCY)'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* End-of-Shift Sign Out & Close */}
+          <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200">
+            <button
+              type="button"
+              data-testid="btn-receptionist-logout-drawer"
+              onClick={() => logout(router)}
+              className="text-xs font-bold text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3.5 py-2 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <span>🚪</span> Complete Shift & Sign Out
+            </button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsShiftDrawerOpen(false)}
+            >
+              Close Drawer
+            </Button>
+          </div>
+        </div>
       </Modal>
 
       {/* 80mm ESC/POS Thermal Receipt Slip Modal */}
@@ -1370,12 +2296,32 @@ export default function ReceptionDeskDashboardPage() {
               <div className="text-left text-[11px] space-y-1">
                 <div className="flex justify-between">
                   <span>Patient:</span>
-                  <span className="font-bold">{latestIssuedToken.patientName}</span>
+                  <span className="font-bold">
+                    {latestIssuedToken.patientName} {latestIssuedToken.patientAge ? `(${latestIssuedToken.patientAge}Y/${latestIssuedToken.patientGender === 'FEMALE' ? 'F' : 'M'})` : ''}
+                  </span>
                 </div>
+                {latestIssuedToken.bloodGroup && (
+                  <div className="flex justify-between">
+                    <span>Blood Group:</span>
+                    <span className="font-bold font-mono">{latestIssuedToken.bloodGroup}</span>
+                  </div>
+                )}
+                {latestIssuedToken.village && (
+                  <div className="flex justify-between">
+                    <span>Village/Area:</span>
+                    <span className="font-semibold">{latestIssuedToken.village}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span>Doctor:</span>
                   <span className="font-bold">Dr. {latestIssuedToken.doctorName}</span>
                 </div>
+                {latestIssuedToken.symptoms && (
+                  <div className="flex justify-between">
+                    <span>Symptoms:</span>
+                    <span className="font-medium truncate max-w-44">{latestIssuedToken.symptoms}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span>Payment:</span>
                   <span className="font-bold">{latestIssuedToken.paymentStatus}</span>
@@ -1558,15 +2504,15 @@ export default function ReceptionDeskDashboardPage() {
                     <span className="font-bold text-slate-900">{selectedRxToken.patientName}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Age / Gender</span>
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Age / Gender / Blood</span>
                     <span className="font-bold text-slate-900">
-                      {selectedRxToken.patientAge || 48} Yrs / {selectedRxToken.patientGender || 'MALE'}
+                      {selectedRxToken.patientAge || 48} Yrs / {selectedRxToken.patientGender || 'MALE'} / {selectedRxToken.bloodGroup || 'B+'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Date</span>
-                    <span className="font-semibold text-slate-900 font-mono">
-                      {new Date().toLocaleDateString('en-IN')}
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Village / Area</span>
+                    <span className="font-semibold text-slate-900">
+                      📍 {selectedRxToken.village || 'Mandideep, MP'}
                     </span>
                   </div>
 
@@ -1655,7 +2601,15 @@ export default function ReceptionDeskDashboardPage() {
                 <div className="text-left text-[11px] space-y-1">
                   <div className="flex justify-between">
                     <span>Patient:</span>
-                    <span className="font-bold">{selectedRxToken.patientName} ({selectedRxToken.patientAge || 48}M)</span>
+                    <span className="font-bold">
+                      {selectedRxToken.patientName} ({selectedRxToken.patientAge || 48}{selectedRxToken.patientGender === 'FEMALE' ? 'F' : 'M'})
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Blood / Area:</span>
+                    <span className="font-bold font-mono">
+                      {selectedRxToken.bloodGroup || 'B+'} • {selectedRxToken.village || 'Mandideep'}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Mobile:</span>
@@ -2117,6 +3071,10 @@ export default function ReceptionDeskDashboardPage() {
           <div data-testid="modal-cashier-handover" className="space-y-4">
             {/* Shift Summary Box */}
             <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+              <div className="text-xs font-bold text-slate-800 pb-1 border-b border-slate-200 flex items-center justify-between">
+                <span>Shift Handover Session:</span>
+                <span className="font-mono text-[11px] text-blue-700">Morning Shift (08:30 - 14:30) ➔ Evening Shift (14:30 - 20:30)</span>
+              </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-slate-600 font-medium">System Expected Drawer Cash:</span>
                 <span className="font-mono font-bold text-slate-900 text-sm">₹12,400</span>

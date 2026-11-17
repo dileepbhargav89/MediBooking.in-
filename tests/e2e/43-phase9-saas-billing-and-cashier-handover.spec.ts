@@ -117,7 +117,11 @@ test.describe('Phase 9: Self-Service SaaS Plan Upgrades & Two-Witness Cashier Ha
     await page.locator('button', { hasText: /Instant Dev Login/i }).click();
     await expect(page).toHaveURL('/receptionist', { timeout: 15000 });
 
-    // 2. Verify Front-Desk Physical Cash Denomination Strip
+    // 2. Open Shift & Drawer Ledger (De-cluttered from front UI)
+    const shiftDrawerBtn = page.getByTestId('btn-open-shift-drawer');
+    await expect(shiftDrawerBtn).toBeVisible();
+    await shiftDrawerBtn.click();
+
     await expect(page.locator('text=Front-Desk Physical Cash Denomination Tally')).toBeVisible();
 
     const handoverBtn = page.getByTestId('btn-open-cashier-handover');
@@ -127,7 +131,7 @@ test.describe('Phase 9: Self-Service SaaS Plan Upgrades & Two-Witness Cashier Ha
     // 3. Verify Two-Witness Modal
     const handoverModal = page.getByTestId('modal-cashier-handover');
     await expect(handoverModal).toBeVisible();
-    await expect(page.locator('text=Morning Shift (08:30 - 14:30)')).toBeVisible();
+    await expect(handoverModal.locator('text=Morning Shift (08:30 - 14:30)')).toBeVisible();
     await expect(handoverModal.locator('text=₹12,400').first()).toBeVisible();
     await expect(handoverModal.locator('text=ZERO VARIANCE')).toBeVisible();
 

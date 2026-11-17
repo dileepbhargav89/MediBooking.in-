@@ -11,6 +11,11 @@ export interface EscposReceiptData {
   chamberNumber: string;
   patientName: string;
   patientMobile: string;
+  patientAge?: number;
+  patientGender?: string;
+  bloodGroup?: string;
+  village?: string;
+  symptoms?: string;
   doctorName: string;
   specialty?: string;
   paymentStatus: string;
