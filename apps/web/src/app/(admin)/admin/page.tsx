@@ -28,6 +28,23 @@ interface AdminDoctorAffiliation {
   followUpFeeRupees: number;
   followUpValidityDays: number;
   isActive: boolean;
+  onboardingStatus?: 'INVITE_SENT' | 'PENDING_NMC' | 'ACTIVE';
+  inviteDispatchedAt?: string;
+  mobile?: string;
+  email?: string;
+}
+
+interface ReceptionStaffMember {
+  id: string;
+  staffId: string;
+  fullName: string;
+  mobile: string;
+  shift: 'MORNING' | 'EVENING' | 'NIGHT' | 'FULL_DAY';
+  shiftTimings: string;
+  handoverPin: string;
+  status: 'ON_DUTY' | 'OFF_DUTY';
+  onboardingStatus: 'INVITE_DISPATCHED' | 'ACTIVE_ON_DUTY';
+  lastInviteSentAt?: string;
 }
 
 interface PatientQueueIntakeItem {
@@ -58,6 +75,9 @@ const INITIAL_AFFILIATIONS: AdminDoctorAffiliation[] = [
     followUpFeeRupees: 300,
     followUpValidityDays: 14,
     isActive: true,
+    onboardingStatus: 'ACTIVE',
+    mobile: '98260-11111',
+    email: 'dr.sharma@bhopalcitycare.in',
   },
   {
     id: 'aff-2',
@@ -70,6 +90,9 @@ const INITIAL_AFFILIATIONS: AdminDoctorAffiliation[] = [
     followUpFeeRupees: 250,
     followUpValidityDays: 14,
     isActive: true,
+    onboardingStatus: 'ACTIVE',
+    mobile: '98261-22222',
+    email: 'dr.patel@bhopalcitycare.in',
   },
   {
     id: 'aff-3',
@@ -82,6 +105,9 @@ const INITIAL_AFFILIATIONS: AdminDoctorAffiliation[] = [
     followUpFeeRupees: 300,
     followUpValidityDays: 14,
     isActive: true,
+    onboardingStatus: 'ACTIVE',
+    mobile: '98262-33333',
+    email: 'dr.verma@bhopalcitycare.in',
   },
   {
     id: 'aff-4',
@@ -94,6 +120,36 @@ const INITIAL_AFFILIATIONS: AdminDoctorAffiliation[] = [
     followUpFeeRupees: 350,
     followUpValidityDays: 14,
     isActive: true,
+    onboardingStatus: 'ACTIVE',
+    mobile: '98263-44444',
+    email: 'dr.rao@bhopalcitycare.in',
+  },
+];
+
+const INITIAL_RECEPTION_STAFF: ReceptionStaffMember[] = [
+  {
+    id: 'rec-1',
+    staffId: 'REC-101',
+    fullName: 'Sunita Sahu',
+    mobile: '98260-33333',
+    shift: 'MORNING',
+    shiftTimings: '08:00 AM - 02:00 PM',
+    handoverPin: '4821',
+    status: 'ON_DUTY',
+    onboardingStatus: 'ACTIVE_ON_DUTY',
+    lastInviteSentAt: '2026-11-17 07:45 AM',
+  },
+  {
+    id: 'rec-2',
+    staffId: 'REC-102',
+    fullName: 'Vikram Chouhan',
+    mobile: '98261-44444',
+    shift: 'EVENING',
+    shiftTimings: '02:00 PM - 09:00 PM',
+    handoverPin: '7392',
+    status: 'OFF_DUTY',
+    onboardingStatus: 'INVITE_DISPATCHED',
+    lastInviteSentAt: '2026-11-17 01:30 PM',
   },
 ];
 
@@ -189,6 +245,7 @@ const TODAY_PATIENT_QUEUE: PatientQueueIntakeItem[] = [
 type AdminSidebarTab =
   | 'CLINIC_OVERVIEW'
   | 'AFFILIATIONS'
+  | 'RECEPTION_STAFF'
   | 'PATIENTS_INTAKE'
   | 'RECONCILIATION'
   | 'SETTLEMENTS'
@@ -202,6 +259,40 @@ export default function ClinicAdministratorPortal() {
   const [editingAffiliation, setEditingAffiliation] = useState<AdminDoctorAffiliation | null>(null);
   const [isChamberQuotaModalOpen, setIsChamberQuotaModalOpen] = useState(false);
   const [chamberAddedToast, setChamberAddedToast] = useState<string | null>(null);
+
+  // Doctor Addition & Onboarding Invitation State
+  const [isAddDoctorModalOpen, setIsAddDoctorModalOpen] = useState(false);
+  const [isDoctorInviteModalOpen, setIsDoctorInviteModalOpen] = useState(false);
+  const [selectedDoctorForInvite, setSelectedDoctorForInvite] = useState<AdminDoctorAffiliation | null>(null);
+  const [doctorInviteCopied, setDoctorInviteCopied] = useState(false);
+  const [doctorToastNotice, setDoctorToastNotice] = useState<string | null>(null);
+
+  // New Doctor Form State
+  const [newDoctorName, setNewDoctorName] = useState('');
+  const [newDoctorSpecialty, setNewDoctorSpecialty] = useState('Cardiologist');
+  const [newDoctorNmc, setNewDoctorNmc] = useState('');
+  const [newDoctorChamber, setNewDoctorChamber] = useState('CH-1');
+  const [newDoctorFee, setNewDoctorFee] = useState<number>(600);
+  const [newDoctorFollowUpFee, setNewDoctorFollowUpFee] = useState<number>(300);
+  const [newDoctorMobile, setNewDoctorMobile] = useState('');
+  const [newDoctorEmail, setNewDoctorEmail] = useState('');
+  const [addDoctorError, setAddDoctorError] = useState<string | null>(null);
+
+  // Reception Staff State
+  const [receptionStaff, setReceptionStaff] = useState<ReceptionStaffMember[]>(INITIAL_RECEPTION_STAFF);
+  const [isAddReceptionistModalOpen, setIsAddReceptionistModalOpen] = useState(false);
+  const [isReceptionInviteModalOpen, setIsReceptionInviteModalOpen] = useState(false);
+  const [selectedReceptionistForInvite, setSelectedReceptionistForInvite] = useState<ReceptionStaffMember | null>(null);
+  const [receptionInviteCopied, setReceptionInviteCopied] = useState(false);
+  const [receptionToastNotice, setReceptionToastNotice] = useState<string | null>(null);
+
+  // New Receptionist Form State
+  const [newRecName, setNewRecName] = useState('');
+  const [newRecStaffId, setNewRecStaffId] = useState('REC-103');
+  const [newRecMobile, setNewRecMobile] = useState('');
+  const [newRecShift, setNewRecShift] = useState<'MORNING' | 'EVENING' | 'NIGHT' | 'FULL_DAY'>('MORNING');
+  const [newRecPin, setNewRecPin] = useState('5839');
+  const [addRecError, setAddRecError] = useState<string | null>(null);
 
   // EOD Cash Drawer State
   const [countedCash, setCountedCash] = useState<number>(12400);
@@ -445,6 +536,125 @@ export default function ClinicAdministratorPortal() {
     setTimeout(() => setChamberAddedToast(null), 6000);
   };
 
+  const handleAddDoctor = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddDoctorError(null);
+
+    if (!newDoctorName.trim() || newDoctorName.trim().length < 3) {
+      setAddDoctorError('Doctor full name must be at least 3 characters.');
+      return;
+    }
+    if (!newDoctorNmc.trim()) {
+      setAddDoctorError('NMC / State Medical Council Registration number is required.');
+      return;
+    }
+    const cleanMobile = newDoctorMobile.replace(/\D/g, '');
+    if (cleanMobile.length !== 10) {
+      setAddDoctorError('Please enter a valid 10-digit Indian mobile number.');
+      return;
+    }
+
+    const newId = `aff-${affiliations.length + 1}`;
+    const newDocId = `d10${affiliations.length + 1}0000-0000-4000-8000-00000000000${affiliations.length + 1}`;
+    const formattedDoctorName = newDoctorName.trim().startsWith('Dr.') ? newDoctorName.trim() : `Dr. ${newDoctorName.trim()}`;
+
+    const newAffiliation: AdminDoctorAffiliation = {
+      id: newId,
+      doctorId: newDocId,
+      doctorName: formattedDoctorName,
+      specialty: newDoctorSpecialty,
+      nmcNumber: newDoctorNmc.trim(),
+      chamberNumber: newDoctorChamber,
+      consultationFeeRupees: Number(newDoctorFee) || 600,
+      followUpFeeRupees: Number(newDoctorFollowUpFee) || 300,
+      followUpValidityDays: 14,
+      isActive: true,
+      onboardingStatus: 'INVITE_SENT',
+      inviteDispatchedAt: 'Just now',
+      mobile: cleanMobile,
+      email: newDoctorEmail.trim() || undefined,
+    };
+
+    setAffiliations((prev) => [...prev, newAffiliation]);
+    setIsAddDoctorModalOpen(false);
+    setSelectedDoctorForInvite(newAffiliation);
+    setIsDoctorInviteModalOpen(true);
+    setDoctorToastNotice(`✓ ${formattedDoctorName} added! Onboarding invitation ready.`);
+    setTimeout(() => setDoctorToastNotice(null), 4000);
+
+    // Reset form
+    setNewDoctorName('');
+    setNewDoctorNmc('');
+    setNewDoctorMobile('');
+    setNewDoctorEmail('');
+  };
+
+  const handleOpenDoctorInvite = (doc: AdminDoctorAffiliation) => {
+    setSelectedDoctorForInvite(doc);
+    setIsDoctorInviteModalOpen(true);
+    setDoctorInviteCopied(false);
+  };
+
+  const handleAddReceptionist = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddRecError(null);
+
+    if (!newRecName.trim() || newRecName.trim().length < 2) {
+      setAddRecError('Receptionist full name must be at least 2 characters.');
+      return;
+    }
+    const cleanMobile = newRecMobile.replace(/\D/g, '');
+    if (cleanMobile.length !== 10) {
+      setAddRecError('Please enter a valid 10-digit Indian mobile number.');
+      return;
+    }
+    const cleanPin = newRecPin.replace(/\D/g, '');
+    if (cleanPin.length !== 4) {
+      setAddRecError('Handover PIN must be exactly 4 numeric digits.');
+      return;
+    }
+
+    const shiftTimings =
+      newRecShift === 'MORNING'
+        ? '08:00 AM - 02:00 PM'
+        : newRecShift === 'EVENING'
+        ? '02:00 PM - 09:00 PM'
+        : newRecShift === 'NIGHT'
+        ? '09:00 PM - 08:00 AM'
+        : '09:00 AM - 08:00 PM';
+
+    const newStaff: ReceptionStaffMember = {
+      id: `rec-${receptionStaff.length + 1}`,
+      staffId: newRecStaffId.trim() || `REC-${100 + receptionStaff.length + 1}`,
+      fullName: newRecName.trim(),
+      mobile: cleanMobile,
+      shift: newRecShift,
+      shiftTimings,
+      handoverPin: cleanPin,
+      status: 'ON_DUTY',
+      onboardingStatus: 'INVITE_DISPATCHED',
+      lastInviteSentAt: 'Just now',
+    };
+
+    setReceptionStaff((prev) => [...prev, newStaff]);
+    setIsAddReceptionistModalOpen(false);
+    setSelectedReceptionistForInvite(newStaff);
+    setIsReceptionInviteModalOpen(true);
+    setReceptionToastNotice(`✓ ${newStaff.fullName} added to front-desk staff! Access invite ready.`);
+    setTimeout(() => setReceptionToastNotice(null), 4000);
+
+    // Reset form
+    setNewRecName('');
+    setNewRecMobile('');
+    setNewRecStaffId(`REC-${100 + receptionStaff.length + 2}`);
+  };
+
+  const handleOpenReceptionInvite = (staff: ReceptionStaffMember) => {
+    setSelectedReceptionistForInvite(staff);
+    setIsReceptionInviteModalOpen(true);
+    setReceptionInviteCopied(false);
+  };
+
   const expectedCash = 12400;
   const variance = countedCash - expectedCash;
   const varianceStatus = variance === 0 ? 'BALANCED' : variance > 0 ? 'SURPLUS' : 'SHORTAGE';
@@ -598,6 +808,7 @@ export default function ClinicAdministratorPortal() {
               {/* Tab 2: Doctor Affiliations & Chamber Fees */}
               <button
                 type="button"
+                data-testid="tab-doctor-affiliations"
                 onClick={() => setActiveTab('AFFILIATIONS')}
                 className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
                   activeTab === 'AFFILIATIONS'
@@ -617,6 +828,32 @@ export default function ClinicAdministratorPortal() {
                   }`}
                 >
                   {affiliations.length}
+                </span>
+              </button>
+
+              {/* Tab 2.5: Front-Desk & Reception Staff */}
+              <button
+                type="button"
+                data-testid="tab-reception-staff"
+                onClick={() => setActiveTab('RECEPTION_STAFF')}
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                  activeTab === 'RECEPTION_STAFF'
+                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20 font-bold'
+                    : 'text-slate-700 hover:bg-emerald-50/70 hover:text-emerald-900'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="text-base">👩‍💼</span>
+                  <span>Reception Staff & Onboarding</span>
+                </div>
+                <span
+                  className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                    activeTab === 'RECEPTION_STAFF'
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-emerald-100 text-emerald-800'
+                  }`}
+                >
+                  {receptionStaff.length}
                 </span>
               </button>
 
@@ -1120,20 +1357,50 @@ export default function ClinicAdministratorPortal() {
           {/* VIEW 2: Doctor Affiliations & Chamber Fees */}
           {activeTab === 'AFFILIATIONS' && (
             <div className="space-y-4">
+              {doctorToastNotice && (
+                <div
+                  data-testid="toast-doctor-notice"
+                  className="p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold flex items-center justify-between shadow-xs animate-fadeIn"
+                >
+                  <span>{doctorToastNotice}</span>
+                  <button
+                    type="button"
+                    onClick={() => setDoctorToastNotice(null)}
+                    className="text-emerald-700 hover:text-emerald-950 font-bold ml-2"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+
               <Card className="border-emerald-100/80 shadow-xs">
                 <CardHeader>
-                  <div className="flex items-center justify-between w-full">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
                     <div>
                       <h3 className="font-bold text-slate-900 text-sm">
-                        Clinic-Doctor Affiliation & Differential Fee Matrix
+                        Clinic-Doctor Affiliation & Onboarding Directory
                       </h3>
                       <p className="text-xs text-slate-500">
-                        Assign chambers and differential consultation/follow-up fees per practitioner
+                        Add specialist doctors, allocate chambers, configure differential consultation fees, and dispatch onboarding invites.
                       </p>
                     </div>
-                    <Badge variant="mint" size="sm">
-                      4 VERIFIED NMC DOCTORS
-                    </Badge>
+                    <div className="flex items-center gap-2.5">
+                      <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px] border border-emerald-200">
+                        {affiliations.length} Doctors Affiliated
+                      </span>
+                      <button
+                        type="button"
+                        data-testid="btn-add-doctor-to-clinic"
+                        onClick={() => {
+                          setAddDoctorError(null);
+                          setIsAddDoctorModalOpen(true);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center gap-1.5 shadow-sm shadow-emerald-950/20 transition-colors"
+                      >
+                        <span>➕</span>
+                        <span>Add Doctor to Clinic</span>
+                      </button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardBody className="p-0">
@@ -1146,7 +1413,7 @@ export default function ClinicAdministratorPortal() {
                           <th className="px-5 py-3">Chamber</th>
                           <th className="px-5 py-3">Consultation Fee</th>
                           <th className="px-5 py-3">Follow-up Fee</th>
-                          <th className="px-5 py-3">Status</th>
+                          <th className="px-5 py-3">Onboarding Status</th>
                           <th className="px-5 py-3 text-right">Actions</th>
                         </tr>
                       </thead>
@@ -1160,6 +1427,11 @@ export default function ClinicAdministratorPortal() {
                                   {item.doctorName}
                                 </span>
                                 <span className="text-[11px] text-slate-500">{item.specialty}</span>
+                                {item.mobile && (
+                                  <span className="text-[10px] text-slate-400 block font-mono">
+                                    +91 {item.mobile}
+                                  </span>
+                                )}
                               </td>
                               <td className="px-5 py-3.5 font-mono text-slate-600">
                                 {item.nmcNumber}
@@ -1183,23 +1455,165 @@ export default function ClinicAdministratorPortal() {
                                 ₹{item.followUpFeeRupees} ({item.followUpValidityDays}d)
                               </td>
                               <td className="px-5 py-3.5">
-                                <Badge variant="mint" size="sm">
-                                  Active
-                                </Badge>
+                                {item.onboardingStatus === 'INVITE_SENT' ? (
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                    📨 Invite Sent ({item.inviteDispatchedAt || 'Active'})
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                    ✓ Active in Chamber
+                                  </span>
+                                )}
                               </td>
                               <td className="px-5 py-3.5 text-right">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleOpenEdit(item)}
-                                  className="text-xs border-emerald-200 text-emerald-800 hover:bg-emerald-50"
-                                >
-                                  Edit Fee / Chamber
-                                </Button>
+                                <div className="flex items-center justify-end gap-2">
+                                  <button
+                                    type="button"
+                                    data-testid={`btn-send-doctor-invite-${item.id}`}
+                                    onClick={() => handleOpenDoctorInvite(item)}
+                                    className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold inline-flex items-center gap-1 transition-colors"
+                                    title="Send onboarding link via WhatsApp or Email"
+                                  >
+                                    <span>📤</span>
+                                    <span>Send Invite</span>
+                                  </button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleOpenEdit(item)}
+                                    className="text-xs border-emerald-200 text-emerald-800 hover:bg-emerald-50"
+                                  >
+                                    Edit Fee / Chamber
+                                  </Button>
+                                </div>
                               </td>
                             </tr>
                           );
                         })}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardBody>
+              </Card>
+            </div>
+          )}
+
+          {/* VIEW 2.5: Front-Desk Reception Staff & Shift Operations */}
+          {activeTab === 'RECEPTION_STAFF' && (
+            <div className="space-y-4">
+              {receptionToastNotice && (
+                <div
+                  data-testid="toast-reception-notice"
+                  className="p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold flex items-center justify-between shadow-xs animate-fadeIn"
+                >
+                  <span>{receptionToastNotice}</span>
+                  <button
+                    type="button"
+                    onClick={() => setReceptionToastNotice(null)}
+                    className="text-emerald-700 hover:text-emerald-950 font-bold ml-2"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+
+              <Card className="border-emerald-100/80 shadow-xs">
+                <CardHeader>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-sm">
+                        Front-Desk Reception Staff & Shift Operations
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Manage receptionist roster, cashier handover PINs, shift timing allocations, and send direct desk access invites.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px] border border-emerald-200">
+                        {receptionStaff.length} Receptionists Enrolled
+                      </span>
+                      <button
+                        type="button"
+                        data-testid="btn-add-receptionist"
+                        onClick={() => {
+                          setAddRecError(null);
+                          setIsAddReceptionistModalOpen(true);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center gap-1.5 shadow-sm shadow-emerald-950/20 transition-colors"
+                      >
+                        <span>➕</span>
+                        <span>Add Receptionist</span>
+                      </button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardBody className="p-0">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs text-slate-700">
+                      <thead className="bg-emerald-50/50 border-b border-emerald-100 uppercase text-[10px] font-bold text-slate-600">
+                        <tr>
+                          <th className="px-5 py-3">Staff ID</th>
+                          <th className="px-5 py-3">Receptionist Name</th>
+                          <th className="px-5 py-3">Mobile (+91)</th>
+                          <th className="px-5 py-3">Assigned Shift</th>
+                          <th className="px-5 py-3">Handover PIN</th>
+                          <th className="px-5 py-3">Duty Status</th>
+                          <th className="px-5 py-3">Onboarding Status</th>
+                          <th className="px-5 py-3 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {receptionStaff.map((staff) => (
+                          <tr key={staff.id} className="hover:bg-emerald-50/30 transition-colors">
+                            <td className="px-5 py-3.5 font-mono font-bold text-slate-800">
+                              {staff.staffId}
+                            </td>
+                            <td className="px-5 py-3.5 font-bold text-slate-900">
+                              {staff.fullName}
+                            </td>
+                            <td className="px-5 py-3.5 font-mono text-slate-600">
+                              +91 {staff.mobile}
+                            </td>
+                            <td className="px-5 py-3.5">
+                              <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-800">
+                                {staff.shift} ({staff.shiftTimings})
+                              </span>
+                            </td>
+                            <td className="px-5 py-3.5 font-mono text-slate-600 font-bold tracking-widest">
+                              •••• {staff.handoverPin}
+                            </td>
+                            <td className="px-5 py-3.5">
+                              <span
+                                className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                  staff.status === 'ON_DUTY'
+                                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                    : 'bg-slate-100 text-slate-600'
+                                }`}
+                              >
+                                {staff.status === 'ON_DUTY' ? '● On Duty' : '○ Off Duty'}
+                              </span>
+                            </td>
+                            <td className="px-5 py-3.5">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-100 text-teal-800 border border-teal-300">
+                                {staff.onboardingStatus === 'INVITE_DISPATCHED'
+                                  ? `📨 Invite Sent (${staff.lastInviteSentAt || 'Active'})`
+                                  : '✓ Active on Desk'}
+                              </span>
+                            </td>
+                            <td className="px-5 py-3.5 text-right">
+                              <button
+                                type="button"
+                                data-testid={`btn-send-reception-invite-${staff.id}`}
+                                onClick={() => handleOpenReceptionInvite(staff)}
+                                className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold inline-flex items-center gap-1 transition-colors"
+                                title="Send reception desk login link & PIN via WhatsApp"
+                              >
+                                <span>📤</span>
+                                <span>Send Invite</span>
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -1899,6 +2313,488 @@ export default function ClinicAdministratorPortal() {
           </div>
         </form>
       </Modal>
+
+      {/* 1. Add Doctor to Clinic Modal */}
+      <Modal
+        isOpen={isAddDoctorModalOpen}
+        onClose={() => setIsAddDoctorModalOpen(false)}
+        title="Add Specialist Doctor to Clinic"
+        subtitle="Onboard practitioner, map chamber, and generate onboarding invitation link"
+      >
+        <form onSubmit={handleAddDoctor} className="space-y-4" data-testid="modal-add-doctor">
+          {addDoctorError && (
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">
+              ⚠️ {addDoctorError}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+              Doctor Full Name *
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Dr. Alok Mathur"
+              value={newDoctorName}
+              onChange={(e) => setNewDoctorName(e.target.value)}
+              data-testid="input-doctor-name"
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                Medical Specialty *
+              </label>
+              <select
+                value={newDoctorSpecialty}
+                onChange={(e) => setNewDoctorSpecialty(e.target.value)}
+                data-testid="select-doctor-specialty"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="General Physician">General Physician</option>
+                <option value="Cardiologist">Cardiologist</option>
+                <option value="Dermatologist">Dermatologist</option>
+                <option value="Pediatrician">Pediatrician</option>
+                <option value="Orthopedic Surgeon">Orthopedic Surgeon</option>
+                <option value="ENT Specialist">ENT Specialist</option>
+                <option value="Neurologist">Neurologist</option>
+                <option value="Gynecologist">Gynecologist</option>
+                <option value="Ophthalmologist">Ophthalmologist</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                NMC / State Reg # *
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. MP-68201"
+                value={newDoctorNmc}
+                onChange={(e) => setNewDoctorNmc(e.target.value)}
+                data-testid="input-doctor-nmc"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                Assigned Chamber *
+              </label>
+              <select
+                value={newDoctorChamber}
+                onChange={(e) => setNewDoctorChamber(e.target.value)}
+                data-testid="select-doctor-chamber"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="CH-1">CH-1</option>
+                <option value="CH-2">CH-2</option>
+                <option value="CH-3">CH-3</option>
+                <option value="CH-4">CH-4</option>
+                <option value="CH-5">CH-5</option>
+                <option value="CH-6">CH-6</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                Consultation Fee (₹)
+              </label>
+              <input
+                type="number"
+                min={100}
+                step={50}
+                required
+                value={newDoctorFee}
+                onChange={(e) => setNewDoctorFee(Number(e.target.value))}
+                data-testid="input-doctor-fee"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                Follow-up Fee (₹)
+              </label>
+              <input
+                type="number"
+                min={0}
+                step={50}
+                required
+                value={newDoctorFollowUpFee}
+                onChange={(e) => setNewDoctorFollowUpFee(Number(e.target.value))}
+                data-testid="input-doctor-followup-fee"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                Doctor Mobile (+91) *
+              </label>
+              <input
+                type="tel"
+                required
+                placeholder="98260 55555"
+                value={newDoctorMobile}
+                onChange={(e) => setNewDoctorMobile(e.target.value)}
+                data-testid="input-doctor-mobile"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                Doctor Email (Optional)
+              </label>
+              <input
+                type="email"
+                placeholder="doctor@clinic.in"
+                value={newDoctorEmail}
+                onChange={(e) => setNewDoctorEmail(e.target.value)}
+                data-testid="input-doctor-email"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <Button
+              type="submit"
+              variant="primary"
+              fullWidth
+              size="md"
+              data-testid="btn-save-new-doctor"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+            >
+              ➕ Save Doctor & Prepare Onboarding Invite
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="md"
+              onClick={() => setIsAddDoctorModalOpen(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* 2. Doctor Onboarding Invite Dispatch Modal */}
+      {selectedDoctorForInvite && (
+        <Modal
+          isOpen={isDoctorInviteModalOpen}
+          onClose={() => setIsDoctorInviteModalOpen(false)}
+          title="Send Doctor Onboarding Invitation"
+          subtitle={`Invite ${selectedDoctorForInvite.doctorName} to complete profile & schedule`}
+        >
+          <div className="space-y-4" data-testid="modal-doctor-invite">
+            <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs space-y-1.5">
+              <div className="flex items-center justify-between font-bold text-slate-900">
+                <span className="text-sm">{selectedDoctorForInvite.doctorName}</span>
+                <span className="px-2 py-0.5 rounded font-mono text-[10px] bg-emerald-200 text-emerald-900">
+                  {selectedDoctorForInvite.chamberNumber}
+                </span>
+              </div>
+              <div className="text-slate-600 flex items-center gap-3">
+                <span>{selectedDoctorForInvite.specialty}</span>
+                <span>•</span>
+                <span className="font-mono">NMC: {selectedDoctorForInvite.nmcNumber}</span>
+                <span>•</span>
+                <span className="font-mono font-bold text-emerald-700">₹{selectedDoctorForInvite.consultationFeeRupees} Fee</span>
+              </div>
+              {selectedDoctorForInvite.mobile && (
+                <div className="text-[11px] text-slate-500 font-mono">
+                  Doctor Mobile: +91 {selectedDoctorForInvite.mobile}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
+                Choose Invitation Dispatch Channel:
+              </span>
+
+              {/* Channel 1: WhatsApp */}
+              <a
+                href={`https://wa.me/91${(selectedDoctorForInvite.mobile || '9826011111').replace(/\D/g, '')}?text=${encodeURIComponent(
+                  `Hello ${selectedDoctorForInvite.doctorName}! You have been invited to join Bhopal City Care Polyclinic as ${selectedDoctorForInvite.specialty} in ${selectedDoctorForInvite.chamberNumber}. Complete your doctor onboarding and profile verification here: ${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/doctor?clinicId=c101&doctorId=${selectedDoctorForInvite.doctorId}&chamber=${selectedDoctorForInvite.chamberNumber}`
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                data-testid="btn-whatsapp-doctor-invite"
+                className="w-full px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-colors"
+              >
+                <span>📱</span>
+                <span>Send WhatsApp Onboarding Link</span>
+              </a>
+
+              {/* Channel 2: Copy 1-Click Link */}
+              <button
+                type="button"
+                data-testid="btn-copy-doctor-invite-link"
+                onClick={() => {
+                  const link = `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/doctor?clinicId=c101&doctorId=${selectedDoctorForInvite.doctorId}&chamber=${selectedDoctorForInvite.chamberNumber}`;
+                  navigator.clipboard.writeText(link);
+                  setDoctorInviteCopied(true);
+                  setTimeout(() => setDoctorInviteCopied(false), 3000);
+                }}
+                className="w-full px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+              >
+                <span>🔗</span>
+                <span>{doctorInviteCopied ? '✓ Link Copied to Clipboard!' : 'Copy 1-Click Onboarding Token Link'}</span>
+              </button>
+
+              {/* Channel 3: Email Invite */}
+              <button
+                type="button"
+                data-testid="btn-email-doctor-invite"
+                onClick={() => {
+                  setDoctorToastNotice(`✓ Official email invitation dispatched to ${selectedDoctorForInvite.email || selectedDoctorForInvite.doctorName}!`);
+                  setIsDoctorInviteModalOpen(false);
+                  setTimeout(() => setDoctorToastNotice(null), 4000);
+                }}
+                className="w-full px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
+              >
+                <span>✉️</span>
+                <span>Send Official Onboarding Email</span>
+              </button>
+            </div>
+
+            <div className="flex justify-end pt-2 border-t border-slate-100">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-testid="btn-close-doctor-invite"
+                onClick={() => setIsDoctorInviteModalOpen(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* 3. Add Receptionist Staff Modal */}
+      <Modal
+        isOpen={isAddReceptionistModalOpen}
+        onClose={() => setIsAddReceptionistModalOpen(false)}
+        title="Add Front-Desk Receptionist"
+        subtitle="Enroll front-desk staff, allocate shift timings, and configure 4-digit handover PIN"
+      >
+        <form onSubmit={handleAddReceptionist} className="space-y-4" data-testid="modal-add-receptionist">
+          {addRecError && (
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">
+              ⚠️ {addRecError}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                Receptionist Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Pooja Sharma"
+                value={newRecName}
+                onChange={(e) => setNewRecName(e.target.value)}
+                data-testid="input-receptionist-name"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                Staff ID Code *
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. REC-103"
+                value={newRecStaffId}
+                onChange={(e) => setNewRecStaffId(e.target.value)}
+                data-testid="input-receptionist-staff-id"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                Mobile Number (+91) *
+              </label>
+              <input
+                type="tel"
+                required
+                placeholder="98260 77777"
+                value={newRecMobile}
+                onChange={(e) => setNewRecMobile(e.target.value)}
+                data-testid="input-receptionist-mobile"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                Cashier Handover PIN (4-Digits) *
+              </label>
+              <input
+                type="text"
+                maxLength={4}
+                required
+                placeholder="4-digit PIN (e.g. 5839)"
+                value={newRecPin}
+                onChange={(e) => setNewRecPin(e.target.value)}
+                data-testid="input-receptionist-pin"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono tracking-widest text-center"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+              Assigned Shift Timing *
+            </label>
+            <select
+              value={newRecShift}
+              onChange={(e) => setNewRecShift(e.target.value as any)}
+              data-testid="select-receptionist-shift"
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="MORNING">Morning Shift (08:00 AM - 02:00 PM)</option>
+              <option value="EVENING">Evening Shift (02:00 PM - 09:00 PM)</option>
+              <option value="NIGHT">Night / Emergency Shift (09:00 PM - 08:00 AM)</option>
+              <option value="FULL_DAY">Full Day General Shift (09:00 AM - 08:00 PM)</option>
+            </select>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <Button
+              type="submit"
+              variant="primary"
+              fullWidth
+              size="md"
+              data-testid="btn-save-new-receptionist"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+            >
+              ➕ Save Receptionist & Prepare Access Invite
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="md"
+              onClick={() => setIsAddReceptionistModalOpen(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* 4. Receptionist Access Invite Dispatch Modal */}
+      {selectedReceptionistForInvite && (
+        <Modal
+          isOpen={isReceptionInviteModalOpen}
+          onClose={() => setIsReceptionInviteModalOpen(false)}
+          title="Send Reception Desk Access Invite"
+          subtitle={`Provide ${selectedReceptionistForInvite.fullName} login access & handover PIN`}
+        >
+          <div className="space-y-4" data-testid="modal-reception-invite">
+            <div className="p-3.5 rounded-xl bg-teal-50 border border-teal-200 text-xs space-y-1.5">
+              <div className="flex items-center justify-between font-bold text-slate-900">
+                <span className="text-sm">{selectedReceptionistForInvite.fullName}</span>
+                <span className="px-2 py-0.5 rounded font-mono text-[10px] bg-teal-200 text-teal-900 font-bold">
+                  {selectedReceptionistForInvite.staffId}
+                </span>
+              </div>
+              <div className="text-slate-600 flex items-center gap-3">
+                <span>{selectedReceptionistForInvite.shift} Shift</span>
+                <span>•</span>
+                <span className="font-mono">{selectedReceptionistForInvite.shiftTimings}</span>
+              </div>
+              <div className="text-[11px] text-teal-900 font-mono font-bold">
+                Cashier Handover PIN: {selectedReceptionistForInvite.handoverPin}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
+                Choose Access Dispatch Channel:
+              </span>
+
+              {/* Channel 1: WhatsApp */}
+              <a
+                href={`https://wa.me/91${(selectedReceptionistForInvite.mobile || '9826033333').replace(/\D/g, '')}?text=${encodeURIComponent(
+                  `Welcome ${selectedReceptionistForInvite.fullName}! You have been registered as Front-Desk Receptionist at Bhopal City Care Polyclinic (${selectedReceptionistForInvite.shiftTimings}). Access Central Reception Desk: ${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/receptionist?clinicId=c101 | Staff ID: ${selectedReceptionistForInvite.staffId} | Cashier Handover PIN: ${selectedReceptionistForInvite.handoverPin}`
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                data-testid="btn-whatsapp-reception-invite"
+                className="w-full px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-colors"
+              >
+                <span>📱</span>
+                <span>Send WhatsApp Desk Access Slip</span>
+              </a>
+
+              {/* Channel 2: Copy 1-Click Link */}
+              <button
+                type="button"
+                data-testid="btn-copy-reception-link"
+                onClick={() => {
+                  const link = `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/receptionist?clinicId=c101&staffId=${selectedReceptionistForInvite.staffId}`;
+                  navigator.clipboard.writeText(link);
+                  setReceptionInviteCopied(true);
+                  setTimeout(() => setReceptionInviteCopied(false), 3000);
+                }}
+                className="w-full px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+              >
+                <span>🔗</span>
+                <span>{receptionInviteCopied ? '✓ Desk Link Copied!' : 'Copy Central Reception Link'}</span>
+              </button>
+
+              {/* Channel 3: Email Access Credentials */}
+              <button
+                type="button"
+                data-testid="btn-email-reception-invite"
+                onClick={() => {
+                  setReceptionToastNotice(`✓ Desk access credentials emailed to ${selectedReceptionistForInvite.fullName}!`);
+                  setIsReceptionInviteModalOpen(false);
+                  setTimeout(() => setReceptionToastNotice(null), 4000);
+                }}
+                className="w-full px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
+              >
+                <span>✉️</span>
+                <span>Email Desk Credentials & PIN</span>
+              </button>
+            </div>
+
+            <div className="flex justify-end pt-2 border-t border-slate-100">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-testid="btn-close-reception-invite"
+                onClick={() => setIsReceptionInviteModalOpen(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* Polyclinic Hardware Diagnostics Modal */}
       <HardwareDiagnosticModal

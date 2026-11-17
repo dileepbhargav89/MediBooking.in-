@@ -33,6 +33,10 @@ interface ClinicTenantItem {
   doctorsCount: number;
   plan: 'TRIAL_30' | 'CLINIC_PRO' | 'POLYCLINIC_ENTERPRISE';
   status: 'ACTIVE' | 'SUSPENDED';
+  adminName?: string;
+  adminMobile?: string;
+  adminEmail?: string;
+  slug?: string;
 }
 
 interface PlatformPatientRecord {
@@ -420,7 +424,25 @@ export default function SuperAdminPortalPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<SuperAdminTab>('NMC_DESK');
   const [doctors, setDoctors] = useState<PendingDoctorReview[]>(INITIAL_PENDING_DOCTORS);
-  const [tenants] = useState<ClinicTenantItem[]>(INITIAL_TENANTS);
+  const [tenants, setTenants] = useState<ClinicTenantItem[]>(INITIAL_TENANTS);
+  const [isProvisionClinicModalOpen, setIsProvisionClinicModalOpen] = useState(false);
+  const [provisionClinicSuccessData, setProvisionClinicSuccessData] = useState<{
+    tenant: ClinicTenantItem;
+    adminUrl: string;
+    whatsappUrl: string;
+  } | null>(null);
+
+  // Super Admin Clinic Provisioning Form State
+  const [newClinicName, setNewClinicName] = useState('');
+  const [newClinicArea, setNewClinicArea] = useState('');
+  const [newClinicCity, setNewClinicCity] = useState('Bhopal');
+  const [newClinicChambers, setNewClinicChambers] = useState<number>(4);
+  const [newClinicPlan, setNewClinicPlan] = useState<'TRIAL_30' | 'CLINIC_PRO' | 'POLYCLINIC_ENTERPRISE'>('CLINIC_PRO');
+  const [newClinicAdminName, setNewClinicAdminName] = useState('');
+  const [newClinicAdminMobile, setNewClinicAdminMobile] = useState('');
+  const [newClinicAdminEmail, setNewClinicAdminEmail] = useState('');
+  const [clinicProvisionError, setClinicProvisionError] = useState<string | null>(null);
+  const [copiedAdminLink, setCopiedAdminLink] = useState(false);
   const [isChainVerifying, setIsChainVerifying] = useState(false);
   const [chainVerifyNotice, setChainVerifyNotice] = useState<string | null>(null);
 
@@ -555,6 +577,77 @@ export default function SuperAdminPortalPage() {
     } catch (err: any) {
       console.error(err);
     }
+  };
+
+  const handleProvisionClinic = (e: React.FormEvent) => {
+    e.preventDefault();
+    setClinicProvisionError(null);
+
+    if (!newClinicName.trim() || newClinicName.trim().length < 3) {
+      setClinicProvisionError('Clinic Organization Name must be at least 3 characters.');
+      return;
+    }
+    if (!newClinicArea.trim()) {
+      setClinicProvisionError('Locality / Area is required (e.g. Arera Colony E-3).');
+      return;
+    }
+    const cleanMobile = newClinicAdminMobile.replace(/\D/g, '');
+    if (cleanMobile.length !== 10) {
+      setClinicProvisionError('Please enter a valid 10-digit Indian mobile number for Clinic Admin.');
+      return;
+    }
+    if (!newClinicAdminName.trim()) {
+      setClinicProvisionError('Clinic Admin Full Name is required.');
+      return;
+    }
+
+    const clinicId = `c${100 + tenants.length + 1}`;
+    const slug = newClinicName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const fullArea = `${newClinicArea.trim()}, ${newClinicCity}`;
+
+    const newTenant: ClinicTenantItem = {
+      id: clinicId,
+      name: newClinicName.trim(),
+      area: fullArea,
+      chambersCount: Number(newClinicChambers),
+      doctorsCount: 0,
+      plan: newClinicPlan,
+      status: 'ACTIVE',
+      adminName: newClinicAdminName.trim(),
+      adminMobile: cleanMobile,
+      adminEmail: newClinicAdminEmail.trim() || `admin@${slug}.medibooking.in`,
+      slug,
+    };
+
+    setTenants((prev) => [newTenant, ...prev]);
+    setNetworkMetrics((prev) => ({
+      ...prev,
+      totalClinicsLive: prev.totalClinicsLive + 1,
+      totalChambersCount: prev.totalChambersCount + Number(newClinicChambers),
+    }));
+
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+    const adminUrl = `${origin}/admin?clinicId=${clinicId}&clinicName=${encodeURIComponent(newTenant.name)}`;
+    const whatsappMsg = `Welcome ${newTenant.adminName}! Your polyclinic '${newTenant.name}' has been provisioned on MediBooking.in with ${newTenant.chambersCount} Chambers on ${newTenant.plan}. Login to your Clinic Admin portal to add your doctors & receptionists: ${adminUrl}`;
+    const whatsappUrl = `https://wa.me/91${cleanMobile}?text=${encodeURIComponent(whatsappMsg)}`;
+
+    setProvisionClinicSuccessData({
+      tenant: newTenant,
+      adminUrl,
+      whatsappUrl,
+    });
+  };
+
+  const handleCloseProvisionClinicModal = () => {
+    setIsProvisionClinicModalOpen(false);
+    setProvisionClinicSuccessData(null);
+    setNewClinicName('');
+    setNewClinicArea('');
+    setNewClinicAdminName('');
+    setNewClinicAdminMobile('');
+    setNewClinicAdminEmail('');
+    setClinicProvisionError(null);
+    setCopiedAdminLink(false);
   };
 
   const handleBatchDisburse = async () => {
@@ -806,6 +899,7 @@ export default function SuperAdminPortalPage() {
               {/* Tab 2: Polyclinic Tenants & Allocations */}
               <button
                 type="button"
+                data-testid="sidebar-btn-tenants"
                 onClick={() => setActiveTab('TENANTS')}
                 className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
                   activeTab === 'TENANTS'
@@ -2037,18 +2131,33 @@ export default function SuperAdminPortalPage() {
           {/* VIEW 2: Active Polyclinic Tenants */}
           {activeTab === 'TENANTS' && (
             <div className="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-              <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+              <div className="px-6 py-4 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h3 className="font-bold text-white text-sm">
-                    Active Polyclinic Tenants in Bhopal
+                    Active Polyclinic Tenants in Bhopal & Network
                   </h3>
                   <p className="text-xs text-slate-400">
-                    Provisioned multi-chamber organizations and subscription quotas
+                    Provisioned multi-chamber organizations, subscription quotas, and clinic admin invites
                   </p>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs font-bold font-mono">
-                  10 Provisioned Tenants
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs font-bold font-mono">
+                    {tenants.length} Provisioned Tenants
+                  </span>
+                  <button
+                    type="button"
+                    data-testid="btn-provision-clinic"
+                    onClick={() => {
+                      setClinicProvisionError(null);
+                      setProvisionClinicSuccessData(null);
+                      setIsProvisionClinicModalOpen(true);
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-900/40 transition-colors"
+                  >
+                    <span>➕</span>
+                    <span>Provision New Polyclinic</span>
+                  </button>
+                </div>
               </div>
 
               <div className="overflow-x-auto">
@@ -2061,12 +2170,22 @@ export default function SuperAdminPortalPage() {
                       <th className="px-6 py-3">Doctors</th>
                       <th className="px-6 py-3">SaaS Plan</th>
                       <th className="px-6 py-3">Tenant Status</th>
+                      <th className="px-6 py-3 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/60">
                     {tenants.map((t) => (
                       <tr key={t.id} className="hover:bg-slate-800/50 transition-colors">
-                        <td className="px-6 py-4 font-bold text-white">{t.name}</td>
+                        <td className="px-6 py-4 font-bold text-white">
+                          <div>
+                            <span>{t.name}</span>
+                            {t.adminName && (
+                              <span className="block text-[10px] text-slate-400 font-normal">
+                                Admin: {t.adminName} ({t.adminMobile ? `+91 ${t.adminMobile}` : 'Active'})
+                              </span>
+                            )}
+                          </div>
+                        </td>
                         <td className="px-6 py-4 text-slate-300">{t.area}</td>
                         <td className="px-6 py-4 font-mono font-bold text-emerald-400">
                           {t.chambersCount} Chambers
@@ -2084,11 +2203,287 @@ export default function SuperAdminPortalPage() {
                             {t.status}
                           </span>
                         </td>
+                        <td className="px-6 py-4 text-right">
+                          <Link
+                            href={`/admin?clinicId=${t.id}&clinicName=${encodeURIComponent(t.name)}`}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 text-[11px] font-semibold transition-colors"
+                            title="Open Clinic Admin Console to add doctors & receptionists"
+                          >
+                            <span>🏥</span>
+                            <span>Admin Desk &rarr;</span>
+                          </Link>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+
+              {/* "➕ Provision New Polyclinic" Modal */}
+              {isProvisionClinicModalOpen && (
+                <div
+                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+                  data-testid="modal-provision-clinic"
+                >
+                  <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-xl p-6 shadow-2xl space-y-5 overflow-y-auto max-h-[90vh]">
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                      <div>
+                        <h3 className="font-extrabold text-white text-base flex items-center gap-2">
+                          <span>🏥</span> Provision New Polyclinic Tenant
+                        </h3>
+                        <p className="text-xs text-slate-400 mt-0.5">
+                          Set up multi-chamber facility, assign subscription quota, and invite clinic administrator.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        data-testid="btn-close-provision-modal"
+                        onClick={handleCloseProvisionClinicModal}
+                        className="text-slate-400 hover:text-white font-bold text-lg p-1"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    {clinicProvisionError && (
+                      <div className="p-3 rounded-xl bg-rose-950/80 border border-rose-500/40 text-rose-300 text-xs font-semibold">
+                        ⚠️ {clinicProvisionError}
+                      </div>
+                    )}
+
+                    {provisionClinicSuccessData ? (
+                      <div className="space-y-4" data-testid="provision-clinic-success-card">
+                        <div className="p-4 rounded-xl bg-emerald-950/80 border border-emerald-500/40 space-y-2">
+                          <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                            <span>✅</span>
+                            <span>Polyclinic Tenant Successfully Provisioned!</span>
+                          </div>
+                          <p className="text-xs text-slate-300">
+                            <strong>{provisionClinicSuccessData.tenant.name}</strong> ({provisionClinicSuccessData.tenant.area}) is now live with{' '}
+                            <strong>{provisionClinicSuccessData.tenant.chambersCount} Chambers</strong> on{' '}
+                            <span className="font-mono text-emerald-400 font-bold">{provisionClinicSuccessData.tenant.plan}</span>.
+                          </p>
+                          <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs space-y-1 font-mono text-slate-300">
+                            <div><span className="text-slate-500">Tenant ID:</span> <span className="text-white font-bold">{provisionClinicSuccessData.tenant.id}</span></div>
+                            <div><span className="text-slate-500">Admin Name:</span> <span className="text-white">{provisionClinicSuccessData.tenant.adminName}</span></div>
+                            <div><span className="text-slate-500">Admin Mobile:</span> <span className="text-white">+91 {provisionClinicSuccessData.tenant.adminMobile}</span></div>
+                          </div>
+                        </div>
+
+                        {/* Onboarding Invitation Channels */}
+                        <div className="space-y-3">
+                          <span className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
+                            Send Clinic Admin Access & Onboarding Invite:
+                          </span>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <a
+                              href={provisionClinicSuccessData.whatsappUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              data-testid="btn-whatsapp-admin-invite"
+                              className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-950/50 transition-colors"
+                            >
+                              <span>📱</span>
+                              <span>Send WhatsApp Invite</span>
+                            </a>
+
+                            <button
+                              type="button"
+                              data-testid="btn-copy-admin-link"
+                              onClick={() => {
+                                navigator.clipboard.writeText(provisionClinicSuccessData.adminUrl);
+                                setCopiedAdminLink(true);
+                                setTimeout(() => setCopiedAdminLink(false), 3000);
+                              }}
+                              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+                            >
+                              <span>🔗</span>
+                              <span>{copiedAdminLink ? '✓ Link Copied!' : 'Copy Admin Access Link'}</span>
+                            </button>
+                          </div>
+
+                          <div className="pt-2 flex justify-end gap-3">
+                            <button
+                              type="button"
+                              onClick={handleCloseProvisionClinicModal}
+                              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold"
+                            >
+                              Done
+                            </button>
+                            <Link
+                              href={provisionClinicSuccessData.adminUrl}
+                              className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold flex items-center gap-1.5"
+                            >
+                              <span>🏥</span>
+                              <span>Open Clinic Admin Desk &rarr;</span>
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleProvisionClinic} className="space-y-4">
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                              Polyclinic Organization Name *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="e.g. Bhopal Prime Care Hospital & Diagnostics"
+                              value={newClinicName}
+                              onChange={(e) => setNewClinicName(e.target.value)}
+                              data-testid="input-clinic-name"
+                              className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:border-emerald-500"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                                Locality / Area *
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                placeholder="e.g. Arera Colony E-3"
+                                value={newClinicArea}
+                                onChange={(e) => setNewClinicArea(e.target.value)}
+                                data-testid="input-clinic-area"
+                                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:border-emerald-500"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                                City
+                              </label>
+                              <select
+                                value={newClinicCity}
+                                onChange={(e) => setNewClinicCity(e.target.value)}
+                                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:border-emerald-500 font-sans"
+                              >
+                                <option value="Bhopal">Bhopal (HQ)</option>
+                                <option value="Indore">Indore</option>
+                                <option value="Jabalpur">Jabalpur</option>
+                                <option value="Gwalior">Gwalior</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                                Total Chambers Count
+                              </label>
+                              <select
+                                value={newClinicChambers}
+                                onChange={(e) => setNewClinicChambers(parseInt(e.target.value, 10))}
+                                data-testid="select-clinic-chambers"
+                                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:border-emerald-500"
+                              >
+                                <option value={2}>2 Chambers (Clinic Small)</option>
+                                <option value={3}>3 Chambers (Polyclinic Standard)</option>
+                                <option value={4}>4 Chambers (Polyclinic Pro)</option>
+                                <option value={6}>6 Chambers (Multi-Specialty)</option>
+                                <option value={8}>8 Chambers (Super Specialty)</option>
+                                <option value={12}>12 Chambers (Hospital OPD Center)</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                                SaaS Subscription Plan
+                              </label>
+                              <select
+                                value={newClinicPlan}
+                                onChange={(e) => setNewClinicPlan(e.target.value as any)}
+                                data-testid="select-clinic-plan"
+                                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:border-emerald-500"
+                              >
+                                <option value="TRIAL_30">30-Day Free Trial</option>
+                                <option value="CLINIC_PRO">CLINIC PRO (₹1,999/mo)</option>
+                                <option value="POLYCLINIC_ENTERPRISE">POLYCLINIC ENTERPRISE (₹4,999/mo)</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-3">
+                            <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block">
+                              Primary Clinic Administrator Contact (For Onboarding Invite)
+                            </span>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[11px] font-medium text-slate-400 mb-1">
+                                  Admin Full Name *
+                                </label>
+                                <input
+                                  type="text"
+                                  required
+                                  placeholder="e.g. Dr. Rajesh Gupta"
+                                  value={newClinicAdminName}
+                                  onChange={(e) => setNewClinicAdminName(e.target.value)}
+                                  data-testid="input-admin-name"
+                                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:border-emerald-500"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[11px] font-medium text-slate-400 mb-1">
+                                  Admin Mobile (+91) *
+                                </label>
+                                <input
+                                  type="tel"
+                                  required
+                                  placeholder="98260 12345"
+                                  value={newClinicAdminMobile}
+                                  onChange={(e) => setNewClinicAdminMobile(e.target.value)}
+                                  data-testid="input-admin-mobile"
+                                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:border-emerald-500 font-mono"
+                                />
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-medium text-slate-400 mb-1">
+                                Admin Email (Optional)
+                              </label>
+                              <input
+                                type="email"
+                                placeholder="admin@primecare.medibooking.in"
+                                value={newClinicAdminEmail}
+                                onChange={(e) => setNewClinicAdminEmail(e.target.value)}
+                                data-testid="input-admin-email"
+                                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-hidden focus:border-emerald-500 font-mono"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                          <button
+                            type="button"
+                            onClick={handleCloseProvisionClinicModal}
+                            className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            data-testid="btn-save-new-clinic"
+                            className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-950/40 transition-all flex items-center gap-2"
+                          >
+                            <span>➕</span>
+                            <span>Provision Polyclinic & Generate Invite</span>
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
