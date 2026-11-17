@@ -690,11 +690,11 @@ export default function ReceptionDeskDashboardPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-between">
       {/* Top Reception Header */}
-      <header className="bg-white/95 backdrop-blur-xl border-b border-slate-200/90 px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <header className="bg-white/95 backdrop-blur-xl border-b border-slate-200/90 px-4 sm:px-6 lg:px-8 py-3 sticky top-0 z-30 shadow-xs">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-base shadow-sm shadow-emerald-600/20 group-hover:scale-105 transition-transform">
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-black text-lg shadow-sm shadow-emerald-600/20 group-hover:scale-105 transition-transform">
                 M
               </div>
               <span className="font-bold text-slate-900 text-sm hidden sm:inline">
@@ -703,35 +703,36 @@ export default function ReceptionDeskDashboardPage() {
             </Link>
             <span className="text-slate-300">/</span>
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 block leading-tight">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block leading-tight">
                 Central Reception Desk
               </span>
-              <span className="text-[10px] text-slate-500 font-medium">
+              <span className="text-[11px] text-slate-500 font-semibold flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                 Bhopal City Care Polyclinic • 4 Chambers Active
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {/* Phase 53: PWA Network & Offline Queue Status */}
             <div className="flex items-center gap-2">
               {!isOnline || simulatedOffline || pendingOfflineCount > 0 ? (
                 <div className="flex items-center gap-1.5">
-                  <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1.5 shadow-sm">
+                  <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-amber-50 text-amber-800 border border-amber-300 flex items-center gap-1.5 shadow-2xs">
                     <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
-                    Offline Mode ({pendingOfflineCount} queued)
+                    Offline Mode ({pendingOfflineCount})
                   </span>
                   <button
                     type="button"
                     onClick={triggerAutoSync}
                     disabled={isSyncing}
-                    className="text-xs font-semibold px-2.5 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm"
+                    className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-2xs cursor-pointer"
                   >
                     {isSyncing ? 'Syncing...' : 'Sync Now'}
                   </button>
                 </div>
               ) : (
-                <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
+                <span className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                   <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
                   Online (Synced)
                 </span>
@@ -740,37 +741,49 @@ export default function ReceptionDeskDashboardPage() {
               <button
                 type="button"
                 onClick={() => setSimulatedOffline(!simulatedOffline)}
-                className="text-[11px] font-medium text-slate-500 hover:text-slate-800 underline ml-1"
+                className="text-[11px] font-semibold text-slate-400 hover:text-slate-700 px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors"
                 title="Toggle offline intake simulation"
               >
-                {simulatedOffline ? '📶 Reconnect' : '📡 Simulate Offline'}
+                {simulatedOffline ? '📶 Reconnect' : '📡 Sim Offline'}
               </button>
             </div>
 
-            {/* Phase 59: Help Tour Trigger */}
-            <button
-              type="button"
-              data-testid="btn-start-tour"
-              onClick={() => setIsTourActive(true)}
-              className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 flex items-center gap-1.5 transition-colors shadow-xs"
-              title="Interactive reception tour"
-            >
-              <span>🎓</span>
-              <span className="hidden md:inline">Tour Guide</span>
-            </button>
-
-            {/* Phase 59: Hardware Diagnostics Modal Trigger */}
-            <div data-testid="tour-hardware-step">
+            {/* Secondary Tools Cluster (Tour, Diagnostics, TV) */}
+            <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/80">
               <button
                 type="button"
-                data-testid="btn-hardware-diagnostics"
-                onClick={() => setIsDiagnosticModalOpen(true)}
-                className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 flex items-center gap-1.5 transition-colors shadow-xs"
-                title="Run hardware self-tests for printer, TV, and SSE"
+                data-testid="btn-start-tour"
+                onClick={() => setIsTourActive(true)}
+                className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 shadow-2xs border border-slate-200/50 flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="Interactive reception tour guide"
               >
-                <span>⚡</span>
-                <span className="hidden md:inline">Hardware Diagnostics</span>
+                <span>🎓</span>
+                <span className="hidden lg:inline">Tour</span>
               </button>
+
+              <div data-testid="tour-hardware-step">
+                <button
+                  type="button"
+                  data-testid="btn-hardware-diagnostics"
+                  onClick={() => setIsDiagnosticModalOpen(true)}
+                  className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 shadow-2xs border border-slate-200/50 flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title="Run hardware self-tests for printer, TV, and SSE"
+                >
+                  <span>⚡</span>
+                  <span className="hidden lg:inline">Diagnostics</span>
+                </button>
+              </div>
+
+              <Link href="/tv/bhopal-city-care" target="_blank" rel="noopener noreferrer">
+                <button
+                  type="button"
+                  className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 shadow-2xs border border-slate-200/50 flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title="Open Waiting Room TV in new tab for wall display"
+                >
+                  <span>📺</span>
+                  <span className="hidden lg:inline">TV Screen</span>
+                </button>
+              </Link>
             </div>
 
             {/* Global F2 Trigger Button */}
@@ -781,23 +794,18 @@ export default function ReceptionDeskDashboardPage() {
                 hotkey="F2"
                 data-testid="btn-walkin-intake"
                 onClick={() => setIsIntakeModalOpen(true)}
-                className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-sm"
+                className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-xs shadow-amber-500/20 active:scale-[0.98] transition-all cursor-pointer"
               >
                 + Walk-In Intake (Add Patient)
               </Button>
             </div>
-
-            <Link href="/tv/bhopal-city-care" target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" size="sm" className="hidden sm:inline-flex" title="Open TV Display in new tab (ideal for wall TV / secondary monitor)">
-                📺 Open TV (New Tab)
-              </Button>
-            </Link>
 
             <Button
               variant="ghost"
               size="sm"
               data-testid="btn-receptionist-logout"
               onClick={() => logout(router)}
+              className="text-xs font-semibold text-slate-500 hover:text-slate-900 rounded-xl"
             >
               Sign Out
             </Button>
@@ -897,32 +905,40 @@ export default function ReceptionDeskDashboardPage() {
         )}
 
         {/* Fast Cash Drawer Denomination Tally (Anti-Pilferage) */}
-        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-sm">🧮</span>
-              <span className="text-xs font-bold text-slate-800">
-                Front-Desk Physical Cash Denomination Tally
-              </span>
-              <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold">
-                Anti-Pilferage Verified
-              </span>
+        <div className="bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-2xl p-4 shadow-xs space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <span className="h-8 w-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-sm shadow-2xs">🧮</span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-900">
+                    Front-Desk Physical Cash Denomination Tally
+                  </span>
+                  <span className="text-[10px] text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">
+                    Anti-Pilferage Verified
+                  </span>
+                </div>
+                <span className="text-[11px] text-slate-500 font-medium">Physical drawer count & 2-witness handover ledger</span>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               {handoverReceipt ? (
                 <div
                   data-testid="badge-handover-verified"
-                  className="text-xs bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-xs"
+                  className="text-xs bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-2xs"
+                  title={`Full Audit Hash: ${handoverReceipt.receiptHash}`}
                 >
                   <span>✓ 2-Witness Handover Verified</span>
-                  <span className="font-mono text-[10px] opacity-90">({handoverReceipt.receiptHash})</span>
+                  <span className="font-mono text-[10px] opacity-80">
+                    ({handoverReceipt.receiptHash.length > 28 ? `${handoverReceipt.receiptHash.slice(0, 18)}...` : handoverReceipt.receiptHash})
+                  </span>
                 </div>
               ) : (
                 <button
                   type="button"
                   data-testid="btn-open-cashier-handover"
                   onClick={() => setIsHandoverModalOpen(true)}
-                  className="text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-xs transition-all"
+                  className="text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
                 >
                   <span>🤝 2-Witness Shift Handover</span>
                 </button>
@@ -930,9 +946,9 @@ export default function ReceptionDeskDashboardPage() {
               <button
                 type="button"
                 onClick={() => setIsDenominationOpen(!isDenominationOpen)}
-                className="text-xs text-blue-600 hover:text-blue-800 font-semibold"
+                className="text-xs text-blue-600 hover:text-blue-800 font-bold px-2 py-1 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer"
               >
-                {isDenominationOpen ? '▲ Hide Denomination Keypad' : '▼ Quick Cash Counter (₹500 / ₹200 / ₹100)'}
+                {isDenominationOpen ? '▲ Hide Keypad' : '▼ Quick Cash Counter (₹500 / ₹200 / ₹100)'}
               </button>
             </div>
           </div>
@@ -1088,31 +1104,31 @@ export default function ReceptionDeskDashboardPage() {
                 />
 
                 {/* Phase 61: Pre-Consultation Sheet & Custom Counter Charges Bar */}
-                <div className="mt-1.5 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg flex flex-wrap items-center justify-between gap-2 text-xs">
-                  <div className="flex items-center gap-2">
+                <div className="mt-2 px-4 py-2.5 bg-slate-50/90 border border-slate-200/80 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
+                  <div className="flex flex-wrap items-center gap-2">
                     {t.bookingFeeRupees && t.bookingFeeRupees > 0 ? (
                       <span
                         data-testid="badge-booking-paid"
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-emerald-100 text-emerald-800 border border-emerald-300"
+                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-mono font-bold text-[11px] bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs"
                       >
                         ✓ ₹{t.bookingFeeRupees} Booking Paid
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-mono text-[11px] bg-slate-100 text-slate-600">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-mono text-[11px] bg-slate-200/80 text-slate-700 font-semibold">
                         Counter Token
                       </span>
                     )}
 
                     {t.symptoms && (
-                      <span className="text-slate-600 truncate max-w-xs text-[11px]">
-                        <span className="font-semibold text-slate-700">Symptoms:</span> {t.symptoms}
+                      <span className="text-slate-600 truncate max-w-sm text-[11px]">
+                        <span className="font-bold text-slate-700">Symptoms:</span> {t.symptoms}
                       </span>
                     )}
 
                     {((t.patientAge && t.patientAge >= 70) || t.patientName.includes('Kailash')) && (
                       <span
                         data-testid="badge-reception-senior-priority"
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold text-[10px] bg-amber-100 text-amber-900 border border-amber-300"
+                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[11px] bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs"
                       >
                         👴 Senior 70+ Priority
                       </span>
@@ -1121,7 +1137,7 @@ export default function ReceptionDeskDashboardPage() {
                     {((t.patientAge && t.patientAge <= 6) || t.patientName.toLowerCase().includes('baby') || t.patientName.toLowerCase().includes('aarav')) && (
                       <span
                         data-testid="badge-reception-infant-priority"
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold text-[10px] bg-pink-100 text-pink-900 border border-pink-300"
+                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[11px] bg-pink-100 text-pink-900 border border-pink-300 shadow-2xs"
                       >
                         👶 Infant Triage Priority
                       </span>
@@ -1130,7 +1146,7 @@ export default function ReceptionDeskDashboardPage() {
                     {escalatedTokens.includes(t.tokenNumber) && (
                       <span
                         data-testid="badge-reception-escalated"
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded font-bold text-[10px] bg-red-100 text-red-900 border border-red-300 animate-pulse"
+                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[11px] bg-red-100 text-red-900 border border-red-300 animate-pulse shadow-2xs"
                       >
                         ⚡ STAT Priority
                       </span>
@@ -1142,7 +1158,7 @@ export default function ReceptionDeskDashboardPage() {
                       type="button"
                       data-testid={`btn-reception-triage-escalate-${t.tokenNumber}`}
                       onClick={() => handleReceptionTriageEscalate(t.tokenNumber, t.patientAge)}
-                      className="px-2.5 py-1 rounded bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 font-bold text-xs shadow-2xs flex items-center gap-1 transition-all"
+                      className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 font-bold text-xs shadow-2xs flex items-center gap-1.5 transition-all cursor-pointer"
                       title="Promote patient to front of chamber queue (Geriatric / Pediatric Triage)"
                     >
                       ⚡ Priority Triage
@@ -1152,7 +1168,7 @@ export default function ReceptionDeskDashboardPage() {
                       type="button"
                       data-testid="btn-print-rx-sheet"
                       onClick={() => handleOpenRxModal(t)}
-                      className="px-2.5 py-1 rounded bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 font-bold text-xs shadow-2xs flex items-center gap-1 transition-colors"
+                      className="px-3 py-1.5 rounded-xl bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 font-bold text-xs shadow-2xs flex items-center gap-1.5 transition-colors cursor-pointer"
                     >
                       🖨️ Prescription Sheet
                     </button>
@@ -1161,7 +1177,7 @@ export default function ReceptionDeskDashboardPage() {
                       type="button"
                       data-testid="btn-settle-custom-charges"
                       onClick={() => handleOpenSettleModal(t)}
-                      className="px-2.5 py-1 rounded bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-xs shadow-2xs flex items-center gap-1 transition-colors"
+                      className="px-3 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-xs shadow-2xs flex items-center gap-1.5 transition-colors cursor-pointer"
                     >
                       ⚡ Settle Custom Charges
                     </button>

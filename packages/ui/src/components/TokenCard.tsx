@@ -44,19 +44,19 @@ export const TokenCard: React.FC<TokenCardProps> = ({
 
   return (
     <div
-      className={`relative bg-white border rounded-xl p-4 shadow-sm transition-all duration-150 hover:shadow-md ${
+      className={`relative bg-white/95 backdrop-blur-sm border rounded-2xl p-4 sm:p-5 shadow-xs transition-all duration-150 hover:shadow-md ${
         isEmergency
           ? 'border-red-400 bg-red-50/10'
           : isUrgentItem
           ? 'border-amber-400 bg-amber-50/10'
-          : 'border-slate-200'
+          : 'border-slate-200/80 hover:border-slate-300'
       } ${className}`}
     >
       {/* Top Header: Token Number & Triage/Chamber Tags */}
       <div className="flex items-center justify-between gap-3 mb-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3.5">
           <div
-            className={`flex items-center justify-center min-w-14 h-12 px-3 rounded-lg font-mono tabular-nums font-black text-2xl tracking-tight shadow-inner ${
+            className={`flex items-center justify-center min-w-14 h-12 px-3 rounded-xl font-mono tabular-nums font-black text-2xl tracking-tight shadow-inner ${
               isEmergency
                 ? 'bg-red-600 text-white'
                 : isUrgentItem
@@ -91,7 +91,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
           {/* Triage Badge if Urgent or Emergency */}
           {(isEmergency || isUrgentItem) && (
             <span
-              className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-bold rounded-full ${
+              className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full ${
                 isEmergency
                   ? 'bg-red-100 text-red-800 border border-red-300 animate-pulse'
                   : 'bg-amber-100 text-amber-800 border border-amber-300'
@@ -109,7 +109,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
           {/* Chamber Tag */}
           {chamber && (
             <span
-              className="px-2 py-0.5 text-xs font-bold rounded"
+              className="px-2.5 py-0.5 text-xs font-bold rounded-lg font-mono shadow-2xs"
               style={{
                 backgroundColor: chamber.bg,
                 color: chamber.text,
@@ -123,11 +123,11 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       </div>
 
       {/* Middle Row: Status Badges */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-slate-100">
         <div className="flex items-center gap-2">
           {/* Queue Status */}
           <span
-            className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-semibold rounded-full"
+            className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[11px] font-bold rounded-full shadow-2xs"
             style={{
               backgroundColor: queueStatus.bg,
               color: queueStatus.text,
@@ -143,7 +143,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
 
           {/* Payment Status */}
           <span
-            className="px-2 py-0.5 text-xs font-medium rounded-full"
+            className="px-2.5 py-0.5 text-[11px] font-bold rounded-full shadow-2xs"
             style={{
               backgroundColor: payment.bg,
               color: payment.text,
@@ -155,7 +155,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
         </div>
 
         {doctorName && (
-          <span className="text-xs text-slate-500 font-medium truncate max-w-44">
+          <span className="text-xs text-slate-500 font-semibold truncate max-w-44">
             Dr. {doctorName.replace(/^dr\.?\s*/i, '')}
           </span>
         )}

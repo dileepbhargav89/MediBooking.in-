@@ -24,32 +24,32 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   return (
     <div
-      className={`bg-white border border-slate-200 rounded-xl p-5 shadow-sm relative overflow-hidden transition-all duration-150 hover:shadow-md ${className}`}
+      className={`bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md hover:border-slate-300 relative overflow-hidden transition-all duration-150 ${className}`}
     >
       {accentColor && (
         <div
-          className="absolute top-0 left-0 right-0 h-1"
+          className="absolute top-0 left-0 right-0 h-1.5 opacity-90"
           style={{ backgroundColor: accentColor }}
         />
       )}
 
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{title}</p>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-slate-900 tracking-tight font-mono tabular-nums">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{title}</p>
+          <div className="mt-2 flex items-baseline gap-2.5">
+            <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight font-mono tabular-nums">
               {value}
             </span>
             {badge && (
               <span
-                className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                   badge.variant === 'mint'
-                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                     : badge.variant === 'amber'
-                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                    ? 'bg-amber-50 text-amber-800 border border-amber-200'
                     : badge.variant === 'red'
-                    ? 'bg-red-50 text-red-700 border border-red-200'
-                    : 'bg-blue-50 text-blue-700 border border-blue-200'
+                    ? 'bg-rose-50 text-rose-800 border border-rose-200'
+                    : 'bg-blue-50 text-blue-800 border border-blue-200'
                 }`}
               >
                 {badge.label}
@@ -60,7 +60,7 @@ export const StatCard: React.FC<StatCardProps> = ({
         </div>
 
         {icon && (
-          <div className="p-2.5 rounded-xl bg-slate-50 text-slate-600 border border-slate-100">
+          <div className="p-2.5 rounded-xl bg-slate-50 text-slate-600 border border-slate-100 shadow-2xs">
             {icon}
           </div>
         )}

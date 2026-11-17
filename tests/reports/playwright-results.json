@@ -5,6 +5,8 @@
       "D:\\Projects\\Startup Project\\MediBooking.in\\node_modules\\@playwright\\test\\cli.js",
       "test",
       "--project=chromium",
+      "-g",
+      "54.1",
       "tests/e2e/54-complete-demo-data-e2e-journey.spec.ts"
     ],
     "configFile": "D:\\Projects\\Startup Project\\MediBooking.in\\playwright.config.ts",
@@ -190,12 +192,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 29738,
+                      "duration": 25012,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-17T17:19:15.126Z",
+                      "startTime": "2026-11-17T17:52:03.227Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -207,176 +209,6 @@
               "file": "54-complete-demo-data-e2e-journey.spec.ts",
               "line": 7,
               "column": 7
-            },
-            {
-              "title": "54.2 Receptionist Desk: Rapid Walk-In Intake, Vitals Capture, and Thermal Receipt Modal",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 11571,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-17T17:19:45.061Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "21454d8ca376cd397306-b3ef500752e02a03daa8",
-              "file": "54-complete-demo-data-e2e-journey.spec.ts",
-              "line": 77,
-              "column": 7
-            },
-            {
-              "title": "54.3 Waiting Room TV: Synchronized Live Screen & Audio Chime Display",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 7467,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-17T17:19:56.722Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "21454d8ca376cd397306-a987e2c9bdd9f15e0546",
-              "file": "54-complete-demo-data-e2e-journey.spec.ts",
-              "line": 117,
-              "column": 7
-            },
-            {
-              "title": "54.4 Doctor Chamber Desk: Glance Portal, Clinical Notes, and Consultation Completion",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 9896,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-17T17:20:04.248Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "21454d8ca376cd397306-b8ae5763e01e03d1a3c7",
-              "file": "54-complete-demo-data-e2e-journey.spec.ts",
-              "line": 145,
-              "column": 7
-            },
-            {
-              "title": "54.5 Clinic Onboarding: Self-Serve Provisioning of New Polyclinic in Indore",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5554,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-17T17:20:14.234Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "21454d8ca376cd397306-e5945d6c06e5fd9d8a3f",
-              "file": "54-complete-demo-data-e2e-journey.spec.ts",
-              "line": 183,
-              "column": 7
-            },
-            {
-              "title": "54.6 Super Admin Platform Console: Multi-Market Telemetry, Revenue Split, and City Catalog",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5110,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-17T17:20:19.841Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "21454d8ca376cd397306-57ed814067c11861fc21",
-              "file": "54-complete-demo-data-e2e-journey.spec.ts",
-              "line": 225,
-              "column": 7
             }
           ]
         }
@@ -385,9 +217,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-17T17:19:14.192Z",
-    "duration": 71156.419,
-    "expected": 6,
+    "startTime": "2026-11-17T17:52:01.789Z",
+    "duration": 27630.575,
+    "expected": 1,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

@@ -25,16 +25,15 @@ export const ChamberBadge: React.FC<ChamberBadgeProps> = ({
 
   return (
     <div
-      className={`rounded-xl border p-4 transition-all duration-150 ${className}`}
+      className={`rounded-2xl border p-4.5 bg-white/95 backdrop-blur-sm shadow-xs hover:shadow-md hover:border-slate-300 transition-all duration-150 ${className}`}
       style={{
-        backgroundColor: '#FFFFFF',
         borderColor: chamberStyle.border,
       }}
     >
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
           <span
-            className="px-2.5 py-0.5 text-xs font-bold rounded-md"
+            className="px-2.5 py-0.5 text-xs font-bold rounded-lg font-mono shadow-2xs"
             style={{
               backgroundColor: chamberStyle.bg,
               color: chamberStyle.text,
@@ -44,7 +43,7 @@ export const ChamberBadge: React.FC<ChamberBadgeProps> = ({
             {chamberNumber.toUpperCase()}
           </span>
           <span
-            className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium rounded-full"
+            className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[11px] font-bold rounded-full shadow-2xs"
             style={{
               backgroundColor: statusStyle.bg,
               color: statusStyle.text,
@@ -52,7 +51,7 @@ export const ChamberBadge: React.FC<ChamberBadgeProps> = ({
             }}
           >
             <span
-              className="h-1.5 w-1.5 rounded-full"
+              className={`h-2 w-2 rounded-full ${status === 'ACTIVE' ? 'animate-pulse' : ''}`}
               style={{ backgroundColor: statusStyle.dot }}
             />
             {statusStyle.label}
@@ -60,15 +59,15 @@ export const ChamberBadge: React.FC<ChamberBadgeProps> = ({
         </div>
 
         {delayMinutes > 0 && (
-          <span className="px-2 py-0.5 text-xs font-semibold rounded bg-rose-50 text-rose-700 border border-rose-200">
+          <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-rose-50 text-rose-700 border border-rose-200">
             +{delayMinutes}m delay
           </span>
         )}
       </div>
 
       {doctorName && (
-        <div className="mb-2">
-          <h4 className="font-semibold text-slate-900 text-sm leading-tight truncate">
+        <div className="mb-2.5">
+          <h4 className="font-bold text-slate-900 text-sm leading-tight truncate">
             {doctorName}
           </h4>
           {specialty && (
@@ -78,10 +77,10 @@ export const ChamberBadge: React.FC<ChamberBadgeProps> = ({
       )}
 
       {currentCallingToken !== undefined && currentCallingToken > 0 && (
-        <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
-          <span className="text-xs text-slate-500 font-medium">Calling Now:</span>
+        <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+          <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Calling Now:</span>
           <span
-            className="text-lg font-bold font-mono tabular-nums px-2.5 py-0.5 rounded-md"
+            className="text-lg font-black font-mono tabular-nums px-2.5 py-0.5 rounded-lg shadow-2xs"
             style={{
               backgroundColor: chamberStyle.bg,
               color: chamberStyle.text,
