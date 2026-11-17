@@ -5,7 +5,6 @@
       "D:\\Projects\\Startup Project\\MediBooking.in\\node_modules\\@playwright\\test\\cli.js",
       "test",
       "--project=chromium",
-      "tests/e2e/53-patient-discovery-city-selector.spec.ts",
       "tests/e2e/54-complete-demo-data-e2e-journey.spec.ts"
     ],
     "configFile": "D:\\Projects\\Startup Project\\MediBooking.in\\playwright.config.ts",
@@ -163,193 +162,6 @@
   },
   "suites": [
     {
-      "title": "53-patient-discovery-city-selector.spec.ts",
-      "file": "53-patient-discovery-city-selector.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "E2E Test Suite 53: Unified Patient Discovery & Global City Switcher",
-          "file": "53-patient-discovery-city-selector.spec.ts",
-          "line": 3,
-          "column": 6,
-          "specs": [
-            {
-              "title": "53.1 Landing page renders Header City Selector pill with default Bhopal (HQ)",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4636,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-15T18:23:50.698Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "5651b135a302ccf0339c-926718a3734001e5e6a7",
-              "file": "53-patient-discovery-city-selector.spec.ts",
-              "line": 14,
-              "column": 7
-            },
-            {
-              "title": "53.2 Clicking pill opens the City Switcher modal displaying Bhopal, Indore, Gwalior, Jabalpur",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 7649,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-15T18:23:55.529Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "5651b135a302ccf0339c-9a3dec218e9cac71cbeb",
-              "file": "53-patient-discovery-city-selector.spec.ts",
-              "line": 30,
-              "column": 7
-            },
-            {
-              "title": "53.3 Selecting Indore updates header pill to Indore and persists to localStorage",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5440,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-15T18:24:03.205Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "5651b135a302ccf0339c-8f781f404ad15eb69faa",
-              "file": "53-patient-discovery-city-selector.spec.ts",
-              "line": 57,
-              "column": 7
-            },
-            {
-              "title": "53.4 Doctor Marketplace (/doctors) filters listings strictly to Indore polyclinics",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 7352,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-15T18:24:08.664Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "5651b135a302ccf0339c-99d1fe7260ced4466d05",
-              "file": "53-patient-discovery-city-selector.spec.ts",
-              "line": 84,
-              "column": 7
-            },
-            {
-              "title": "53.5 Switching locality to Palasia filters doctors practicing in Palasia",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4795,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-11-15T18:24:16.040Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "5651b135a302ccf0339c-957cb27857366d2796bf",
-              "file": "53-patient-discovery-city-selector.spec.ts",
-              "line": 139,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
       "title": "54-complete-demo-data-e2e-journey.spec.ts",
       "file": "54-complete-demo-data-e2e-journey.spec.ts",
       "column": 0,
@@ -378,12 +190,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 8648,
+                      "duration": 29738,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-15T18:24:20.889Z",
+                      "startTime": "2026-11-17T17:19:15.126Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -412,12 +224,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5305,
+                      "duration": 11571,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-15T18:24:29.557Z",
+                      "startTime": "2026-11-17T17:19:45.061Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -446,12 +258,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2419,
+                      "duration": 7467,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-15T18:24:34.881Z",
+                      "startTime": "2026-11-17T17:19:56.722Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -480,12 +292,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2867,
+                      "duration": 9896,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-15T18:24:37.325Z",
+                      "startTime": "2026-11-17T17:20:04.248Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -514,12 +326,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6286,
+                      "duration": 5554,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-15T18:24:40.212Z",
+                      "startTime": "2026-11-17T17:20:14.234Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -548,12 +360,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5349,
+                      "duration": 5110,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-15T18:24:46.517Z",
+                      "startTime": "2026-11-17T17:20:19.841Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -573,9 +385,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-15T18:23:49.869Z",
-    "duration": 62162.551,
-    "expected": 11,
+    "startTime": "2026-11-17T17:19:14.192Z",
+    "duration": 71156.419,
+    "expected": 6,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

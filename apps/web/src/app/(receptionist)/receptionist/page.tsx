@@ -783,13 +783,13 @@ export default function ReceptionDeskDashboardPage() {
                 onClick={() => setIsIntakeModalOpen(true)}
                 className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-sm"
               >
-                + Walk-In Intake
+                + Walk-In Intake (Add Patient)
               </Button>
             </div>
 
-            <Link href="/tv/bhopal-city-care">
-              <Button variant="outline" size="sm" className="hidden sm:inline-flex">
-                Open TV
+            <Link href="/tv/bhopal-city-care" target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="sm" className="hidden sm:inline-flex" title="Open TV Display in new tab (ideal for wall TV / secondary monitor)">
+                📺 Open TV (New Tab)
               </Button>
             </Link>
 
@@ -986,20 +986,34 @@ export default function ReceptionDeskDashboardPage() {
         {/* 4 Chambers Status Strip */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {INITIAL_CHAMBERS.map((ch) => (
-            <ChamberBadge
-              key={ch.chamberNumber}
-              chamberNumber={ch.chamberNumber}
-              doctorName={ch.doctorName}
-              specialty={ch.specialty}
-              status={ch.status}
-              delayMinutes={ch.delayMinutes}
-              currentCallingToken={ch.callingToken}
-            />
+            <div key={ch.chamberNumber} className="flex flex-col">
+              <ChamberBadge
+                chamberNumber={ch.chamberNumber}
+                doctorName={ch.doctorName}
+                specialty={ch.specialty}
+                status={ch.status}
+                delayMinutes={ch.delayMinutes}
+                currentCallingToken={ch.callingToken}
+              />
+              <button
+                type="button"
+                data-testid={`btn-add-patient-${ch.chamberNumber.toLowerCase()}`}
+                onClick={() => {
+                  setSelectedChamber(ch.chamberNumber);
+                  setIsIntakeModalOpen(true);
+                }}
+                className="mt-2 py-1.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                title={`Add new walk-in patient directly to ${ch.chamberNumber} (${ch.doctorName})`}
+              >
+                <span>➕</span>
+                <span>Add Walk-In to {ch.chamberNumber}</span>
+              </button>
+            </div>
           ))}
         </div>
 
-        {/* Chamber Tab Bar */}
-        <div data-testid="tour-chambers-step" className="flex items-center justify-between border-b border-slate-200 pb-2">
+        {/* Chamber Tab Bar & Quick Add Patient Button */}
+        <div data-testid="tour-chambers-step" className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-2">
           <div className="flex items-center gap-2 overflow-x-auto">
             <button
               onClick={() => setSelectedChamberTab('ALL')}
@@ -1024,9 +1038,26 @@ export default function ReceptionDeskDashboardPage() {
             ))}
           </div>
 
-          <span className="text-xs text-slate-500 font-medium hidden sm:inline">
-            Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 font-mono text-[10px]">F2</kbd> for rapid intake
-          </span>
+          <div className="flex items-center gap-2.5">
+            <span className="text-xs text-slate-500 font-medium hidden md:inline">
+              Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 font-mono text-[10px]">F2</kbd> for rapid intake
+            </span>
+            <Button
+              variant="urgent"
+              size="sm"
+              data-testid="btn-add-patient-queue-bar"
+              onClick={() => {
+                if (selectedChamberTab !== 'ALL') {
+                  setSelectedChamber(selectedChamberTab);
+                }
+                setIsIntakeModalOpen(true);
+              }}
+              className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-sm flex items-center gap-1.5"
+            >
+              <span>+ Add New Patient {selectedChamberTab !== 'ALL' ? `(${selectedChamberTab})` : ''}</span>
+              <span className="text-[10px] opacity-80 font-mono font-normal">(F2)</span>
+            </Button>
+          </div>
         </div>
 
         {/* Multi-Chamber Live Token Queue */}

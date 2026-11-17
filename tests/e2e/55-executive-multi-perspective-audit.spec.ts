@@ -115,9 +115,9 @@ test.describe('E2E Test Suite 55: Executive Healthcare Platform Realistic Audit 
     expect(href).toContain(encodeURIComponent('Gwalior Neuro Care Center'));
 
     // 6. Navigate to Live Tracker
-    const trackQueueBtn = page.locator('button', { hasText: /Track Live Queue Position/i });
-    await expect(trackQueueBtn).toBeVisible();
-    await trackQueueBtn.click();
+    const trackQueueLink = page.locator('a', { hasText: /Track Live Queue Position/i });
+    await expect(trackQueueLink).toBeVisible();
+    await trackQueueLink.click();
 
     await expect(page).toHaveURL(/\/patient\?/);
     await expect(page.locator('body')).toContainText('Dr. Alok Verma');

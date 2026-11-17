@@ -320,6 +320,23 @@ export default function WaitingRoomTVPage({
     return () => clearInterval(interval);
   }, []);
 
+  // Listen for Escape key to exit TV mode cleanly
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (typeof window !== 'undefined') {
+          if (window.history.length > 1) {
+            window.history.back();
+          } else {
+            window.location.href = '/receptionist';
+          }
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // Demo simulator: Rotate tokens periodically to test TV chime and real-time updates
   const handleSimulateNextCall = (chamberCode: string) => {
     setChambers((prev) =>
@@ -352,7 +369,16 @@ export default function WaitingRoomTVPage({
       {/* Top Clinic Header Bar */}
       <header className="bg-slate-950/90 border-b border-slate-800 px-6 sm:px-8 py-4 backdrop-blur-md sticky top-0 z-40">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/receptionist"
+              data-testid="btn-tv-back-reception"
+              className="h-10 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white text-xs font-bold flex items-center gap-2 transition-colors shrink-0 shadow-xs"
+              title="Return to Central Reception Desk"
+            >
+              <span>←</span>
+              <span className="hidden sm:inline">Back to Reception</span>
+            </Link>
             <div className="h-11 w-11 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-2xl shadow-md">
               M
             </div>
@@ -372,7 +398,7 @@ export default function WaitingRoomTVPage({
           </div>
 
           {/* Clock & Controls */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => {
                 setAudioEnabled(!audioEnabled);
@@ -405,11 +431,30 @@ export default function WaitingRoomTVPage({
               Test Chime
             </button>
 
-            <div className="text-right border-l border-slate-800 pl-4">
-              <span className="text-2xl sm:text-3xl font-black font-mono tabular-nums text-white block tracking-tight leading-none">
+            <button
+              type="button"
+              data-testid="btn-tv-exit-header"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  if (window.history.length > 1) {
+                    window.history.back();
+                  } else {
+                    window.location.href = '/receptionist';
+                  }
+                }
+              }}
+              className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-950/80 hover:border-rose-700 hover:text-rose-300 border border-slate-700 text-slate-300 text-xs font-bold transition-colors flex items-center gap-1.5"
+              title="Close or Exit TV Mode (Esc)"
+            >
+              <span>✕</span>
+              <span className="hidden sm:inline">Close</span>
+            </button>
+
+            <div className="text-right border-l border-slate-800 pl-3">
+              <span className="text-xl sm:text-2xl font-black font-mono tabular-nums text-white block tracking-tight leading-none">
                 {currentTime}
               </span>
-              <span className="text-[11px] text-slate-400 font-medium block mt-1">
+              <span className="text-[10px] text-slate-400 font-medium block mt-1">
                 {currentDate}
               </span>
             </div>
@@ -586,8 +631,8 @@ export default function WaitingRoomTVPage({
         <div className="flex items-center gap-4 text-[11px]">
           <span>Track on your phone: <strong className="text-slate-200">medibooking.in/patient</strong></span>
           <span>•</span>
-          <Link href="/" className="text-blue-400 hover:underline">
-            Exit TV Mode
+          <Link href="/receptionist" className="text-blue-400 hover:underline">
+            Exit TV Mode (Back to Reception)
           </Link>
         </div>
       </footer>
