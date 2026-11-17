@@ -94,7 +94,7 @@ test.describe('CEO Post-Phase 10 Comprehensive Platform Audit & Verification', (
     await expect(handoverModal).toBeVisible();
 
     // Verify dual PIN inputs and zero variance
-    await expect(page.locator('text=Morning Shift (08:30 - 14:30)')).toBeVisible();
+    await expect(handoverModal.locator('text=Morning Shift (08:30 - 14:30)').first()).toBeVisible();
     await expect(handoverModal.locator('text=₹12,400').first()).toBeVisible();
     await expect(handoverModal.locator('text=ZERO VARIANCE')).toBeVisible();
 
