@@ -512,15 +512,15 @@ export default function ReceptionDeskDashboardPage() {
       prev.map((t) =>
         t.id === editingToken.id
           ? {
-              ...t,
-              patientName: editName.trim() || t.patientName,
-              patientMobile: editMobile.trim() || t.patientMobile,
-              patientAge: updatedAge,
-              patientGender: editGender,
-              bloodGroup: editBloodGroup,
-              village: editVillage.trim(),
-              symptoms: editSymptoms.trim(),
-            }
+            ...t,
+            patientName: editName.trim() || t.patientName,
+            patientMobile: editMobile.trim() || t.patientMobile,
+            patientAge: updatedAge,
+            patientGender: editGender,
+            bloodGroup: editBloodGroup,
+            village: editVillage.trim(),
+            symptoms: editSymptoms.trim(),
+          }
           : t
       )
     );
@@ -533,10 +533,10 @@ export default function ReceptionDeskDashboardPage() {
       prev.map((t) =>
         t.id === token.id
           ? {
-              ...t,
-              status: 'WAITING',
-              estimatedTime: '5 mins',
-            }
+            ...t,
+            status: 'WAITING',
+            estimatedTime: '5 mins',
+          }
           : t
       )
     );
@@ -560,11 +560,11 @@ export default function ReceptionDeskDashboardPage() {
       prev.map((t) =>
         t.id === transferringToken.id
           ? {
-              ...t,
-              chamberNumber: transferTargetChamber,
-              doctorName: targetDoc.doctorName.replace(/^Dr\.\s*/i, ''),
-              consultationFeeDue: targetDoc.consultationFee,
-            }
+            ...t,
+            chamberNumber: transferTargetChamber,
+            doctorName: targetDoc.doctorName.replace(/^Dr\.\s*/i, ''),
+            consultationFeeDue: targetDoc.consultationFee,
+          }
           : t
       )
     );
@@ -779,10 +779,10 @@ export default function ReceptionDeskDashboardPage() {
       prev.map((t) =>
         t.id === selectedSettleToken.id
           ? {
-              ...t,
-              paymentStatus: settlePaymentMode,
-              feePaidRupees: (t.bookingFeeRupees || 0) + gross,
-            }
+            ...t,
+            paymentStatus: settlePaymentMode,
+            feePaidRupees: (t.bookingFeeRupees || 0) + gross,
+          }
           : t
       )
     );
@@ -1282,16 +1282,14 @@ export default function ReceptionDeskDashboardPage() {
               type="button"
               data-testid="tab-live-queue"
               onClick={() => setReceptionView('QUEUE')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                receptionView === 'QUEUE'
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${receptionView === 'QUEUE'
                   ? 'bg-blue-600 text-white shadow-xs'
                   : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-              }`}
+                }`}
             >
               <span>📋 Live Queue</span>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
-                receptionView === 'QUEUE' ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-700 font-bold'
-              }`}>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${receptionView === 'QUEUE' ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-700 font-bold'
+                }`}>
                 {tokens.filter((t) => t.status === 'WAITING' || t.status === 'IN_CONSULTATION').length} Active
               </span>
             </button>
@@ -1300,16 +1298,14 @@ export default function ReceptionDeskDashboardPage() {
               type="button"
               data-testid="tab-patient-history"
               onClick={() => setReceptionView('HISTORY')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                receptionView === 'HISTORY'
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${receptionView === 'HISTORY'
                   ? 'bg-blue-600 text-white shadow-xs'
                   : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-              }`}
+                }`}
             >
               <span>📜 Patient Visit History</span>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
-                receptionView === 'HISTORY' ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-700 font-bold'
-              }`}>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${receptionView === 'HISTORY' ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-700 font-bold'
+                }`}>
                 {historyTokens.length} Completed Today
               </span>
             </button>
@@ -1346,11 +1342,10 @@ export default function ReceptionDeskDashboardPage() {
             <div data-testid="tour-chambers-step" className="flex items-center gap-2 overflow-x-auto pb-1">
               <button
                 onClick={() => setSelectedChamberTab('ALL')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  selectedChamberTab === 'ALL'
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${selectedChamberTab === 'ALL'
                     ? 'bg-blue-600 text-white shadow-xs'
                     : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                }`}
+                  }`}
               >
                 All Chambers ({tokens.length})
               </button>
@@ -1358,11 +1353,10 @@ export default function ReceptionDeskDashboardPage() {
                 <button
                   key={ch.chamberNumber}
                   onClick={() => setSelectedChamberTab(ch.chamberNumber)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
-                    selectedChamberTab === ch.chamberNumber
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${selectedChamberTab === ch.chamberNumber
                       ? 'bg-blue-600 text-white shadow-xs'
                       : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                  }`}
+                    }`}
                 >
                   {ch.chamberNumber} ({tokens.filter((t) => t.chamberNumber === ch.chamberNumber).length})
                 </button>
@@ -1728,11 +1722,10 @@ export default function ReceptionDeskDashboardPage() {
                     key={g}
                     type="button"
                     onClick={() => setPatientGender(g)}
-                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      patientGender === g
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${patientGender === g
                         ? 'bg-blue-600 text-white shadow-2xs'
                         : 'text-slate-600 hover:text-slate-900'
-                    }`}
+                      }`}
                   >
                     {g === 'MALE' ? 'Male' : g === 'FEMALE' ? 'Female' : 'Other'}
                   </button>
@@ -1786,11 +1779,10 @@ export default function ReceptionDeskDashboardPage() {
                   key={loc}
                   type="button"
                   onClick={() => setVillage(loc)}
-                  className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold border transition-colors cursor-pointer ${
-                    village === loc
+                  className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold border transition-colors cursor-pointer ${village === loc
                       ? 'bg-blue-50 border-blue-300 text-blue-700 font-bold'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                  }`}
+                    }`}
                 >
                   📍 {loc}
                 </button>
@@ -1827,11 +1819,10 @@ export default function ReceptionDeskDashboardPage() {
                   key={sym}
                   type="button"
                   onClick={() => setSymptoms(sym)}
-                  className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold border transition-colors cursor-pointer ${
-                    symptoms === sym
+                  className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold border transition-colors cursor-pointer ${symptoms === sym
                       ? 'bg-blue-50 border-blue-300 text-blue-700 font-bold'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                  }`}
+                    }`}
                 >
                   🩺 {sym}
                 </button>
@@ -1850,11 +1841,10 @@ export default function ReceptionDeskDashboardPage() {
                   key={ch.chamberNumber}
                   type="button"
                   onClick={() => setSelectedChamber(ch.chamberNumber)}
-                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                    selectedChamber === ch.chamberNumber
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${selectedChamber === ch.chamberNumber
                       ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-600/20'
                       : 'border-slate-200 bg-white hover:bg-slate-50'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-bold text-xs font-mono text-blue-700">
@@ -1882,22 +1872,20 @@ export default function ReceptionDeskDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setIsUrgent(false)}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
-                    !isUrgent
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${!isUrgent
                       ? 'border-slate-400 bg-slate-100 text-slate-800'
                       : 'border-slate-200 bg-white text-slate-500'
-                  }`}
+                    }`}
                 >
                   Normal
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsUrgent(true)}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
-                    isUrgent
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${isUrgent
                       ? 'border-amber-400 bg-amber-50 text-amber-700 ring-2 ring-amber-400/20'
                       : 'border-slate-200 bg-white text-slate-500'
-                  }`}
+                    }`}
                 >
                   🚨 Urgent Priority
                 </button>
@@ -1913,33 +1901,30 @@ export default function ReceptionDeskDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setPaymentMode('PAID_CASH')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
-                    paymentMode === 'PAID_CASH'
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${paymentMode === 'PAID_CASH'
                       ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
                       : 'border-slate-200 bg-white text-slate-600'
-                  }`}
+                    }`}
                 >
                   💵 Cash
                 </button>
                 <button
                   type="button"
                   onClick={() => setPaymentMode('PAID_UPI_QR')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
-                    paymentMode === 'PAID_UPI_QR'
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${paymentMode === 'PAID_UPI_QR'
                       ? 'border-blue-500 bg-blue-50 text-blue-800'
                       : 'border-slate-200 bg-white text-slate-600'
-                  }`}
+                    }`}
                 >
                   📱 UPI QR
                 </button>
                 <button
                   type="button"
                   onClick={() => setPaymentMode('PENDING')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
-                    paymentMode === 'PENDING'
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${paymentMode === 'PENDING'
                       ? 'border-amber-500 bg-amber-50 text-amber-800'
                       : 'border-slate-200 bg-white text-slate-600'
-                  }`}
+                    }`}
                 >
                   ⏳ Pay Later
                 </button>
@@ -2008,11 +1993,10 @@ export default function ReceptionDeskDashboardPage() {
                       key={g}
                       type="button"
                       onClick={() => setEditGender(g)}
-                      className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                        editGender === g
+                      className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${editGender === g
                           ? 'bg-blue-600 text-white shadow-2xs'
                           : 'text-slate-600 hover:text-slate-900'
-                      }`}
+                        }`}
                     >
                       {g === 'MALE' ? 'Male' : g === 'FEMALE' ? 'Female' : 'Other'}
                     </button>
@@ -2107,11 +2091,10 @@ export default function ReceptionDeskDashboardPage() {
                     key={ch.chamberNumber}
                     type="button"
                     onClick={() => setTransferTargetChamber(ch.chamberNumber)}
-                    className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${
-                      transferTargetChamber === ch.chamberNumber
+                    className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${transferTargetChamber === ch.chamberNumber
                         ? 'border-indigo-600 bg-indigo-50/60 ring-2 ring-indigo-600/20'
                         : 'border-slate-200 bg-white hover:bg-slate-50'
-                    }`}
+                      }`}
                   >
                     <div>
                       <div className="flex items-center gap-2">
@@ -2157,6 +2140,7 @@ export default function ReceptionDeskDashboardPage() {
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 mt-0.5">
+                Morning Shift (08:30 - 14:30) • Bhopal City Care Polyclinic
                 Active Shift (08:30 AM - 02:30 PM) • Bhopal City Care Polyclinic
               </p>
             </div>
@@ -2193,6 +2177,7 @@ export default function ReceptionDeskDashboardPage() {
                 >
                   <span>✓ 2-Witness Handover Verified</span>
                   <span className="font-mono text-[10px] opacity-80">
+                    ({handoverReceipt.receiptHash.length > 28 ? `${handoverReceipt.receiptHash.slice(0, 18)}...` : handoverReceipt.receiptHash})
                     ({handoverReceipt.receiptHash})
                   </span>
                 </div>
@@ -2236,9 +2221,8 @@ export default function ReceptionDeskDashboardPage() {
                 <div className="flex flex-wrap items-center gap-4">
                   <span>Counted Cash: <span className="font-mono font-black text-slate-900 text-sm">₹{calculateDenominationTotal().toLocaleString('en-IN')}</span></span>
                   <span>System Expected: <span className="font-mono font-semibold text-slate-700">₹12,400</span></span>
-                  <span className={`px-2 py-0.5 rounded font-bold font-mono text-[10px] ${
-                    calculateDenominationTotal() === 12400 ? 'bg-emerald-600 text-white' : 'bg-rose-100 text-rose-800'
-                  }`}>
+                  <span className={`px-2 py-0.5 rounded font-bold font-mono text-[10px] ${calculateDenominationTotal() === 12400 ? 'bg-emerald-600 text-white' : 'bg-rose-100 text-rose-800'
+                    }`}>
                     Variance: {calculateDenominationTotal() - 12400 >= 0 ? `+₹${calculateDenominationTotal() - 12400}` : `-₹${12400 - calculateDenominationTotal()}`} {calculateDenominationTotal() === 12400 ? '✓ (100% BALANCED)' : '⚠️ (DISCREPANCY)'}
                   </span>
                 </div>
@@ -2340,56 +2324,56 @@ export default function ReceptionDeskDashboardPage() {
               </p>
             </div>
 
-              {/* Direct ESC/POS Hardware Print Banner / Feedback */}
-              {directPrintNotice && (
-                <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-semibold text-center animate-fadeIn">
-                  {directPrintNotice}
-                </div>
-              )}
+            {/* Direct ESC/POS Hardware Print Banner / Feedback */}
+            {directPrintNotice && (
+              <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-semibold text-center animate-fadeIn">
+                {directPrintNotice}
+              </div>
+            )}
 
-              <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="urgent"
+                fullWidth
+                size="md"
+                isLoading={isPrintingDirect}
+                onClick={handleDirectHardwarePrint}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm"
+              >
+                ⚡ Direct Hardware Print (ESC/POS)
+              </Button>
+              <Button
+                variant="mint"
+                fullWidth
+                size="sm"
+                onClick={() => {
+                  setIsReceiptModalOpen(false);
+                  handleOpenRxModal(latestIssuedToken);
+                }}
+                className="font-bold text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300"
+              >
+                📋 Print Pre-Consultation Rx Sheet (A4)
+              </Button>
+              <div className="flex gap-2">
                 <Button
-                  variant="urgent"
-                  fullWidth
-                  size="md"
-                  isLoading={isPrintingDirect}
-                  onClick={handleDirectHardwarePrint}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm"
-                >
-                  ⚡ Direct Hardware Print (ESC/POS)
-                </Button>
-                <Button
-                  variant="mint"
+                  variant="outline"
                   fullWidth
                   size="sm"
                   onClick={() => {
-                    setIsReceiptModalOpen(false);
-                    handleOpenRxModal(latestIssuedToken);
+                    if (typeof window !== 'undefined') window.print();
                   }}
-                  className="font-bold text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300"
                 >
-                  📋 Print Pre-Consultation Rx Sheet (A4)
+                  🖨️ Browser Print (Dialog)
                 </Button>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    fullWidth
-                    size="sm"
-                    onClick={() => {
-                      if (typeof window !== 'undefined') window.print();
-                    }}
-                  >
-                    🖨️ Browser Print (Dialog)
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsReceiptModalOpen(false)}
-                  >
-                    Done
-                  </Button>
-                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsReceiptModalOpen(false)}
+                >
+                  Done
+                </Button>
               </div>
+            </div>
           </div>
         )}
       </Modal>
@@ -2443,22 +2427,20 @@ export default function ReceptionDeskDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setRxSheetFormat('A4')}
-                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${
-                    rxSheetFormat === 'A4'
+                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${rxSheetFormat === 'A4'
                       ? 'bg-white text-blue-700 shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
-                  }`}
+                    }`}
                 >
                   📄 A4 Letterhead
                 </button>
                 <button
                   type="button"
                   onClick={() => setRxSheetFormat('THERMAL_80MM')}
-                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${
-                    rxSheetFormat === 'THERMAL_80MM'
+                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${rxSheetFormat === 'THERMAL_80MM'
                       ? 'bg-white text-blue-700 shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
-                  }`}
+                    }`}
                 >
                   🧾 80mm Thermal (Zero-Ink)
                 </button>
@@ -2718,11 +2700,10 @@ export default function ReceptionDeskDashboardPage() {
                         setConsultationType('STANDARD');
                         setConsultationFeeRupees(600);
                       }}
-                      className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all text-center ${
-                        consultationType === 'STANDARD'
+                      className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all text-center ${consultationType === 'STANDARD'
                           ? 'border-blue-600 bg-blue-50 text-blue-800 ring-2 ring-blue-600/20'
                           : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                      }`}
+                        }`}
                     >
                       Standard (₹600)
                     </button>
@@ -2732,11 +2713,10 @@ export default function ReceptionDeskDashboardPage() {
                         setConsultationType('FOLLOW_UP');
                         setConsultationFeeRupees(300);
                       }}
-                      className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all text-center ${
-                        consultationType === 'FOLLOW_UP'
+                      className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all text-center ${consultationType === 'FOLLOW_UP'
                           ? 'border-blue-600 bg-blue-50 text-blue-800 ring-2 ring-blue-600/20'
                           : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                      }`}
+                        }`}
                     >
                       Follow-Up (₹300)
                     </button>
@@ -2746,11 +2726,10 @@ export default function ReceptionDeskDashboardPage() {
                         setConsultationType('WAIVED');
                         setConsultationFeeRupees(0);
                       }}
-                      className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all text-center ${
-                        consultationType === 'WAIVED'
+                      className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all text-center ${consultationType === 'WAIVED'
                           ? 'border-amber-600 bg-amber-50 text-amber-800 ring-2 ring-amber-600/20'
                           : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                      }`}
+                        }`}
                     >
                       Doctor Waiver (₹0)
                     </button>
@@ -2802,11 +2781,10 @@ export default function ReceptionDeskDashboardPage() {
                       return (
                         <label
                           key={proc.id}
-                          className={`flex items-center justify-between p-2 rounded-lg border cursor-pointer transition-colors text-xs ${
-                            isChecked
+                          className={`flex items-center justify-between p-2 rounded-lg border cursor-pointer transition-colors text-xs ${isChecked
                               ? 'bg-blue-50 border-blue-300 text-blue-900 font-semibold'
                               : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-2">
                             <input
@@ -2983,22 +2961,20 @@ export default function ReceptionDeskDashboardPage() {
                     <button
                       type="button"
                       onClick={() => setSettlePaymentMode('PAID_CASH')}
-                      className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${
-                        settlePaymentMode === 'PAID_CASH'
+                      className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${settlePaymentMode === 'PAID_CASH'
                           ? 'border-emerald-500 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-400/20'
                           : 'border-slate-200 bg-white text-slate-600'
-                      }`}
+                        }`}
                     >
                       💵 Cash
                     </button>
                     <button
                       type="button"
                       onClick={() => setSettlePaymentMode('PAID_UPI_QR')}
-                      className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${
-                        settlePaymentMode === 'PAID_UPI_QR'
+                      className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${settlePaymentMode === 'PAID_UPI_QR'
                           ? 'border-blue-500 bg-blue-50 text-blue-800 ring-2 ring-blue-400/20'
                           : 'border-slate-200 bg-white text-slate-600'
-                      }`}
+                        }`}
                     >
                       📱 BharatQR UPI
                     </button>
